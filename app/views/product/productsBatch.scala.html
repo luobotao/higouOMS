@@ -1,0 +1,112 @@
+@(products : List[models.product.Product])
+@import play.Configuration
+@import utils.Constants.ProductStatus
+@views.html.main {
+<!-- css -->
+}{
+<!-- Content Header (Page header) -->
+
+<!-- Main content -->
+<section class="content">
+	<!-- Main row -->
+	<div class="col-xs-12">
+		<div class="box">
+		    <div class="box-header">
+		    </div>
+		    <div class="box-body table-responsive">
+			    <form action="">
+				    <div class="form-group" >
+		               <label for="pidForSearch">商品ID:</label>
+		               <input type="text" class="form-control" id="pidForSearch" name="pidForSearch" placeholder="商品ID">
+		             </div>
+	                  <div class="form-group" >
+	                    <label for="pNameForSearch">关键字:</label>
+	                    <input type="text" class="form-control" id="pNameForSearch" name="pNameForSearch" placeholder="商品名称">
+	                  </div>
+	                  <input type="hidden" id="isEndorsement" name="isEndorsement" value="@request().getQueryString("isEndorsement")">
+	                  <button id="searchProductButton" type="submit" class="btn btn-primary" >查询</button>
+	             </form>               
+		        <table id="productTable" class="table table-bordered table-hover">
+		            <thead>
+		                <tr>
+		                	<th>选择</th>
+		                    <th>PID</th>
+		                    <th>newSku</th>
+		                    <th>商品图片</th>
+		                    <th>商品名称</th>
+		                    <th>商品类型</th>
+		                    <th>商品状态</th>
+		                    <th>库存</th>
+		                    <th>操作</th>
+		                </tr>
+		            </thead>
+		            <tbody>
+		                @if(products!=null && products.size() > 0){
+		                @for(product <- products){
+		                    <tr class="h6" data-uid="@product.getPid()">
+		                    	<td>
+                                    <input type="checkbox" value="@product.getPid()" name="pid" id="pid@product.getPid()">
+                                </td>
+		                        <td>@product.getPid()</td>
+		                        <td>@product.getNewSku()</td>
+		                        <td><img style="width: 40px;height: 40px;"  alt="" src="@if(product.getListpic().indexOf(Configuration.root().getString("kjd.ImagePre","http://image.kjt.com.pre")) <= -1){@product.getListpic()@@40w}else{@product.getListpic()}">
+								</td>
+		                        <td>@product.getTitle()</td>
+		                        <td>@product.getTypeName()</td>
+		                        <td>@ProductStatus.status2Message(product.getStatus())</td>
+		                        <td>@product.getNstock()</td>
+		                        <td><button class="btn btn-info" onclick="window.parent.setProductValue('@product.getPid()');">选取</button></td>
+		                    </tr>
+		                    }
+		                }else{
+		                    <tr><td class="text-center" colspan="10">没有可用数据</td></tr>
+		                }
+		            </tbody>
+		            <tfoot>
+                     <tr>
+                         <th colspan="11">
+                             <input id="selectAll" name="selectAll" type="checkbox"> <label for="selectAll">全选</label> &nbsp;
+                             <button class="btn btn-primary btn-sm" onclick="setProductsBatchValue();" style="display:none;">确认添加</button>
+                         </th>
+                     </tr>
+                 </tfoot>
+		        </table>
+		        
+		        
+		        
+		    </div>
+		</div>
+	</div>
+	<!-- /.row (main row) -->
+
+</section>
+}{
+<script type="text/javascript">
+$("input[type='checkbox']").iCheck({
+	checkboxClass : 'icheckbox_square-blue'
+});
+
+$("#selectAll").on('ifUnchecked', function() {
+	$("input[type='checkbox']", "#productTable").iCheck("uncheck");
+}).on('ifChecked', function() {
+	$("input[type='checkbox']", "#productTable").iCheck("check");
+});
+function setProductsBatchValue(){
+	var iProducts = $('input[name="pid"]:checked'),
+    products = [];
+    if(iProducts.length) {
+    	$.each(iProducts, function(i, n){
+            if(!$(n).closest('tr').find('.status .label').hasClass('label-success')) {
+            	products.push($(n).val());
+            }
+        });
+    	window.parent.setProductsBatch(products);
+    }else{
+        alert('没有选中任何商品！');
+    }
+	//window.location.href="/product/products?pidForSearch="+pidForSearch+"&pNameForSearch="+pNameForSearch;
+}
+//-->
+</script>
+
+}

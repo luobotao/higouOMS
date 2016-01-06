@@ -1,0 +1,9 @@
+
+
+GET    /usersManage						@controllers.user.UserController.usersManage
+GET    /newOrUpdateUser					@controllers.user.UserController.newOrUpdateUser
+POST    /saveUser						@controllers.user.UserController.saveUser
+GET    /userListForJson					@controllers.user.UserController.userListForJson
+GET    /userListBatchForJson			@controllers.user.UserController.userListBatchForJson
+GET    /findUserByIdJson/:id			@controllers.user.UserController.findUserByIdJson(id:Long)
+POST    /userListWithUidsForJson		@controllers.user.UserController.userListWithUidsForJson

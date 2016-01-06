@@ -1,0 +1,458 @@
+@(totals: Long)(currpage: Int)(totalPage: Int)(subjects : Html)(subjectMouldVOList: List[vo.SubjectMouldVO])(form: forms.admin.SubjectQueryForm)
+@import utils.Dates
+@views.html.main{
+
+}{
+<!-- Content Header (Page header) -->
+<section class="content-header">
+	<h1>
+		专题内容管理
+	</h1>
+</section>
+
+<!-- Main content -->
+<section class="content">
+	
+	<div class="col-xs-12">
+         <div class="box box-warning">
+           <div class="box-body">
+             <form role="form" action="?" method="get">
+              <div class="row">
+              <!-- text input -->
+                <div class="col-xs-3">
+                  <label>专题名称</label>
+                  <br/>
+                  <select id="sid" name="sid" class="form-control">
+                  	@subjects
+                  </select>
+                  <input type="hidden" id="tempsid" name="tmpsid" value="@form.sid"/>
+                </div>
+                <div class="col-xs-3">
+                  <label>商品ID或NewSku</label>
+                  <input id="pidOrNewSku" name="pidOrNewSku" type="text" class="form-control" placeholder="请输入商品ID / NewSku" value="@form.pidOrNewSku"/>
+                </div>
+                 <div class="col-xs-3">
+                  	<label>排序起始</label>
+                  	<input id="startNsort" name="startNsort" type="text" class="form-control" placeholder="请输入排序起始值" value="@form.startNsort" onkeyup ="this.value=this.value.replace(/[^\d]/g,'')" onblur="this.value=this.value.replace(/[^\d]/g,'')"/>
+                </div>
+                 <div class="col-xs-3">
+                  	<label>排序终止</label>
+                  	<input id="endNsort" name="endNsort" type="text" class="form-control" placeholder="请输入排序终止值" value="@form.endNsort" onkeyup ="this.value=this.value.replace(/[^\d]/g,'')" onblur="this.value=this.value.replace(/[^\d]/g,'')"/>
+                </div>
+              </div>
+			  <div class="box-footer">
+               	<button class="btn btn-primary" type="submit">查询</button>
+               	<button class="btn btn-primary" type="button" onclick="newOrUpdateSubjectMould();">+新建卡片</button>
+               	<button class="btn btn-primary" type="button" onclick="getProducts('1');">+批量添加大图商品</button>
+               	<button class="btn btn-primary" type="button" onclick="getProducts('2');">+批量添加双图商品</button>
+             </div>
+           </form>
+         </div><!-- /.box-body -->
+       </div><!-- /.box -->
+     </div><!--col-xs-12 end 创建任务 -->
+	
+	
+	
+	<div class="col-xs-12">
+    <div class="box">
+        <div class="box-header">
+            <h3 class="box-title">专题内容列表</h3>
+        </div>
+        <div class="box-body table-responsive">
+             <!-- 选取商品modal start -->
+           <div class="modal fade text-center" id="openModal" tabindex="-1" role="dialog" aria-labelledby="openModalLabel" aria-hidden="true" >
+               <div class="modal_wrapper">
+                   <div class="modal-dialog" style="display: inline-block; width: 850px;">
+                       <div class="modal-content">
+                       	   <div class="modal-body"><iframe id="modalFrame" src="" width="100%" height="450"></iframe></div>
+                           <div class="modal-footer">
+                           		<button id="selectSubButton" type="button" class="btn btn-primary">确认</button>
+                           		<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                       		</div>
+                       </div>
+                       
+                   </div>
+               </div>
+           </div>
+           <!-- 选取商品modal end -->
+           
+           <div >
+            <table id="subjectContentTable" class="table table-bordered table-hover" >
+                <thead>
+                    <tr>
+                        <th id="smTh"></th>
+                        <th>ID</th>
+                        <th>模板</th>
+                        <th>内容</th>
+                        <th>排序值</th>
+                        <th>是否显示</th>
+                        <th>用户组</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                	@if(subjectMouldVOList!=null  && subjectMouldVOList.size() > 0){
+	                @for(subjectMouldVo <- subjectMouldVOList){
+	                    <tr class="h6" data-uid="@subjectMouldVo.smid">
+	                        <td name="smTd">
+	                            <input type="checkbox" value="@subjectMouldVo.smid" name="smid" >
+	                        </td>
+	                        <td>@subjectMouldVo.smid</td>
+	                        <td>@subjectMouldVo.mname</td>
+	                        <td name="smContent">@if(subjectMouldVo.subjectMouldProVOs!=null &&subjectMouldVo.subjectMouldProVOs.size()>0){
+	                        	@for(subjectMouldProVo <- subjectMouldVo.subjectMouldProVOs){
+	                        		<a href="@subjectMouldProVo.href"><img width="40" height="40" valign="middle" src="@subjectMouldProVo.img">@subjectMouldProVo.title</a><br>
+	                        	}
+	                        }</td>
+	                        <td>@subjectMouldVo.nsort</td>
+	                        <td>@if(subjectMouldVo.flag=="1"){显示}else{不显示}</td>
+	                        <td>@if(subjectMouldVo.manType=="0"||subjectMouldVo.manType=="-1"){全部}@if(subjectMouldVo.manType=="1"){新人}@if(subjectMouldVo.manType=="2"){旧人}</td>
+	                        <td>
+	                        	<button class="btn btn-info" type="button" onclick="updateSubjectContent(@subjectMouldVo.smid);">修改</button>
+	                        	<button class="btn btn-info" type="button" onclick="editSubjectMouldFlag(@subjectMouldVo.smid,@subjectMouldVo.flag)">@if(subjectMouldVo.flag=="1"){不显示}else{显示}</button>
+	                        	<button class="btn btn-danger" type="button" onclick="deleteSubjectContent(@subjectMouldVo.smid);" data-toggle="modal" data-target="#deleteSubjectContentModal">删除</button>
+	                        </td>
+	                    </tr>
+	                    }
+	                }else{
+	                    <tr><td class="text-center" colspan="8">没有可用数据</td></tr>
+	                }
+	            </tbody>
+	            
+	            <tfoot>
+	                <tr>
+	                    <th colspan="16" id="selectAllTh">
+	                        <input id="selectAll" name="selectAll" type="checkbox"> <label id="selectAllLabel">全选</label> &nbsp;
+	                        <a class="btn btn-primary btn-sm" href="#" title="批量修改排序" id="dealNsort"><i class="fa fa-bolt"></i> 批量修改排序</a>
+	                    </th>
+	                </tr>
+	            </tfoot>       
+	          </table>
+             </div>
+              <div>
+	            <div class="col-xs-6">
+	                <div class="dataTables_info" id="userTable_info">页码：@{
+	                   currpage + 1
+	                }/@totalPage  共计 @totals 条记录
+	                </div> 
+			   </div>
+			   <div class="col-xs-6">
+	                <div class="dataTables_paginate paging_bootstrap">
+	                    <ul class="pagination">
+	                    
+	                    @if(currpage < 1){
+	                 		<li class="prev disabled"><a href="javascript:">首页</a></li>
+		               	}else{
+		               		<li class="prev"><a href="@searchParam()page=0">首页</a></li>
+		               	}
+		               	@for(index <- 0 to (totalPage-1)){
+	                	@if(totalPage< 8){
+	                		<li class="@if(index == currpage){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+	                  	}else{
+	                       	@if(currpage<7) {
+								@if(index < 8){
+									<li class="@if(index == currpage){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+								}else{
+									@if(index == totalPage-1){
+										<li class=""><a href="javascript:">...</a></li>
+			                		}
+				               		@if(index == totalPage-1){
+				               			<li class="@if(index == currpage){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+			                		}
+								}
+							}else{	
+								@if(currpage < totalPage-4){
+								 	@if(index==0 || index > currpage-4 &&  index < currpage +5){
+								 		<li class="@if(index == currpage){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+									}else{
+										@if(index == 2){
+								 			<li class=""><a href="javascript:">...</a></li>
+										}
+										@if(index == totalPage-1){
+					                		<li class=""><a href="javascript:">...</a></li>
+				                		}
+					               		@if(index == totalPage){
+					                		<li class="@if(index == currpage){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+				                		}
+									}
+								}else{
+									@if(index==0 || index > totalPage-8){
+										<li class="@if(index == currpage){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+								   		}else{
+								   			@if(index==2){
+								   				<li class=""><a href="javascript:">...</a></li>
+								   			}
+								   		}
+								   	}
+				  				 }
+							}  
+	                      }
+	                    @if(currpage==totalPage){
+	                    	<li class="next disabled"><a href="javascript:">尾页</a></li>
+	                    }else{
+	                      	<li class="next"><a href="@searchParam()page=@{totalPage-1}">尾页</a></li>
+	                    }
+                    </ul>
+                </div>
+			   </div>
+			 </div>
+             <!-- 删除专题内容modal start -->
+             <div class="modal fade" id="deleteSubjectContentModal" tabindex="-1" role="dialog" aria-labelledby="deleteSubjectContentModalLabel" aria-hidden="true">
+                 <div class="modal_wrapper">
+                     <div class="modal-dialog">
+                         <div class="modal-content">
+                         <input type="hidden" id="subjectContentId" name="subjectContentId">
+                             <div class="modal-header">
+                                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">关闭</span></button>
+                                 <h4 class="modal-title" >确认信息</h4>
+                             </div>
+                             <div class="modal-body">确定删除此卡片？<br></div>
+                             <div class="modal-footer">
+                             	<input id="imageidDelete" name="imageidDelete" value="" type="hidden"/>
+                                 <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                 <button id="deleteSubjectContentButton" type="button" class="btn btn-primary">确认</button>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+             <!-- 删除商品图片modal end -->  
+              <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			  <div class="modal-dialog" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			        <h4 class="modal-title" id="myModalLabel">排序变更</h4>
+			      </div>
+			      <div class="modal-body">
+          			<form method="get" id="changeNsortForm" name="changeNsortForm" action="/subject/piliangChangeNsort">
+			          <div class="row">
+             			<div class="col-xs-3">
+			            	<label for="recipient-name" class="control-label" style="float: right;">请输入排序值:</label>
+			            </div>
+             			<div class="col-xs-9">
+			            	<input type="text" id="newnsort" name="newnsort" value=""  onkeyup ="this.value=this.value.replace(/[^\d]/g,'')" onblur="this.value=this.value.replace(/[^\d]/g,'')">
+			            	<input type="hidden" id="smids" name="smids" >
+			            	<br/>
+				        </div>
+				      </div>
+			        </form>
+			      </div>
+			      <div class="modal-footer">
+			        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			        <button type="button" class="btn btn-primary" id="submitBtn">提交</button>
+			      </div>
+			    </div>
+			  </div>
+			</div>        
+          </div>
+      </div>
+  </div>
+	<!-- /.row (main row) -->
+
+</section>
+<!-- /.content -->
+}{
+<!-- bootstrap multiselect -->
+<script src="@assets.CdnAssets.urlForAdminBootstrap("js/bootstrap-multiselect.js")" type="text/javascript"></script>
+<script src="@assets.CdnAssets.urlForAdminBootstrap("css/bootstrap-multiselect.css")" type="text/javascript"></script>
+<script type="text/javascript">
+var flag="-1";//大图或双图的标志 1大图	2双图
+$("input[type='checkbox']").iCheck({
+	checkboxClass : 'icheckbox_square-blue'
+});
+//全选
+$("#selectAll").on('ifUnchecked', function() {
+	$("input[type='checkbox']", "#subjectContentTable").iCheck("uncheck");
+}).on('ifChecked', function() {
+	$("input[type='checkbox']", "#subjectContentTable").iCheck("check");
+});
+var subjectId = $("#sid").val();
+//修改专题内容
+function updateSubjectContent(mouldId){
+	window.location.href='/subject/newOrUpdateSubjectMould?sid='+subjectId+"&smid="+mouldId;
+}
+ // 删除专题内容
+function deleteSubjectContent(mouldId){
+	$("#subjectContentId").val(mouldId);
+}
+// 修改专题卡片的显示与否
+function editSubjectMouldFlag(mouldId,flag){
+	console.log(flag);
+	var strFlag = "";
+	if(flag == "1"){
+		strFlag = "0";
+	}else if(flag == "0"){
+		strFlag = "1";
+	}
+	 window.location.href="/subject/updateSumouldFlag?subjectId="+subjectId+"&mouldId="+mouldId+"&flag="+strFlag;
+}
+    
+	
+/**
+ * Ajax删除专题内容
+ */
+var deleteSubjectContentFunction = function(){
+	var deleteSubjectContentId =$('#subjectContentId').val();
+    $.ajax({
+        url: '/subject/deletesubjectContentById/'+deleteSubjectContentId,
+        type: 'GET',
+        cache: false,
+        dataType: "json",
+        data: {subjectId:subjectId},
+        success: function(json){
+            if(json){
+                $("#deleteSubjectContentModal").modal('hide');
+                window.location.href="/subject/subjectContentManage";
+            	//getSubjectMouldBySid(subjectId);
+            }else{
+                alert('服务器繁忙，请稍后再试！');
+            }
+        },
+        error: function(){
+            alert('服务器繁忙，请稍后再试！');
+        }
+    })
+};
+
+/**
+ * 删除专题内容绑定事件
+ */
+$('#deleteSubjectContentButton').on('click', deleteSubjectContentFunction);
+//新建卡片
+function newOrUpdateSubjectMould(){
+	window.location.href='/subject/newOrUpdateSubjectMould?sid='+subjectId;
+}
+
+function getProducts(type){
+	flag = type;
+	var url="/subject/productsBatch";
+	$("#modalFrame").attr("src", url);  
+	$('#openModal').modal({ show: true, backdrop: 'static' }); 
+}
+//接收子frame里的参数 多个pid
+function setProductsBatch(products){
+	$.ajax({
+        url: '/subject/subjectMouldBatch',
+        type: 'POST',
+        cache: false,
+        dataType: "json",
+        data: {flag:flag,subjectId:subjectId,products:JSON.stringify(products)},
+        success: function(json){
+        	console.log(json);
+            if(json){
+               $('#openModal').modal('hide'); 
+               window.location.href="/subject/subjectContentManage";
+           		//getSubjectMouldBySid(subjectId);
+            }else{
+                alert('服务器繁忙，请稍后再试！');
+            }
+        },
+        error: function(){
+            alert('服务器繁忙，请稍后再试！');
+        }
+    })
+}
+//接收子frame里的参数 单个pid
+function setProductValue(product){
+    products = [];
+    products.push(product);
+	$.ajax({
+        url: '/subject/subjectMouldBatch',
+        type: 'POST',
+        cache: false,
+        dataType: "json",
+        data: {flag:flag,subjectId:subjectId,products:JSON.stringify(products)},
+        success: function(json){
+            if(json){
+               $('#openModal').modal('hide'); 
+               window.location.href="/subject/subjectContentManage";
+           		//getSubjectMouldBySid(subjectId);
+            }else{
+                alert('服务器繁忙，请稍后再试！');
+            }
+        },
+        error: function(){
+            alert('服务器繁忙，请稍后再试！');
+        }
+    })
+}
+$('#selectSubButton').on('click', selectSubFunction);//弹出选择iframe里的确认添加按键事件
+function selectSubFunction(){
+	var iProducts = $('#modalFrame').contents().find('input[name="pid"]:checked');
+    var products = [];
+    if(iProducts.length) {
+    	$.each(iProducts, function(i, n){
+            if(!$(n).closest('tr').find('.status .label').hasClass('label-success')) {
+            	products.push($(n).val());
+            }
+        });
+    	setProductsBatch(products);
+    }else{
+        alert('没有选中任何商品！');
+    }
+}
+//子页面重新修改父页面iframe高度
+function reSizeParentIframe() {
+    var realHeight = 0;
+    if (navigator.userAgent.indexOf("Firefox") > 0 || navigator.userAgent.indexOf("Mozilla") > 0 || navigator.userAgent.indexOf("Safari") > 0 || navigator.userAgent.indexOf("Chrome") > 0) { // Mozilla, Safari,Chrome, ...  
+        realHeight = window.document.documentElement.offsetHeight + 35; 
+    } else if (navigator.userAgent.indexOf("MSIE") > 0) { // IE  
+        var bodyScrollHeight = window.document.body.scrollHeight + 21; //取得body的scrollHeight  
+        var elementScrollHeight = window.document.documentElement.scrollHeight + 1; //取得documentElement的scrollHeight  
+        realHeight = Math.max(bodyScrollHeight, elementScrollHeight); //取当中比较大的一个  
+    } else {//其他浏览器  
+        realHeight = window.document.body.scrollHeight + window.document.body.clientHeight + 1;
+    }
+    if (realHeight < 400) {
+        realHeight = 400;
+    }
+    if ($("#mainFrame", window.parent.document).is("iframe")) {
+        $("#mainFrame", window.parent.document).height(realHeight);
+    }
+}
+
+$("#sid").multiselect({
+	 buttonWidth: '300px',
+	 dropRight: true,
+	 enableFiltering: true,
+	 maxHeight: 400
+});
+
+//排序处理
+$("#dealNsort").click(function(){
+	var sid = $('[name="sid"] option:selected').val();
+	if(sid=="-1"){
+		alert("请对同一专题下的内容进行操作");
+		return false;
+	}
+	//获取所有被选中的select
+	var smids = getCheckedSubjectModelId();
+	console.log("smids:"+smids);
+	if(smids==""){
+		alert("请选择相应的专题内容信息！");
+		return false;
+	}
+	$("#smids").val(smids);
+	$('#myModal').modal();
+})
+//获取选中的smid 集合
+function getCheckedSubjectModelId(){
+	var array = new Array();
+	$("input[name = 'smid']:checkbox").each(function () {
+		if(true==$(this).prop("checked")||"checked"==$(this).prop("checked")){
+			array.push($(this).val());
+		}
+	});
+	return array.join(",");
+}
+$("#submitBtn").click(function(){
+	var newnsort = $("#newnsort").val();
+	if(newnsort==""){
+		alert("请输入新的排序值");
+		return false;
+	}
+	$("#changeNsortForm").submit();
+})
+</script>
+}

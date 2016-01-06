@@ -1,0 +1,53 @@
+@(subjectList: List[models.subject.Subject])
+@views.html.main {
+<!-- css -->
+}{
+<!-- Content Header (Page header) -->
+
+<!-- Main content -->
+<section class="content">
+	<!-- Main row -->
+	<div class="col-xs-12">
+		<div class="box">
+		    <div class="box-header">
+		    </div>
+		    <div class="box-body table-responsive">
+		        <table id="taskTable" class="table table-bordered table-hover">
+		            <thead>
+		                <tr>
+		                    <th>ID</th>
+		                    <th>专题名称</th>
+		                    <th>操作</th>
+		                </tr>
+		            </thead>
+		            <tbody>
+		                @if(subjectList!=null && subjectList.size() > 0){
+		                @for(subject <- subjectList){
+		                    <tr class="h6" data-uid="@subject.getId()">
+		                        <td>@subject.getId()</td>
+		                        <td>@subject.getSname()</td>
+		                        <td><button class="btn btn-danger" onclick="window.parent.setSubjectValue('@subject.getId()');">选取</button></td>
+		                    </tr>
+		                    }
+		                }else{
+		                    <tr><td class="text-center" colspan="10">没有可用数据</td></tr>
+		                }
+		            </tbody>
+		            
+		        </table>
+		        
+		        
+		        
+		    </div>
+		</div>
+	</div>
+	<!-- /.row (main row) -->
+
+</section>
+}{
+<script type="text/javascript">
+
+//-->
+</script>
+
+}

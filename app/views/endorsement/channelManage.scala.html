@@ -1,0 +1,458 @@
+@(channelPage: org.springframework.data.domain.Page[models.product.PadChannel])(adminUser:models.admin.AdminUser)
+@import utils.Dates
+@import utils.Numbers
+@import utils.Constants.ChannelTypes
+@import utils.StringUtil
+@views.html.main{
+
+}{
+<!-- Content Header (Page header) -->
+<section class="content-header">
+	<h1>
+		商户频道管理
+	</h1>
+</section>
+
+<!-- Main content -->
+<section class="content" style="min-height: 800px;">
+	
+	<div class="col-xs-12">
+         <div class="box box-warning">
+           <div class="box-body">
+             <form role="form" action="?" >
+              <div class="row">
+              <!-- text input -->
+              @if(!"3".equals(adminUser.getAdminType())){
+                <div class="col-xs-2">
+                  <label for="userid">商户ID</label>
+                  <input id="userid" name="userid" type="text" class="form-control" value="@if(request().getQueryString("userid")==null){}else{@request().getQueryString("userid").replaceAll(" ","")}" />
+                </div>
+              
+              }
+                <div>
+                @if(!"3".equals(adminUser.getAdminType())){
+               	 	<button class="btn btn-primary" style="margin-top:25px;margin-left: 15px;" type="submit" >查询</button>
+                }
+           	 	@if((request().getQueryString("userid")!=null && Numbers.parseInt(request().getQueryString("userid").replaceAll(" ",""),-1)>=0)||"3".equals(adminUser.getAdminType())){
+            	 	<button class="btn btn-primary" type="button" style="margin-top:25px;margin-left: 10px;" data-toggle="modal" data-target="#newChannel" onclick="setChannelValue(-1);" >+ 新建</button>
+           	 	}
+           	 	@if((request().getQueryString("userid")!=null && request().getQueryString("userid").replaceAll(" ","")==StringUtil.getConfigUid())||"3".equals(adminUser.getAdminType())){
+           	 		<button class="btn btn-danger" type="button" id="syncBtn" style="margin-top:25px;margin-left: 10px;" data-toggle="modal"  onclick="setSyncValue(@adminUser.getId(),@request().getQueryString("userid").replaceAll(" ",""));" disabled="disabled">同步模板</button>
+           	 	}
+               </div>
+              </div>
+           </form>
+         </div><!-- /.box-body -->
+       </div><!-- /.box -->
+     </div><!--col-xs-12 end 创建任务 -->
+	
+	
+	
+			<div class="col-xs-12">
+                 <div class="box">
+                     <div class="box-header">
+                         <h3 class="box-title">频道列表</h3>
+                     </div>
+                     <div class="box-body table-responsive">
+                         <table id="channelTable" class="table table-bordered table-hover">
+                             <thead>
+                                 <tr>
+                                     <th>频道ID</th>
+                                     <th>频道名称</th>
+                                     <th>排序值</th>
+                                     <th>是否显示</th>
+                                     <th>商户ID</th>
+                                     <th>商户名称</th>
+                                     <th>创建时间</th>
+                                     <th>操作</th>
+                                 </tr>
+                             </thead>
+                             <tbody>
+                                 @if(channelPage!=null && channelPage.getContent() != null && channelPage.getContent().size() > 0){
+                                 @for(channel <- channelPage.getContent()){
+                                     <tr class="h6" data-uid="@channel.getId()">
+                                         <td>@channel.getId()</td>
+                                         <td>@channel.getCname()</td>
+                                         <td>@channel.getNsort()</td>
+                                         <td>@{
+                                         	var sta = channel.getSta();
+                                         	if(sta=="1"){
+                                         		"显示";
+                                         	}else{
+                                         		"隐藏";
+                                         	}
+                                         }
+                                         <input type="hidden" name="staInput" value="@channel.getSta()" />
+                                         </td>
+                                         <td>@channel.getUserid()</td>
+                                         <td>
+                                         @if(channel.getUser()!=null){
+                                         	@channel.getUser().getNickname()
+                                         }
+                                         </td>
+                                         <td>@Dates.formatDateTime(channel.getDate_add())</td>
+                                         <td>
+	                                         <button class="btn btn-info" onclick="setChannelValue('@channel.getId()');" >修改</button>
+	                                          @{
+	                                         	var sta = channel.getSta();
+	                                         	var id=channel.getId();
+	                                         	if(sta=="1"){
+	                                         		Html.apply("<button class=\"btn btn-info\" onclick=\"changeChannelSta(\'"+id+"\',0);\" >隐藏</button>");
+	                                         	}else{
+	                                         		Html.apply("<button class=\"btn btn-info\" onclick=\"changeChannelSta(\'"+id+"\',1);\" >显示</button>");
+	                                         	}
+	                                         }
+	                                         <button class="btn btn-info" onclick="javascript:window.location.href='/endorsement/getChannelProByCid/@channel.getUserid()/@channel.getId()'" >内容管理</button>
+	                                         <button class="btn btn-danger" data-toggle="modal" data-target="#deleteChannel" onclick="setDeleteChannelValue('@channel.getId()');">删除</button>
+                                         </td>
+                                 </tr>
+                              }
+                          }else{
+                              <tr><td class="text-center" colspan="10">没有可用数据</td></tr>
+                          }
+                      </tbody>
+                      
+                      <tfoot>
+                          <tr>
+                              <th colspan="11">
+                                  <div class="modal fade" id="closeAllTask" tabindex="-1" role="dialog" aria-labelledby="closeAllTask" aria-hidden="true">
+                                      <div class="modal_wrapper">
+                                          <div class="modal-dialog">
+                                              <div class="modal-content">
+                                                  <div class="modal-header">
+                                                      <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                                      <h4 class="modal-title" id="closeAllTaskLabel">确认信息</h4>
+                                                  </div>
+                                                  <div class="modal-body">
+                                                      <b>确认结束所选任务？</b><br>
+                                                      	该操作会把所选未结束的任务设置为结束状态。
+                                                  </div>
+                                                  <div class="modal-footer">
+                                                      <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                                      <button id="closeCheckedTaskButton" type="button" class="btn btn-primary">确认</button>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="modal fade" id="deleteChannel" tabindex="-1" role="dialog" aria-labelledby="deleteChannelLabel" aria-hidden="true">
+                                      <div class="modal_wrapper">
+                                          <div class="modal-dialog">
+                                              <div class="modal-content">
+                                                  <div class="modal-header">
+                                                      <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                                      <h4 class="modal-title" id="closeTaskMessage">确认信息</h4>
+                                                  </div>
+                                                  <input type="hidden" id="deleteChannelId" name="deleteChannelId">
+                                                  <div class="modal-body">确定删除该商户此频道？<br></div>
+                                                  <div class="modal-footer">
+                                                      <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                                      <button id="deleteChannelButton" type="button" class="btn btn-primary">确认</button>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <!-- 新建商户频道 start -->
+                                  <div class="modal fade" id="newChannel" tabindex="-1" role="dialog" aria-labelledby="newChannelLabel" aria-hidden="true">
+                                      <div class="modal_wrapper">
+                                          <div class="modal-dialog">
+                                              <div class="modal-content">
+                                                  <div class="modal-header">
+                                                      <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                                      <h4 class="modal-title" id="closeTaskMessage">商户频道</h4>
+                                                  </div>
+                                                  <div class="modal-body">
+                                                  	<div>
+                                                  	   <div class="col-xs-3">
+									                     <label for="cname">频道名称:</label>
+								                    	 <input type="text" class="form-control" id="cname" name="cname" >
+									                   </div>
+									                   <div class="col-xs-3">
+									                     <label for="nsort">排序值:</label>
+								                    	 <input type="text" class="form-control" id="nsort" name="nsort" >
+									                   </div>
+                                                  	</div>
+                                                  	<input id="useridForSave" name="useridForSave" type="hidden" value="@request().getQueryString("userid")" />
+                                                  	<input id="cid" name="cid" type="hidden" />
+                                                  </div>
+                                                  <div class="modal-footer">
+                                                      <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                                      <button id="newChannelButton" type="button" class="btn btn-primary">确认</button>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <!-- 新建商户频道 end -->
+                              </th>
+                          </tr>
+                      </tfoot>
+                  </table>
+                  
+                  
+                  @if(channelPage.getTotalPages()>0) {
+                  <div>
+                      <div class="col-xs-6">
+                          <div class="dataTables_info" id="userTable_info">页码：@{
+                              channelPage.getNumber() + 1
+                          }/@channelPage.getTotalPages() 共计@channelPage.getTotalElements()条记录</div>
+                      </div>
+                      <div class="col-xs-6">
+                          <div class="dataTables_paginate paging_bootstrap">
+                              <ul class="pagination">
+                                  
+                 @if(channelPage.getNumber()<1){
+             					<li class="prev disabled"><a href="javascript:">首页</a></li>
+            	}else{
+            		<li class="prev"><a href="@searchParam()page=0">首页</a></li>
+            	}
+            	
+          @for(index<- 0 to (channelPage.getTotalPages()-1)){
+          	@if(channelPage.getTotalPages()< 8){
+          		<li class="@if(index == channelPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+            	}else{
+                 	@if(channelPage.getNumber()<7) {
+	@if(index < 8){
+		<li class="@if(index == channelPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+	}else{
+		@if(index == channelPage.getTotalPages()-1){
+			<li class=""><a href="javascript:">...</a></li>
+            		}
+            		@if(index == channelPage.getTotalPages()-1){
+            			<li class="@if(index == channelPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+            		}
+	}
+}else{	
+	@if(channelPage.getNumber() < channelPage.getTotalPages()-4){
+	 	@if(index==0 || index > channelPage.getNumber()-4 &&  index < channelPage.getNumber() +5){
+	 		<li class="@if(index == channelPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+		}else{
+			@if(index == 2){
+	 			<li class=""><a href="javascript:">...</a></li>
+			}
+			@if(index == channelPage.getTotalPages()-1){
+              		<li class=""><a href="javascript:">...</a></li>
+             		}
+             		@if(index == channelPage.getTotalPages()){
+              		<li class="@if(index == channelPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+             		}
+		}
+	}else{
+		@if(index==0 || index > channelPage.getTotalPages()-8){
+			<li class="@if(index == channelPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+	   		}else{
+	   			@if(index==2){
+	   				<li class=""><a href="javascript:">...</a></li>
+	   			}
+	   		}
+	   	}
+			 }
+}  
+                }
+                @if(channelPage.getNumber()==channelPage.getTotalPages()){
+                	<li class="next disabled"><a href="javascript:">尾页</a></li>
+                }else{
+                	<li class="next"><a href="@searchParam()page=@{channelPage.getTotalPages()-1}">尾页</a></li>
+                }
+                
+                              </ul>
+                          </div>
+                      </div>
+                  </div>
+                  }
+                  
+                  
+              </div>
+          </div>
+      </div>
+	<!-- /.row (main row) -->
+
+</section>
+<!-- /.content -->
+}{
+<script type="text/javascript">
+
+	$("#typ").change(function(){
+		var typ = $("#typ").val();
+		if(typ=="2"){
+			$("#categorysDiv").show();
+		}else{
+			$("#categorysDiv").hide();
+		}
+	}); 
+	//设置频道form的值
+	function setChannelValue(channelId){
+		if(channelId==-1){
+			 $('#cid').val('');
+             $('#cname').val('');
+             $('#nsort').val('');
+             return false;
+		}else{
+			$.ajax({
+	            url: '/endorsement/getChannelById/' + channelId,
+	            type: 'GET',
+	            cache: false,
+	            dataType: "json",
+	            data: {},
+	            success: function(json){
+	                if(json){
+	                    $('#cid').val(channelId);
+	                    $('#cname').val(json.cname);
+	                    $('#nsort').val(json.nsort);
+	                    $('#newChannel').modal({ show: true, backdrop: 'static' }); 
+	                }else{
+	                    alert('服务器繁忙，请稍后再试！');
+	                }
+	            },
+	            error: function(){
+	                alert('服务器繁忙，请稍后再试！');
+	            }
+	        });
+		}
+	}
+    /**
+     * 修改频道状态
+     */
+	function changeChannelSta(id,sta){
+    	if(sta=="1"){
+	    	var count = 0;
+    		$("[name='staInput']").each(function(){
+    			if($(this).val()=="1"){
+    				count += 1;
+    			}
+    		})
+    		if(count>=1){
+				alert("仅允许一个频道作为首页显示，如若需要更改，请先隐藏显示的频道！");
+				return false;
+        	}
+    	}
+		$.ajax({
+            url: '/endorsement/changeChannelSta',
+            type: 'GET',
+            cache: false,
+            dataType: "json",
+            data: {channelId : id , channelsta : sta },
+            success: function(json){
+                if(json){
+                    location.reload();
+                }else{
+                    alert('服务器繁忙，请稍后再试！');
+                }
+            },
+            error: function(){
+                alert('服务器繁忙，请稍后再试！');
+            }
+        })
+    }
+    /**
+     * 删除频道
+     */
+	function setDeleteChannelValue(id){
+    	$('#deleteChannelId').val(id);
+    }
+    
+	
+	/**
+     * Ajax删除频道
+     */
+    var deleteChanneFunction = function(){
+		var deleteChannelId =$('#deleteChannelId').val();
+        $.ajax({
+            url: '/endorsement/deletechannelById/'+deleteChannelId,
+            type: 'GET',
+            cache: false,
+            dataType: "json",
+            data: {},
+            success: function(json){
+                if(json){
+                    location.reload()
+                }else{
+                    alert('服务器繁忙，请稍后再试！');
+                }
+            },
+            error: function(){
+                alert('服务器繁忙，请稍后再试！');
+            }
+        })
+    };
+	
+	/**
+     * 删除频道绑定事件
+     */
+    $('#deleteChannelButton').on('click', deleteChanneFunction);
+	
+  	//新建商户频道绑定事件
+    $('#newChannelButton').on('click', function(){
+		var useridForSave =$('#useridForSave').val();
+		var cname =$('#cname').val();
+		var nsort =$('#nsort').val();
+		var cid =$('#cid').val();
+        $.ajax({
+            url: '/endorsement/newChannel',
+            type: 'GET',
+            cache: false,
+            dataType: "json",
+            data: {cname : cname , nsort : nsort ,cid : cid ,userid : useridForSave},
+            success: function(json){
+                if(json){
+                    location.reload()
+                }else{
+                    alert('服务器繁忙，请稍后再试！');
+                }
+            },
+            error: function(){
+            	alertify.error('服务器繁忙，请稍后再试！');
+            }
+        })
+    });
+  	
+  	//设置频道form的值
+	function setSyncValue(adminId, userId){
+		var flagStr = confirm("请再次确认同步此模板信息");
+		
+		if(flagStr == true){
+			console.log("succeful , sync template 1");
+	        var sh = setInterval(refresh, 3000);
+			$.ajax({
+	            url: '/endorsement/syncTemplate',
+	            type: 'GET',
+	            cache: false,
+	            dataType: "json",
+	            data: {"adminId" : adminId , "userId" : userId},
+	            success: function(json){
+	            	clearInterval(sh);
+	            	alertify.success(json);
+	            },
+	            error: function(){
+	            	alertify.error('服务器繁忙，请稍后再试！');
+	            }
+	        })
+		}else{
+			alertify.warning("用户取消同步模板操作");
+			return false;
+		}	
+	}
+	var refresh = function() {
+		$.ajax({
+			type:'get',
+			url:'/endorsement/refreshSyncInfo?time=' + new Date().getMilliseconds(),
+            dataType: "json",
+            success: function(json){
+            	if(json!=""){
+	            	alertify.message(json);
+            	}
+            	console.log(json);
+            	if(json.indexOf("ok")>-1){
+            		clearInterval(sh);
+            	}
+            },
+            error: function(){
+                console.log('服务器繁忙，请稍后再试！');
+            }
+		});
+	}
+  	
+//-->
+</script>
+}

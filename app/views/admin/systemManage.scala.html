@@ -1,0 +1,156 @@
+@(sys_MenuList: List[models.admin.Sys_Menu])
+@import utils.Dates
+@views.html.main{ 
+<link href="@assets.CdnAssets.urlForAdminPublic("stylesheets/jquery.treetable.theme.default.css")" rel="stylesheet" type="text/css" />
+<link href="@assets.CdnAssets.urlForAdminPublic("stylesheets/jquery.treetable.css")" rel="stylesheet" type="text/css" />
+}{
+<!-- Content Header (Page header) -->
+<section class="content-header">
+	<h1>菜单管理</h1>
+</section>
+
+<!-- Main content -->
+<section class="content" style="min-height: 800px;">
+	<div class="col-xs-12">
+		<div class="box box-warning">
+			<div class="box-body">
+				<form role="form" action="/admin/saveSysMenu" method="post">
+					<input id="cid" name="cid" type="hidden" />
+					<div class="row">
+						<!-- text input -->
+						<div class="col-xs-2">
+							<label for="menuName">菜单名称</label> 
+							<input id="menuName" name="menuName" type="text" class="form-control" />
+						</div>
+						<div class="col-xs-2">
+							<label for="menuOrder">排序值</label> 
+							<input id="menuOrder" name="menuOrder" type="text" class="form-control" />
+						</div>
+						<div class="col-xs-2">
+							<label for="isLeaf">子菜单</label> 
+							<select id="isLeaf" class="form-control" name="isLeaf">
+								<option value="0">否</option>
+								<option value="1" selected="selected">是</option>
+							</select>
+						</div>
+						<div class="col-xs-2">
+							<label for="isButton">按钮</label> 
+							<select id="isButton" class="form-control" name="isLeaf">
+								<option value="0" selected="selected">否</option>
+								<option value="1">是</option>
+							</select>
+						</div>
+						<div class="col-xs-2">
+							<label for="parentMenuId">父菜单ID</label> <input id="parentMenuId"
+								name="parentMenuId" type="text" class="form-control" />
+						</div>
+					</div>
+					<div class="col-xs-2">
+						<label for="menuUrl">链接</label> <input id="menuUrl" name="menuUrl"
+							type="text" class="form-control" />
+					</div>
+					<div>
+						<button class="btn btn-primary"
+							style="margin-top: 25px; margin-left: 15px;" type="submit">保存</button>
+					</div>
+				</form>
+			</div>
+			<!-- /.box-body -->
+		</div>
+		<!-- /.box -->
+	</div>
+	<!--col-xs-12 end 创建任务 -->
+
+
+	<div class="col-xs-12">
+		<div class="box">
+			<div class="box-header">
+				<h3 class="box-title">菜单列表</h3>
+			</div>
+			<div class="box-body table-responsive">
+
+				<table id="example-basic-expandable" class="treetable">
+					<thead>
+						<tr>
+							<th>菜单ID</th>
+							<th>菜单名称</th>
+							<th>链接</th>
+							<th>子菜单</th>
+							<th>按钮</th>
+							<th>排序</th>
+							<th>父菜单ID</th>
+							<th>创建时间</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody>
+						@for(sysMenu <- sys_MenuList){
+						<tr data-tt-id="@sysMenu.getId()" class="@if(sysMenu.getIsLeaf()==1){leaf}else{branch} collapsed"
+							@if(sysMenu.getIsLeaf()==1){data-tt-parent-id="@sysMenu.getParentMenuId()"  style="display: none;"}>
+							<td>@if(sysMenu.getIsLeaf()==0){<a href="#" title="Expand">&nbsp;</a>}@sysMenu.getId()
+							</td>
+							<td>@sysMenu.getMenuName()</td>
+							<td>@sysMenu.getMenuUrl()</td>
+							<td>@if(sysMenu.getIsLeaf()==0){否}else{是}</td>
+							<td>@if(sysMenu.getIsButton()==0){否}else{是}</td>
+							<td>@sysMenu.getMenuOrder()</td>
+							<td>@sysMenu.getParentMenuId()</td>
+							<td>@if(sysMenu.getDateAdd()!=null){@Dates.formatDate(sysMenu.getDateAdd())}</td>
+							<td>
+							@if(sysMenu.getIsLeaf()==0){
+							
+							}else{
+								<button class="btn btn-info" data-toggle="modal" data-target="#newSpecification" onclick="" >删除</button>
+							}
+							</td>
+							
+						</tr>
+						}
+						<!-- <tr data-tt-id="0" class="branch collapsed">
+							<td><a href="#" title="Expand">&nbsp;</a>app</td>
+						</tr>
+						<tr data-tt-parent-id="0" data-tt-id="10" class="branch collapsed"
+							style="display: none;">
+							<td><a href="#" title="Expand">&nbsp;</a>controllers</td>
+						</tr>
+						<tr data-tt-parent-id="10" data-tt-id="5" class="leaf"
+							style="display: none;">
+							<td>application_controller.rb</td>
+						</tr>
+						<tr data-tt-parent-id="0" data-tt-id="2" class="leaf collapsed"
+							style="display: none;">
+							<td>helpers</td>
+						</tr>
+						<tr data-tt-parent-id="0" data-tt-id="3" class="leaf collapsed"
+							style="display: none;">
+							<td>models</td>
+						</tr>
+						<tr data-tt-parent-id="0" data-tt-id="4" class="leaf collapsed"
+							style="display: none;">
+							<td>views</td>
+						</tr> -->
+					</tbody>
+				</table>
+
+
+			</div>
+		</div>
+	</div>
+	<!-- /.row (main row) -->
+
+</section>
+<!-- /.content -->
+}{
+<script src="@assets.CdnAssets.urlForAdminPublic("javascripts/jquery.treetable.js")" type="text/javascript"></script>
+<script type="text/javascript">
+	$("#example-basic-expandable").treetable({
+		expandable : true
+	});
+
+	//Highlight selected row
+	$("#example-basic-expandable tbody").on("mousedown", "tr", function() {
+		$(".selected").not(this).removeClass("selected");
+		$(this).toggleClass("selected");
+	});
+</script>
+}

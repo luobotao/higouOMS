@@ -1,0 +1,10 @@
+GET    /orderManage						@controllers.order.OrderController.orderManage
+GET    /orderManageCompany				@controllers.order.OrderController.orderManageCompany
+GET    /dealOrder						@controllers.order.OrderController.dealOrder
+GET    /saveOrder						@controllers.order.OrderController.saveOrder
+GET    /viewOrder						@controllers.order.OrderController.viewOrder
+GET    /updateOrder						@controllers.order.OrderController.updateOrder
+GET    /refundOrder						@controllers.order.OrderController.refundOrder
+GET    /updateOrderWithPaystat			@controllers.order.OrderController.updateOrderWithPaystat
+
+

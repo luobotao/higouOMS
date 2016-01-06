@@ -1,0 +1,307 @@
+@(endorsementPage : org.springframework.data.domain.Page[models.endorsement.Endorsement])
+@import utils.Dates
+@import utils.Constants.EndorsementStatus
+@import utils.Constants.PTyps
+@import utils.Constants.ProductStatus
+@views.html.main {
+<!-- css -->
+}{
+<!-- Content Header (Page header) -->
+<section class="content-header">
+	<h1>
+		商户商品操作
+	</h1>
+	
+</section>
+
+<!-- Main content -->
+<section class="content">
+	<div class="col-xs-12">
+         <div class="box box-warning">
+           <div class="box-header">
+           </div><!-- /.box-header -->
+           <div class="box-body">
+             <form action="?" method="get" id="searchproductForm" name="searchproductForm">
+              <div class="row">
+              <!-- text input -->
+                <div class="col-xs-2">
+                  <label>商品ID</label>
+                  <input id="pid" name="pid" type="text" class="form-control" value="@request().getQueryString("pid")"/>
+                </div>
+                <div class="col-xs-3">
+                  <label>商品名称</label>
+                  <input id="productName" name="productName" type="text" class="form-control" value="@request().getQueryString("productName")"/>
+                </div>
+                <div class="col-xs-2" style="display:none;">
+                  <label>商户ID</label>
+                  <input id="userId" name="userId" type="text" class="form-control" value="@request().getQueryString("userId")"/>
+                </div>
+                <div class="col-xs-3" style="display:none;">
+                  <label>商户名称</label>
+                  <input id="userName" name="userName" type="text" class="form-control" value="@request().getQueryString("userName")"/>
+                </div>
+                
+              </div>
+             
+			  <div >
+               	<button class="btn btn-primary" style="margin-top:10px;margin-left: -2px;" type="submit">查询</button>
+               	<button class="btn btn-primary" style="display:none;" type="button" onclick="window.location.href='/endorsement/newendorsement/2'">+ 新建商户商品</button>
+             </div>
+           </form>
+         </div><!-- /.box-body -->
+       </div><!-- /.box -->
+     </div><!--col-xs-12 end  -->
+	<!-- Main row -->
+	<div class="col-xs-12">
+		<div class="box">
+		    <div class="box-header">
+		    </div>
+		    <div class="box-body table-responsive">
+		        <table id="taskTable" class="table table-bordered table-hover">
+		            <thead>
+		                <tr>
+		                    <th width="20px">ID</th>
+		                    <th width="80px" style="display:none;">代言内容</th>
+		                    <th width="80px" style="display:none;">图片</th>
+		                    <th width="80px">商品ID</th>
+		                    <th width="80px">商品图片</th>
+		                    <th width="80px">商品名称</th>
+		                    <th width="80px">商户ID</th>
+		                    <th width="80px">昵称</th>
+		                    <th width="80px">代言价</th>
+		                    <th width="80px">佣金</th>
+		                    <th width="80px" style="display:none;">二维码</th>
+		                    <th style="display:none;">状态</th>
+		                    <th>操作</th>
+		                </tr>
+		            </thead>
+		            <tbody>
+		                @if(endorsementPage!=null && endorsementPage.getContent() != null && endorsementPage.getContent().size() > 0){
+		                @for(endorsement <- endorsementPage.getContent()){
+		                    <tr class="h6" data-uid="@endorsement.getEid()">
+		                        <td width="20px">@endorsement.getEid()</td>
+		                        <td width="80px" style="display:none;">@endorsement.getRemark()</td>
+		                        <td width="80px" style="display:none;"><a href="@endorsement.getPreImgPath()" target="blank"><img alt='' src='@endorsement.getPreImgPath()@@40w'></a></td>
+		                        <td width="80px">@endorsement.getProductId()</td>
+		                        <td width="80px"><img alt='' src='@endorsement.getProducinfo().getListpic()@@40w'></td>
+		                        <td width="80px"><a href="@if(endorsement.getProducinfo().getExturl()==null||endorsement.getProducinfo().getExturl()==""){http://ht.neolix.cn/www/details.php?pid=@endorsement.getProducinfo().getSkucode()}else{@endorsement.getProducinfo().getExturl()}" target="blank">@endorsement.getProducinfo().getTitle()</a></td>
+		                        <td width="80px">@endorsement.getUserId()</td>
+		                        <td width="80px">@if(endorsement.getUser!=null){@endorsement.getUser.getNickname()}else{}</td>
+		                        <td width="80px">@endorsement.getEndorsementPrice()</td>
+		                        <td width="80px">
+		                        	@if(endorsement.getCommisionTyp==1){
+										¥ @endorsement.getCommision()	
+									}else{
+										@endorsement.getCommision() %
+									}
+								</td>
+		                        <td width="80px" style="display:none;">
+		                        	@if(endorsement.getDimensionalimg()!=null){
+		                        		<a href="@endorsement.getDimensionalimg()" target="blank"><img alt='' src='@endorsement.getDimensionalimg()@@40w'></a>
+		                        	}
+		                        </td>
+		                        <td width="80px" style="display:none;">@EndorsementStatus.typs2Message(endorsement.getStatus())</td>
+		                        <td><button class="btn btn-info" onclick="window.parent.setEndorseValue('@endorsement.getEid()','@endorsement.getProductId()');">选取</button></td>
+		                        <td width="120px" style="display:none;">
+		                        <a class="btn btn-info" href="/endorsement/newendorsement/1?eid=@endorsement.getEid()" >修改</a>
+		                         @if(endorsement.getStatus()==0 ){
+			                        <button style="display:none;" class="btn btn-info" data-toggle="modal" data-target="#editStatus" onclick="editStatus('@endorsement.getEid()');">审核</button>
+		                        }
+			                        <button class="btn btn-danger"  data-toggle="modal" data-target="#deleteEndorseMent" onclick="deleteEndorseMent('@endorsement.getEid()',3);">删除</button>
+		                        </td>
+		                    </tr>
+		                    }
+		                }else{
+		                    <tr><td class="text-center" colspan="10">数据信息有误</td></tr>
+		                }
+		            </tbody>
+		            
+		            <tfoot>
+		            	<!-- 新建代言modal start -->
+                        <div class="modal fade" id="newEndorsement" tabindex="-1" role="dialog" aria-labelledby="newEndorsementLabel" aria-hidden="true">
+                            <div class="modal_wrapper">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">关闭</span></button>
+                                            <h4 class="modal-title" >选择代言类型</h4>
+                                        </div>
+                                        <div class="modal-body" id="modalMessage">
+                                        	<div class="radio">
+											    <label for="commonType"><input type="radio" name="typesRadios" id="commonType" value="1" checked="checked" />用户代言</label>
+											    <label for="companyType"><input type="radio" name="typesRadios" id="companyType" value="2"  />商铺代言</label>
+											    <p class="help-block" id="typesRadiosP" style="display:none;">请选择代言类型</p>
+											</div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                            <button id="getConfirmButton" type="button" class="btn btn-primary">确认</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 新建代言modal end -->
+                        <!-- 修改代言状态modal start -->
+                        <div class="modal fade" id="editStatus" tabindex="-1" role="dialog" aria-labelledby="editStatusLabel" aria-hidden="true">
+                            <div class="modal_wrapper">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">关闭</span></button>
+                                            <h4 class="modal-title" >审核</h4>
+                                        </div>
+                                        <div class="modal-body" id="modalMessage">
+                                        	<div class="radio">
+											    <label for="CheckTrue"><input type="radio" name="statusRadios" id="CheckTrue" value="1" checked="checked" />通过</label>
+											    <label for="CheckFalse"><input type="radio" name="statusRadios" id="CheckFalse" value="2"  />不通过</label>
+											</div>
+                                        </div>
+                                        <div class="modal-footer">
+                                        	<input id="eid" name="eid" value="" type="hidden"/>
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                            <button id="editConfirmButton" type="button" class="btn btn-primary">确认</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 修改代言状态modal end -->
+                        <!-- 删除代言modal start -->
+                        <div class="modal fade" id="deleteEndorseMent" tabindex="-1" role="dialog" aria-labelledby="deleteEndorseMentLabel" aria-hidden="true">
+                            <div class="modal_wrapper">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">关闭</span></button>
+                                            <h4 class="modal-title" >删除代言</h4>
+                                        </div>
+                                        <div class="modal-body" id="modalMessage">
+                                        	确认删除此代言？此操作不可恢复！
+                                        </div>
+                                        <div class="modal-footer">
+                                        	<input id="eidForDelete" name="eidForDelete" value="" type="hidden"/>
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                            <button id="deleteConfirmButton" type="button" class="btn btn-primary">确认</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 删除代言modal end -->
+		            </tfoot>
+		        </table>
+		        
+		        
+		        @if(endorsementPage.getTotalPages()>0) {
+		        <div>
+		            <div class="col-xs-6">
+		                <div class="dataTables_info" id="userTable_info">页码：@{
+		                    endorsementPage.getNumber() + 1
+		                }/@endorsementPage.getTotalPages() 共计@endorsementPage.getTotalElements()条记录</div>
+		            </div>
+		            <div >
+		                <div class="dataTables_paginate paging_bootstrap">
+		                    <ul class="pagination">
+		                    
+		                     @if(endorsementPage.getNumber()<1){
+                   					<li class="prev disabled"><a href="javascript:">首页</a></li>
+			               	}else{
+			               		<li class="prev"><a href="@searchParam()page=0">首页</a></li>
+			               	}
+			               	
+                @for(index<- 0 to (endorsementPage.getTotalPages()-1)){
+                	@if(endorsementPage.getTotalPages()< 8){
+                		<li class="@if(index == endorsementPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+                  	}else{
+                       	@if(endorsementPage.getNumber()<7) {
+							@if(index < 8){
+								<li class="@if(index == endorsementPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+							}else{
+								@if(index == endorsementPage.getTotalPages()-1){
+									<li class=""><a href="javascript:">...</a></li>
+		                		}
+			               		@if(index == endorsementPage.getTotalPages()-1){
+			               			<li class="@if(index == endorsementPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+		                		}
+							}
+						}else{	
+							@if(endorsementPage.getNumber() < endorsementPage.getTotalPages()-4){
+							 	@if(index==0 || index > endorsementPage.getNumber()-4 &&  index < endorsementPage.getNumber() +5){
+							 		<li class="@if(index == endorsementPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+								}else{
+									@if(index == 2){
+							 			<li class=""><a href="javascript:">...</a></li>
+									}
+									@if(index == endorsementPage.getTotalPages()-1){
+				                		<li class=""><a href="javascript:">...</a></li>
+			                		}
+				               		@if(index == endorsementPage.getTotalPages()){
+				                		<li class="@if(index == endorsementPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+			                		}
+								}
+							}else{
+								@if(index==0 || index > endorsementPage.getTotalPages()-8){
+									<li class="@if(index == endorsementPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+							   		}else{
+							   			@if(index==2){
+							   				<li class=""><a href="javascript:">...</a></li>
+							   			}
+							   		}
+							   	}
+			  				 }
+						}  
+                      }
+                      @if(endorsementPage.getNumber()==endorsementPage.getTotalPages()){
+                      	<li class="next disabled"><a href="javascript:">尾页</a></li>
+                      }else{
+                      	<li class="next"><a href="@searchParam()page=@{endorsementPage.getTotalPages()-1}">尾页</a></li>
+                      }
+		                    
+		                    
+		                    
+		                       
+		                    </ul>
+		                </div>
+		            </div>
+		        </div>
+		        }
+		        
+		        
+		    </div>
+		</div>
+	</div>
+	<!-- /.row (main row) -->
+
+</section>
+}{
+<script type="text/javascript">
+<!--
+$('#getConfirmButton').on('click', function(){
+	
+	var typesRadios = $('input[name="typesRadios"]:checked').val();
+	if(typeof(typesRadios)=='undefined'){
+		$("#typesRadiosP").attr("style","color:red");
+		return false;
+	}else{
+		$("#typesRadiosP").attr("style","display:none");
+		window.location.href="/endorsement/newendorsement/"+typesRadios;
+	}
+});
+function editStatus(eid){
+	$("#eid").val(eid);
+}
+$('#editConfirmButton').on('click', function(){
+	var statusRadios = $('input[name="statusRadios"]:checked').val();
+	window.location.href="/endorsement/updateEndorsementState?eid="+$("#eid").val()+"&status="+statusRadios;
+});
+function deleteEndorseMent(eid,status){
+	$("#eidForDelete").val(eid);
+}
+$('#deleteConfirmButton').on('click', function(){
+	window.location.href="/endorsement/updateEndorsementState?eid="+$("#eidForDelete").val()+"&status=3";
+});
+//-->
+</script>
+
+}

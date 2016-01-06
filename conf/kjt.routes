@@ -1,0 +1,14 @@
+#kjt
+GET    	/doJobWithProductIdGetQuery				@controllers.kjt.KJTApiController.doJobWithProductIdGetQuery
+GET    	/productInfoBatchGet					@controllers.kjt.KJTApiController.productInfoBatchGet
+GET    	/doJobWithProductPriceChangeIDQuery		@controllers.kjt.KJTApiController.doJobWithProductPriceChangeIDQuery
+GET    	/productPriceBatchGet					@controllers.kjt.KJTApiController.productPriceBatchGet
+GET    	/channelQ4SBatchGet						@controllers.kjt.KJTApiController.channelQ4SBatchGet
+POST   	/channelQ4SAdjustRequest				@controllers.kjt.KJTApiController.channelQ4SAdjustRequest
+GET    	/doJobWithSoCreate						@controllers.kjt.KJTApiController.doJobWithSoCreate
+POST   	/soOutputCustoms						@controllers.kjt.KJTApiController.soOutputCustoms
+GET    	/doJobWithSoTrace						@controllers.kjt.KJTApiController.doJobWithSoTrace
+GET    	/soVoid									@controllers.kjt.KJTApiController.soVoid
+GET    	/doJobWithFepBillPost					@controllers.kjt.KJTApiController.doJobWithFepBillPost
+GET    	/doJobWithSoCreateErr					@controllers.kjt.KJTApiController.doJobWithSoCreateErr
+

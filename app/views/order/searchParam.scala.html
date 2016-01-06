@@ -1,0 +1,177 @@
+@()@searchParam() = @{
+    var href = "?"
+    var typ = request().getQueryString("typ")
+    var preSell = request().getQueryString("preSell")
+    var orderProFlg = request().getQueryString("orderProFlg")
+    var payMethod = request().getQueryString("payMethod")
+    var paystat = request().getQueryString("paystat")
+    var ordertype = request().getQueryString("ordertype")
+    var fromsite = request().getQueryString("fromsite")
+    var between = request().getQueryString("between")
+    var orderCode = request().getQueryString("orderCode")
+    var keyword = request().getQueryString("keyword")
+    
+    var soId = request().getQueryString("soId")
+    var sopIds = request().getQueryString("sopIds")
+    var name = request().getQueryString("name")
+    var phone = request().getQueryString("phone")
+    var province = request().getQueryString("province")
+    var address = request().getQueryString("address")
+    var foreignOrder = request().getQueryString("foreignOrder")
+    var account = request().getQueryString("account")
+    var credicard = request().getQueryString("credicard")
+    var currency = request().getQueryString("currency")
+    var totalFee = request().getQueryString("totalFee")
+    var traffic = request().getQueryString("traffic")
+    var traffic_mark = request().getQueryString("traffic_mark")
+    var adminid = request().getQueryString("adminid")
+    
+    if(typ != "" && typ != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "typ=" + typ
+    }
+    if(preSell != "" && preSell != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "preSell=" + preSell
+    }
+    if(orderProFlg != "" && orderProFlg != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "orderProFlg=" + orderProFlg
+    }
+    if(payMethod != "" && payMethod != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "payMethod=" + payMethod
+    }
+    if(paystat != "" && paystat != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "paystat=" + paystat
+    }
+    if(ordertype != "" && ordertype != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "ordertype=" + ordertype
+    }
+    if(fromsite != "" && fromsite != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "fromsite=" + fromsite
+    }
+    if(between != "" && between != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "between=" + between
+    }
+    if(orderCode != "" && orderCode != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "orderCode=" + orderCode
+    }
+    if(keyword != "" && keyword != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "keyword=" + keyword
+    }
+    if(soId != "" && soId != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "soId=" + soId
+    }
+    if(sopIds != "" && sopIds != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "sopIds=" + sopIds
+    }
+    if(name != "" && name != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "name=" + name
+    }
+    if(phone != "" && phone != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "phone=" + phone
+    }
+    if(province != "" && province != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "province=" + province
+    }
+    if(address != "" && name != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "address=" + address
+    }
+    if(foreignOrder != "" && foreignOrder != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "foreignOrder=" + foreignOrder
+    }
+    if(account != "" && account != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "account=" + account
+    }
+    if(credicard != "" && credicard != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "credicard=" + credicard
+    }
+    if(currency != "" && currency != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "currency=" + currency
+    }
+    if(totalFee != "" && totalFee != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "totalFee=" + totalFee
+    }
+    if(traffic != "" && traffic != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "traffic=" + traffic
+    }
+    if(traffic_mark != "" && traffic_mark != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "traffic_mark=" + traffic_mark
+    }
+    if(adminid != "" && adminid != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "adminid=" + adminid
+    }
+    if(href != "?"){
+        href += "&"
+    }
+    href
+}@searchParam()

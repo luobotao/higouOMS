@@ -1,0 +1,12 @@
+
+#运营数据统计
+GET    /operation/addStock           	   @controllers.statistics.OperationController.addStock
+POST   /operation/addStockHandle           @controllers.statistics.OperationController.addStockHandle
+GET    /operation/vistManage           	   @controllers.statistics.OperationController.vistManage
+GET    /operation/productsSellManage       @controllers.statistics.OperationController.productsSellManage
+GET    /operation/orderStatics       	   @controllers.statistics.OperationController.orderStatics
+GET    /operation/scanCodeStatics          @controllers.statistics.OperationController.scanCodeStatics
+GET    /operation/hotWordManage            @controllers.statistics.OperationController.hotWordManage
+GET    /operation/notSendOrderManage       @controllers.statistics.OperationController.notSendOrderManage
+GET    /operation/notSendOrderExportFile   @controllers.statistics.OperationController.notSendOrderExportFile
+GET    /operation/shopO2OStatics   		   @controllers.statistics.OperationController.shopO2OStatics

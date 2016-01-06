@@ -1,0 +1,306 @@
+@(parcelsPage: org.springframework.data.domain.Page[models.Parcels])(parcelStatus: Html)
+@import utils.Dates
+@views.html.main {
+
+}{
+<!-- Content Header (Page header) -->
+<section class="content-header">
+	<h1>
+		换量管理 <small>包裹管理</small>
+	</h1>
+	<ol class="breadcrumb">
+		<li><a href="/admin"><i class="fa fa-dashboard"></i>首页</a></li>
+		<li class="active">包裹管理</li>
+	</ol>
+</section>
+
+<!-- Main content -->
+<section class="content">
+	<div class="col-xs-12">
+         <div class="box box-warning">
+           <div class="box-header">
+             <h3 class="box-title">搜索包裹</h3>
+           </div><!-- /.box-header -->
+           <div class="box-body">
+             <form action="?" method="get" id="searchparcelsForm" name="searchparcelsForm">
+              <div class="row">
+              <!-- text input -->
+                <div class="col-xs-2">
+                  <label>任务ID</label>
+                  <input id="taskId" name="taskId" type="text" class="form-control" placeholder="请输入任务ID" value="@if(request().getQueryString("taskId")=="-2"||request().getQueryString("taskId")=="-1"||request().getQueryString("taskId")=="0"){}else{@request().getQueryString("taskId")}"/>
+                </div>
+                <div class="col-xs-2">
+                  <label>状态</label>
+                  <select id="parcelStatus" name="parcelStatus" class="form-control">
+                  	@parcelStatus
+                  </select>
+                  
+                </div>
+                <div class="col-xs-2">
+                  <label>生成时间</label>
+                  <input id="between" name="between" type="text" class="form-control" placeholder="请选择下单时间" readonly value="@request().getQueryString("between")"/>
+                </div>
+                
+                <div class="col-xs-2">
+                  <label>编号</label>
+                  <input id="parcelCode" name="parcelCode" type="text" class="form-control" placeholder="请输入包裹号/订单号" value="@request().getQueryString("parcelCode")"/>
+                </div>
+              </div>
+			  <div class="box-footer">
+               	<button class="btn btn-primary" type="submit">检索</button>
+             </div>
+           </form>
+         </div><!-- /.box-body -->
+       </div><!-- /.box -->
+     </div><!--col-xs-12 end 创建任务 -->
+	<!-- Main row -->
+	<div class="col-xs-12">
+		<div class="box">
+		    <div class="box-header">
+		        <h3 class="box-title">任务列表</h3>
+		    </div>
+		    <div class="box-body table-responsive">
+		        <table id="taskTable" class="table table-bordered table-hover">
+		            <thead>
+		                <tr>
+		                    <th>选择</th>
+		                    <th>包裹号</th>
+		                    <th>订单号</th>
+		                    <th>商品ID</th>
+		                    <th>商品图片</th>
+		                    <th>数量</th>
+		                    <th>状态</th>
+		                    <th>收货人</th>
+		                    <th>收货人电话</th>
+		                    <th>生成时间</th>
+		                    <th>操作</th>
+		                </tr>
+		            </thead>
+		            <tbody>
+		                @if(parcelsPage!=null && parcelsPage.getContent() != null && parcelsPage.getContent().size() > 0){
+		                @for(parcels <- parcelsPage.getContent()){
+		                    <tr class="h6" data-uid="@parcels.getId()">
+		                        <td>
+		                            <input type="checkbox" value="@parcels.getId()" name="uid">
+		                        </td>
+		                        <td>@parcels.getParcelCode()</td>
+		                        <td>@parcels.getOrderCode()</td>
+		                        <td colspan="3">
+		                        	<table class="table table-bordered table-hover">
+			                        	@for(product <- parcels.getProductList()){
+			                        		<tr>
+			                        			<td>@product.getPid()</td>
+			                        			<td><img width="40" height="40" valign="middle" alt="@product.getTitle()" src="@product.getListpic()"></td>
+			                        			<td>@product.getCounts()</td>
+			                        		</tr>
+			                        	}
+		                        	
+		                        	</table>
+		                        </td>
+		                        <td>
+		                        @{
+			                      	var status=parcels.getStatus();
+			                      	status match{
+			                      		case -99 => "已删除"
+			                      		case 0 => "待处理"
+			                      		case 1 => "已下单"
+			                      		case 2 => "国际物流已发货"
+			                      		case 3 => "海关清关中"
+			                      		case 4 => "国内物流已发货"
+			                      		case 5 => "已送达"
+			                      		case 11 => "已发货(自营)"
+			                      		case 12 => "已完成(自营)"
+			                      		case _ => "未知" 
+			                      	}
+			                      }
+		                        
+		                        </td>
+		                        <td>@parcels.getName()</td>
+		                        <td>@parcels.getPhone()</td>
+	                        	<td>@Dates.formatDateTime(parcels.getDate_add())</td>
+								<td>
+								
+								@{
+			                      	var status=parcels.getStatus();
+			                      	status match{
+			                      		case -99 => "已删除"
+			                      		case 0 => Html.apply("<a class='btn btn-default btn-sm' href='/admin/alipay/@parcels.getId()' title='打印'>打印</a><a class='btn btn-default btn-sm' href='/admin/alipay/@parcels.getId()' title='立即发货'>立即发货</a>")
+			                      		case 1 => Html.apply("<a class='btn btn-default btn-sm' href='/admin/alipay/@parcels.getId()' title='打印'>打印</a><a class='btn btn-default btn-sm' href='/admin/alipay/@parcels.getId()' title='立即发货'>立即发货</a>")
+			                      		case 2 => Html.apply("<a class='btn btn-default btn-sm' href='/admin/alipay/@parcels.getId()' title='查看物流'>查看物流</a>")
+			                      		case 3 => Html.apply("<a class='btn btn-default btn-sm' href='/admin/alipay/@parcels.getId()' title='查看物流'>查看物流</a>")
+			                      		case 4 => Html.apply("<a class='btn btn-default btn-sm' href='/admin/alipay/@parcels.getId()' title='查看物流'>查看物流</a>")
+			                      		case 5 => Html.apply("<a class='btn btn-default btn-sm' href='/admin/alipay/@parcels.getId()' title='查看物流'>查看物流</a>")
+			                      		case 11 => Html.apply("<a class='btn btn-default btn-sm' href='/admin/alipay/@parcels.getId()' title='查看物流'>查看物流</a>")
+			                      		case 12 => Html.apply("<a class='btn btn-default btn-sm' href='/admin/alipay/@parcels.getId()' title='查看物流'>查看物流</a>")
+			                      		case _ => status+"未知" 
+			                      	}
+			                      }
+		                        	
+                                </td>
+		                        
+		                    </tr>
+		                    }
+		                }else{
+		                    <tr><td class="text-center" colspan="10">没有可用数据</td></tr>
+		                }
+		            </tbody>
+		            
+		            <tfoot>
+		                <tr>
+		                    <th colspan="11">
+		                        <input id="selectAll" name="selectAll" type="checkbox"> <label>全选</label> &nbsp;
+		                        <a class="btn btn-primary btn-sm" href="#" data-toggle="modal" data-target="#closeAllTask"><i class="fa fa-bolt"></i> 结束</a>
+		                        
+		                        <div class="modal fade" id="closeAllTask" tabindex="-1" role="dialog" aria-labelledby="closeAllTask" aria-hidden="true">
+		                            <div class="modal_wrapper">
+		                                <div class="modal-dialog">
+		                                    <div class="modal-content">
+		                                        <div class="modal-header">
+		                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+		                                            <h4 class="modal-title" id="closeAllTaskLabel">确认信息</h4>
+		                                        </div>
+		                                        <div class="modal-body">
+		                                            <b>确认结束所选任务？</b><br>
+		                                            	该操作会把所有未结束的任务设置为结束状态。
+		                                        </div>
+		                                        <div class="modal-footer">
+		                                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+		                                            <button id="closeAllTaskButton" type="button" class="btn btn-primary">确认</button>
+		                                        </div>
+		                                    </div>
+		                                </div>
+		                            </div>
+		                        </div>
+		                        <div class="modal fade" id="closeTask" tabindex="-1" role="dialog" aria-labelledby="closeTaskLabel" aria-hidden="true">
+		                            <div class="modal_wrapper">
+		                                <div class="modal-dialog">
+		                                    <div class="modal-content">
+		                                        <div class="modal-header">
+		                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+		                                            <h4 class="modal-title" id="closeTaskMessage">确认信息</h4>
+		                                        </div>
+		                                        <div class="modal-body">确定结束？<br></div>
+		                                        <div class="modal-footer">
+		                                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+		                                            <button id="closeTaskButton" type="button" class="btn btn-primary">确认</button>
+		                                        </div>
+		                                    </div>
+		                                </div>
+		                            </div>
+		                        </div>
+		                    </th>
+		                </tr>
+		            </tfoot>
+		        </table>
+		        
+		        
+		        @if(parcelsPage.getTotalPages()>0) {
+		        <div>
+		            <div class="col-xs-6">
+		                <div class="dataTables_info" id="userTable_info">页码：@{
+		                    parcelsPage.getNumber() + 1
+		                }/@parcelsPage.getTotalPages() 共计@parcelsPage.getTotalElements()条记录</div>
+		            </div>
+		            <div class="col-xs-6">
+		                <div class="dataTables_paginate paging_bootstrap">
+		                    <ul class="pagination">
+		                    
+		                     @if(parcelsPage.getNumber()<1){
+                   					<li class="prev disabled"><a href="javascript:">首页</a></li>
+			               	}else{
+			               		<li class="prev"><a href="@searchParam()page=0">首页</a></li>
+			               	}
+			               	
+                @for(index<- 0 to (parcelsPage.getTotalPages()-1)){
+                	@if(parcelsPage.getTotalPages()< 8){
+                		<li class="@if(index == parcelsPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+                  	}else{
+                       	@if(parcelsPage.getNumber()<7) {
+							@if(index < 8){
+								<li class="@if(index == parcelsPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+							}else{
+								@if(index == parcelsPage.getTotalPages()-1){
+									<li class=""><a href="javascript:">...</a></li>
+		                		}
+			               		@if(index == parcelsPage.getTotalPages()-1){
+			               			<li class="@if(index == parcelsPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+		                		}
+							}
+						}else{	
+							@if(parcelsPage.getNumber() < parcelsPage.getTotalPages()-4){
+							 	@if(index==0 || index > parcelsPage.getNumber()-4 &&  index < parcelsPage.getNumber() +5){
+							 		<li class="@if(index == parcelsPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+								}else{
+									@if(index == 2){
+							 			<li class=""><a href="javascript:">...</a></li>
+									}
+									@if(index == parcelsPage.getTotalPages()-1){
+				                		<li class=""><a href="javascript:">...</a></li>
+			                		}
+				               		@if(index == parcelsPage.getTotalPages()){
+				                		<li class="@if(index == parcelsPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+			                		}
+								}
+							}else{
+								@if(index==0 || index > parcelsPage.getTotalPages()-8){
+									<li class="@if(index == parcelsPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+							   		}else{
+							   			@if(index==2){
+							   				<li class=""><a href="javascript:">...</a></li>
+							   			}
+							   		}
+							   	}
+			  				 }
+						}  
+                      }
+                      @if(parcelsPage.getNumber()==parcelsPage.getTotalPages()){
+                      	<li class="next disabled"><a href="javascript:">尾页</a></li>
+                      }else{
+                      	<li class="next"><a href="@searchParam()page=@{parcelsPage.getTotalPages()-1}">尾页</a></li>
+                      }
+		                    
+		                    
+		                    
+		                       
+		                    </ul>
+		                </div>
+		            </div>
+		        </div>
+		        }
+		        
+		        
+		    </div>
+		</div>
+	</div>
+	<!-- /.row (main row) -->
+
+</section>
+<!-- /.content -->
+}{
+<script type="text/javascript">
+	$("input[type='checkbox']").iCheck({
+		checkboxClass : 'icheckbox_square-blue'
+	});
+
+	$("#selectAll").on('ifUnchecked', function() {
+		$("input[type='checkbox']", "#taskTable").iCheck("uncheck");
+	}).on('ifChecked', function() {
+		$("input[type='checkbox']", "#taskTable").iCheck("check");
+	});
+	
+	$("#between").daterangepicker({
+        locale: {
+            applyLabel: '确定',
+            cancelLabel: '取消',
+            fromLabel: '开始',
+            toLabel: '结束',
+            weekLabel: 'W',
+            customRangeLabel: 'Custom Range',
+            showDropdowns: true
+        },
+        format: 'YYYY/MM/DD'
+    });
+	
+//-->
+</script>
+}

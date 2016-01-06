@@ -1,0 +1,699 @@
+@(userId : Long)(gid : Long)(cid : Long)(padChannelProPage : org.springframework.data.domain.Page[models.product.PadChannelPro],padChannelBannerList:List[models.product.PadChannelPro])
+@import utils.Dates
+@import utils.Constants.EndorsementStatus
+@import utils.Constants.PTyps
+@import utils.Constants.TypsProduct
+@import utils.Constants.ProductStatus
+@views.html.main {
+<!-- css -->
+}{
+<!-- Content Header (Page header) -->
+<section class="content-header">
+	<h1>
+		商户商品操作
+	</h1>
+	
+</section>
+
+<!-- Main content -->
+<section class="content"  style="min-height: 520px;">
+	<div class="col-xs-12">
+         <div class="box box-warning">
+           <div class="box-header">
+           </div><!-- /.box-header -->
+           <div class="box-body">
+             <form action="?" method="get" id="searchproductForm" name="searchproductForm">
+              <div class="row">
+              <!-- text input -->
+                <div class="col-xs-2">
+                  <label>商品ID/newSku</label>
+                  <input id="pidOrNewSku" name="pidOrNewSku" type="text" class="form-control" value="@request().getQueryString("pidOrNewSku")"/>
+                </div>
+                <div class="col-xs-3">
+                  <label>商品名称</label>
+                  <input id="productName" name="productName" type="text" class="form-control" value="@request().getQueryString("productName")"/>
+                </div>
+                
+              </div>
+             
+			  <div >
+               	<button class="btn btn-primary" style="margin-top:10px;margin-left: 15px;" type="submit">查询</button>
+               	<button class="btn btn-primary" style="margin-top:10px;margin-left: 10px;" type="button" onclick="getContent(1)">+ 选取商品</button>
+               	<button class="btn btn-primary" type="button" style="margin-top:10px;margin-left: 10px;" data-toggle="modal" data-target="#newBanner" >+ 新增Banner</button>
+             </div>
+           </form>
+         </div><!-- /.box-body -->
+       </div><!-- /.box -->
+     </div><!--col-xs-12 end  -->
+	<!-- Main row -->
+	<div class="col-xs-12">
+		<div class="box">
+		    <div class="box-header"><h3 class="box-title">Banner列表</h3></div>
+		    <div class="box-body table-responsive">
+		        <table id="taskTable" class="table table-bordered table-hover">
+		            <thead>
+		                <tr>
+		                    <th>ID</th>
+		                    <th>Banner图片</th>
+		                    <th>链接</th>
+		                    <th>排序</th>
+		                    <th>状态</th>
+		                    <th>操作</th>
+		                </tr>
+		            </thead>
+		            <tbody>
+		            @if(padChannelBannerList!=null && padChannelBannerList.size() > 0){
+		                @for( padChannelPro <- padChannelBannerList){
+		                	<tr class="h6" data-uid="@padChannelPro.getId()">
+		                        <td width="20px">@padChannelPro.getId()</td>
+		                        <td width="100px"><img alt='' src='@padChannelPro.getImgurl()@@40w'></td>
+		                        <td>@padChannelPro.getLinkurl()</td>
+		                        <td>@padChannelPro.getNsort()</td>
+		                        <td>
+		                        @{
+		                        	var flag = padChannelPro.getTyp();
+		                        	 if(flag=="1"){
+					            		"显示"
+					            	}else {
+					            		"隐藏"
+					            	}
+		                        	
+		                        }
+		                       </td>
+		                        <td width="150px">
+		                         @if(padChannelPro.getTyp()=="1" ){
+			                        <button class="btn btn-info" onclick="editStatus('@padChannelPro.getId()','0');">隐藏</button>
+		                        }else{
+			                        <button class="btn btn-info" onclick="editStatus('@padChannelPro.getId()','1');">显示</button>
+		                        }
+			                        <button class="btn btn-danger"  data-toggle="modal" data-target="#deletepadChannelPro" onclick="deletepadChannelPro('@padChannelPro.getId()');">删除</button>
+		                        </td>
+		                    </tr>
+		                	}
+		                }else{
+		                    <tr><td class="text-center" colspan="10">没有可用数据</td></tr>
+		                }
+		            </tbody>
+		            
+		            <tfoot>
+		            	
+		            </tfoot>
+		        </table>
+		    </div>
+		</div>
+	</div>
+	<!-- /.row (main row) -->
+<!-- Main row -->
+	<div class="col-xs-12">
+		<div class="box">
+		    <div class="box-header"><h3 class="box-title">商品列表</h3></div>
+		    <div class="box-body table-responsive">
+		        <table id="taskTable" class="table table-bordered table-hover">
+		            <thead>
+		                <tr>
+		                    <th>ID</th>
+		                    <th>PID</th>
+		                    <th>newSku</th>
+		                    <th>商品名称</th>
+		                    <th>商品图片</th>
+		                    <th>类型</th>
+		                    <th>市场价</th>
+		                    <th>嗨购售价</th>
+		                    <th>代言价</th>
+		                    <th>佣金</th>
+		                    <th>库存</th>
+		                    <th>状态</th>
+		                    <th>排序</th>
+		                    @if(gid==4){
+		                    	<th>二维码</th>
+		                    }
+		                    <th>操作</th>
+		                </tr>
+		            </thead>
+		            <tbody>
+		            @if(padChannelProPage!=null && padChannelProPage.getContent() != null && padChannelProPage.getContent().size() > 0 ){
+		                @for(padChannelPro <- padChannelProPage.getContent()){
+		                	@if(padChannelPro.getEndorsement()!=null){
+		                	<tr class="h6" data-uid="@padChannelPro.getEndorsement().getEid()">
+		                        <td width="20px">@padChannelPro.getEndorsement().getEid()</td>
+		                        <td width="80px">@padChannelPro.getEndorsement().getProductId()</td>
+		                        <td width="80px">@padChannelPro.getEndorsement().getProducinfo().getNewSku()</td>
+		                        <td width="80px"><a href="@if(padChannelPro.getEndorsement().getProducinfo().getExturl()==null||padChannelPro.getEndorsement().getProducinfo().getExturl()==""){http://ht.neolix.cn/www/details.php?pid=@padChannelPro.getEndorsement().getProducinfo().getSkucode()}else{@padChannelPro.getEndorsement().getProducinfo().getExturl()}" target="blank">@padChannelPro.getEndorsement().getProducinfo().getTitle()</a></td>
+		                        <td width="80px"><img alt='' src='@padChannelPro.getEndorsement().getProducinfo().getListpic()@@40w'></td>
+		                        <td width="80px">
+		                        @if(padChannelPro.getEndorsement().getProducinfo().getTyp()!=null){
+		                        	@TypsProduct.typs2Message(padChannelPro.getEndorsement().getProducinfo().getTyp().toInt)
+		                        }else{
+		                        
+		                        }
+		                        </td>
+		                        <td>@padChannelPro.getEndorsement().getProducinfo().getChaListPrice()</td>
+		                        <td>@padChannelPro.getEndorsement().getProducinfo().getHiPrice()</td>
+								<td width="80px">@padChannelPro.getEndorsement().getEndorsementPrice()</td>
+		                        <td width="80px">
+		                        @if(padChannelPro.getEndorsement().getCommisionTyp()!=null){
+		                        	@if(padChannelPro.getEndorsement().getCommisionTyp()==2){
+										@padChannelPro.getEndorsement().getCommision() %
+									}else{
+										¥ @padChannelPro.getEndorsement().getCommision()	
+									}
+								}
+								</td>
+		                        <td>@padChannelPro.getEndorsement().getProducinfo().getNstock()</td>
+		                        <td>
+		                        @{
+		                        	var flag = padChannelPro.getTyp();
+		                        	 if(flag=="1"){
+					            		"显示"
+					            	}else {
+					            		"隐藏"
+					            	}
+		                        	
+		                        }
+		                       </td>
+		                        <td id="nsort_@padChannelPro.getId()">@padChannelPro.getNsort()</td>
+		                        @if(gid == 4){
+			                        <td width="80px">
+			                        	@if(padChannelPro.getEndorsement().getDimensionalimg()!=null){
+			                        		<a href="@padChannelPro.getEndorsement().getDimensionalimg()" target="blank"><img alt='' src='@padChannelPro.getEndorsement().getDimensionalimg()@@40w'></a>
+			                        	}
+			                        </td>
+			                    }
+		                        <td width="80px" style="display:none;">@padChannelPro.getEndorsement()Status.typs2Message(padChannelPro.getEndorsement().getStatus())</td>
+		                        <td width="200px">
+		                        	<button class="btn btn-info" data-toggle="modal" data-target="#editEndorsement" onclick="editEndorsement('@padChannelPro.getEndorsement().getEid()','@padChannelPro.getId()');">修改</button>
+		                         @if(padChannelPro.getTyp()=="1" ){
+			                        <button class="btn btn-info" onclick="editStatus('@padChannelPro.getId()','0');">隐藏</button>
+		                        }else{
+			                        <button class="btn btn-info" onclick="editStatus('@padChannelPro.getId()','1');">显示</button>
+		                        }
+			                        <button class="btn btn-danger"  data-toggle="modal" data-target="#deletepadChannelPro" onclick="deletepadChannelPro('@padChannelPro.getId()');">删除</button>
+		                        </td>
+		                    </tr>
+		                    }else{
+		                    	  <tr><td class="text-center" colspan="10">没有可用数据</td></tr>
+		                    }
+		                	}
+		                }else{
+		                    <tr><td class="text-center" colspan="10">没有可用数据</td></tr>
+		                }
+		            </tbody>
+		            
+		            <tfoot>
+		            	<!-- 新建代言modal start -->
+                        <div class="modal fade" id="editEndorsement" tabindex="-1" role="dialog" aria-labelledby="newEndorsementLabel" aria-hidden="true">
+                            <div class="modal_wrapper">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">关闭</span></button>
+                                            <h4 class="modal-title" >编辑代言</h4>
+                                        </div>
+                                        <div class="modal-body" id="modalMessage">
+                                        <form id="saveEndorsementForm" action="/endorsement/saveEndorsement" enctype="multipart/form-data" method="post">
+                                        <input type="hidden" id="eIdForUpdate" name="eIdForUpdate" >
+                                        <input type="hidden" id="channelProIdForUpdate" name="channelProIdForUpdate" >
+                                        	<div class="row">
+							                   <div class="col-xs-3">
+							                     <label for="nsortForUpdate">排序:</label>
+							                     <input type="text" class="form-control" id="nsortForUpdate" name="nsortForUpdate" maxlength="30" onkeyup ="this.value=this.value.replace(/[^\d\.]/g,'')" onblur="this.value=this.value.replace(/[^\d\.]/g,'')">
+							                   </div>
+							                   <div class="col-xs-3">
+							                     <label for="endorsementPrice">代言价:</label>
+							                     <input type="text" class="form-control" id="endorsementPrice" name="endorsementPrice" maxlength="30" onkeyup ="this.value=this.value.replace(/[^\d\.]/g,'')" onblur="this.value=this.value.replace(/[^\d\.]/g,'')">
+							                   </div>
+							                 </div>
+							                 <div class="row">
+							                   <div class="col-xs-3">
+							                     <label for="commisionTyp">佣金类型:</label>
+							                     <div class="radio">
+												    <label for="moneyType"><input type="radio" name="commisionTyp" id="moneyType" value="1"  />金额</label>
+												    <label for="percentType"><input type="radio" name="commisionTyp" id="percentType" value="2"  />百分比</label>
+												</div>
+							                   </div>
+							                   <div class="col-xs-3">
+							                     <label for="commision">佣金:</label>
+							                     <input type="text" class="form-control" id="commision" name="commision" maxlength="30"  onkeyup ="this.value=this.value.replace(/[^\d\.]/g,'')" onblur="this.value=this.value.replace(/[^\d\.]/g,'')">
+							                   </div>
+							              </div>
+							            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                            <button id="getConfirmButton" type="button" class="btn btn-primary">确认</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 新建代言modal end -->
+                        <!-- 删除代言modal start -->
+                        <div class="modal fade" id="deletepadChannelPro" tabindex="-1" role="dialog" aria-labelledby="deletepadChannelProLabel" aria-hidden="true">
+                            <div class="modal_wrapper">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">关闭</span></button>
+                                            <h4 class="modal-title" >删除商户频道商品</h4>
+                                        </div>
+                                        <div class="modal-body" id="modalMessage">
+                                        	确认删除此频道商品？此操作不可恢复！
+                                        </div>
+                                        <div class="modal-footer">
+                                        	<input id="idForDelete" name="idForDelete" value="" type="hidden"/>
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                            <button id="deleteConfirmButton" type="button" class="btn btn-primary">确认</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 删除代言modal end -->
+		            </tfoot>
+		        </table>
+		        
+		        
+		        @if(padChannelProPage.getTotalPages()>0) {
+		        <div>
+		            <div class="col-xs-6">
+		                <div class="dataTables_info" id="userTable_info">页码：@{
+		                    padChannelProPage.getNumber() + 1
+		                }/@padChannelProPage.getTotalPages() 共计@padChannelProPage.getTotalElements()条记录</div>
+		            </div>
+		            <div >
+		                <div class="dataTables_paginate paging_bootstrap">
+		                    <ul class="pagination">
+		                    
+		                     @if(padChannelProPage.getNumber()<1){
+                   					<li class="prev disabled"><a href="javascript:">首页</a></li>
+			               	}else{
+			               		<li class="prev"><a href="@searchParam()page=0">首页</a></li>
+			               	}
+			               	
+                @for(index<- 0 to (padChannelProPage.getTotalPages()-1)){
+                	@if(padChannelProPage.getTotalPages()< 8){
+                		<li class="@if(index == padChannelProPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+                  	}else{
+                       	@if(padChannelProPage.getNumber()<7) {
+							@if(index < 8){
+								<li class="@if(index == padChannelProPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+							}else{
+								@if(index == padChannelProPage.getTotalPages()-1){
+									<li class=""><a href="javascript:">...</a></li>
+		                		}
+			               		@if(index == padChannelProPage.getTotalPages()-1){
+			               			<li class="@if(index == padChannelProPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+		                		}
+							}
+						}else{	
+							@if(padChannelProPage.getNumber() < padChannelProPage.getTotalPages()-4){
+							 	@if(index==0 || index > padChannelProPage.getNumber()-4 &&  index < padChannelProPage.getNumber() +5){
+							 		<li class="@if(index == padChannelProPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+								}else{
+									@if(index == 2){
+							 			<li class=""><a href="javascript:">...</a></li>
+									}
+									@if(index == padChannelProPage.getTotalPages()-1){
+				                		<li class=""><a href="javascript:">...</a></li>
+			                		}
+				               		@if(index == padChannelProPage.getTotalPages()){
+				                		<li class="@if(index == padChannelProPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+			                		}
+								}
+							}else{
+								@if(index==0 || index > padChannelProPage.getTotalPages()-8){
+									<li class="@if(index == padChannelProPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+							   		}else{
+							   			@if(index==2){
+							   				<li class=""><a href="javascript:">...</a></li>
+							   			}
+							   		}
+							   	}
+			  				 }
+						}  
+                      }
+                      @if(padChannelProPage.getNumber()==padChannelProPage.getTotalPages()){
+                      	<li class="next disabled"><a href="javascript:">尾页</a></li>
+                      }else{
+                      	<li class="next"><a href="@searchParam()page=@{padChannelProPage.getTotalPages()-1}">尾页</a></li>
+                      }
+		                    
+		                    
+		                    
+		                       
+		                    </ul>
+		                </div>
+		            </div>
+		        </div>
+		        }
+		        
+		        
+		    </div>
+		</div>
+		
+		
+		<!-- 选取商品modal start -->
+        <div class="modal fade text-center" id="openModal" tabindex="-1" role="dialog" aria-labelledby="openModalLabel" aria-hidden="true">
+            <div class="modal_wrapper" >
+                <div class="modal-dialog"  style="display: inline-block; width: 800px;">
+                    <div class="modal-content">
+                     <div class="modal-header">
+                         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                         <h4 class="modal-title" >选取</h4>
+                     </div>
+                        <iframe id="modalFrame" src="" width="100%" height="400"></iframe>
+                        <div class="modal-footer">
+                        		<button id="selectSubButton" type="button" class="btn btn-primary">确认</button>
+                        		<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    		</div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+      <!-- 选取商品modal end -->
+	<!-- 新建频道Banner start -->
+	<div class="modal fade" id="newBanner" tabindex="-1" role="dialog"
+		aria-labelledby="newBannerLabel" aria-hidden="true">
+		<div class="modal_wrapper">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">
+							<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+						</button>
+						<h4 class="modal-title">新增Banner</h4>
+					</div>
+					<div class="modal-body">
+					<form id="form1" name="form1" action="/endorsement/padChannelNewBanner" method="post">
+						<div class="row">
+							<div class="col-xs-12">
+								<label for="picFile">选择图片:</label> 
+								<input id="picFile" name="picFile" type="file" />
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-xs-12">
+								<label for="nsort">排序值:</label> 
+								<input type="text" class="form-control" id="nsort" name="nsort">
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-xs-12">
+								<label for="exturl">请选择类型:</label> 
+								<label for="productDetail"><input type="radio" name="typesRadios" id="productDetail" value="3"  onclick="updateLinkTitle();"/>商品详情页</label>
+							    <!-- <label for="externalUrl" style="display:none"><input type="radio" name="typesRadios" id="externalUrl" value="5" onclick="updateLinkTitle();" />外链</label> -->
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-xs-12">
+								<label for="exturl">链接:</label> 
+								<input type="text" class="form-control" id="exturl" name="exturl">
+							</div>
+						</div>
+						<input id="cid" name="cid" type="hidden" value="@cid"/>
+						<input id="pid" name="pid" type="hidden" value=""/>
+						<input id="eid" name="eid" type="hidden" value=""/>
+					</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+						<button id="newBannerButton" type="button" class="btn btn-primary">确认</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--新建频道Banner end -->
+	
+	<!-- 选取商品填充新建Banner里的链接 modal start -->
+      <div class="modal fade text-center" id="openEndorseModal" tabindex="-1" role="dialog" aria-labelledby="openEndorseModalLabel" aria-hidden="true">
+          <div class="modal_wrapper" >
+              <div class="modal-dialog"  style="display: inline-block; width: 800px;">
+                  <div class="modal-content">
+                   <div class="modal-header">
+                       <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                       <h4 class="modal-title" >选取</h4>
+                   </div>
+                      <iframe id="modalEndorseFrame" src="" width="100%" height="400"></iframe>
+                      <div class="modal-footer">
+                      		<button id="selectEndorseSubButton" type="button" class="btn btn-primary">确认</button>
+                      		<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                  		</div>
+                  </div>
+                  
+              </div>
+          </div>
+      </div>
+    <!-- 选取商品填充新建Banner里的链接 modal end -->
+	</div>
+	<!-- /.row (main row) -->
+</section>
+}{
+<script type="text/javascript">
+<!--
+	$('#getConfirmButton').on('click', function() {
+		var commisionTyp = $('input[name="commisionTyp"]:checked').val();
+		var endorsementPrice = $('#endorsementPrice').val();
+		var commision = $('#commision').val();
+		var eIdForUpdate = $('#eIdForUpdate').val();
+		if (endorsementPrice == "") {
+			alert("请输入代言价格");
+			return false;
+		}
+		if (commision == "") {
+			alert("请输入佣金");
+			return false;
+		}
+		var ajax_option = {
+			success : function(data) {
+				location.reload();
+			}
+		}
+		$('#saveEndorsementForm').ajaxSubmit(ajax_option);
+	});
+	function editStatus(id, state) {
+		$.ajax({
+			url : '/endorsement/changeChannelProSta/' + id + '/' + state,
+			type : 'GET',
+			cache : false,
+			dataType : "json",
+			success : function(json) {
+				var jsonStr = JSON.stringify(json).replace("\"", "").replace(
+						"\"", "");
+				if (jsonStr == 1) {
+					alert("修改状态成功");
+					location.reload();
+				} else {
+					alert(jsonStr);
+				}
+			},
+			error : function() {
+				alert('服务器繁忙，请稍后再试！');
+			}
+		});
+	}
+	$('#editConfirmButton')
+			.on(
+					'click',
+					function() {
+						var statusRadios = $(
+								'input[name="statusRadios"]:checked').val();
+						window.location.href = "/endorsement/updateEndorsementState?eid="
+								+ $("#eid").val() + "&status=" + statusRadios;
+					});
+	function deletepadChannelPro(eid) {
+		$("#idForDelete").val(eid);
+	}
+	$('#deleteConfirmButton').on('click', function() {
+		var id = $("#idForDelete").val();
+		$.ajax({
+			url : '/endorsement/deleteChannelPro/' + id,
+			type : 'GET',
+			cache : false,
+			dataType : "json",
+			success : function(json) {
+				if (json) {
+					location.reload();
+				} else {
+					alert('服务器繁忙，请稍后再试！');
+				}
+			},
+			error : function() {
+				alert('服务器繁忙，请稍后再试！');
+			}
+		});
+	});
+
+	function getContent() {
+		var url = "/endorsement/productsBatch";
+		$("#modalFrame").attr("src", url);
+		$('#openModal').modal({
+			show : true,
+			backdrop : 'static'
+		});
+	}
+	var products = [];
+	//接收子frame里的参数 多个pid
+	function setProductsBatch(products) {
+		$('#openModal').modal('hide');
+		$('#searchProductBody').html('');
+		products = unique(products);
+		$.ajax({
+			url : '/endorsement/productListInChannel',
+			type : 'POST',
+			cache : false,
+			dataType : "json",
+			data : {
+				products : JSON.stringify(products),
+				cid : '@cid'
+			},
+			success : function(json) {
+				if (json) {
+					location.reload();
+				} else {
+					alert('服务器繁忙，请稍后再试！');
+				}
+			},
+			error : function() {
+				alert('服务器繁忙，请稍后再试！');
+			}
+		});
+
+	}
+	$('#selectSubButton').on('click', selectSubFunction);//弹出选择iframe里的确认添加按键事件
+	function selectSubFunction() {
+		var iProducts = $('#modalFrame').contents().find(
+				'input[name="pid"]:checked');
+		if (iProducts.length) {
+			$.each(iProducts, function(i, n) {
+				if (!$(n).closest('tr').find('.status .label').hasClass(
+						'label-success')) {
+					products.push($(n).val());
+				}
+			});
+			setProductsBatch(products);
+		} else {
+			alert('没有选中任何商品！');
+		}
+	}
+	//子页面调用父页面的方法
+	function setProductValue(pid) {
+		products.push(pid);
+		setProductsBatch(products);
+	}
+
+	function editEndorsement(eid, cpid) {
+		$('#eIdForUpdate').val(eid);
+		var nsort = $('#nsort_' + cpid).html();
+		$('#nsortForUpdate').val(nsort);
+		$('#channelProIdForUpdate').val(cpid);
+		$.ajax({
+			url : '/endorsement/getEndorsementById/' + eid,
+			type : 'GET',
+			cache : false,
+			dataType : "json",
+			success : function(json) {
+				if (json) {
+					$('#endorsementPrice').val(json.endorsementPrice);
+					var typeCommision = json.commisionTyp
+					if (typeCommision == 2) {
+						$("#percentType").prop("checked", "checked");//
+						$("#moneyType").attr("checked", false);//
+					} else {
+						$("#moneyType").prop("checked", "checked");//
+						$("#percentType").attr("checked", false);//
+					}
+					$('#commision').val(json.commision);
+				} else {
+					alert('服务器繁忙，请稍后再试！');
+				}
+			},
+			error : function() {
+				alert('服务器繁忙，请稍后再试！');
+			}
+		});
+	}
+	//新建banner时输入链接
+	function updateLinkTitle() {
+		var type = $('input[name="typesRadios"]:checked').val();
+		var url = "";
+		if (type == "3") {
+			url = "/endorsement/endorsementList?userId=@userId";
+			$("#modalEndorseFrame").attr("src", url);
+			$('#openEndorseModal').modal({
+				show : true,
+				backdrop : 'static'
+			});
+		}
+		if (type == "5") {
+			$('#exturl').val("http://");
+		}
+
+	}
+	
+	//接收选取代言商品子页面的处理
+	function setEndorseValue(eid,pid){
+		
+		$.ajax({
+			url : '/endorsement/getEndorsementById/' + eid,
+			type : 'GET',
+			cache : false,
+			dataType : "json",
+			success : function(json) {
+				if (json) {
+					var endorsementPrice = json.endorsementPrice;
+					if(endorsementPrice>0){
+						$('#exturl').val("http://h5.higegou.com/sheSaid/show?daiyanid="+eid);
+						$("#pid").val(pid);
+						$("#eid").val(eid);
+						$('#openEndorseModal').modal('hide');
+					}else{
+						alert("该商品商户价格设置不合法,请检查!");
+					}
+				} else {
+					alert('服务器繁忙，请稍后再试！');
+				}
+			},
+			error : function() {
+				alert('服务器繁忙，请稍后再试！');
+			}
+		});
+		
+	}
+
+	//新增Banner确认
+	$('#newBannerButton').on('click', function() {
+		var picFile = $('#picFile').val();
+		var nsort = $('#nsort').val();
+		if (picFile == "") {
+			alert("请选择Banner图片");
+			return false;
+		}
+		if (nsort == "") {
+			alert("请输入排序值");
+			return false;
+		}
+		var ajax_option = {
+			success : function(data) {
+				location.reload();
+			}
+		}
+		$('#form1').ajaxSubmit(ajax_option);
+	});
+
+	//去掉数组中重复的元素
+	function unique(arr) {
+		var result = [], hash = {};
+		for (var i = 0, elem; (elem = arr[i]) != null; i++) {
+			if (!hash[elem]) {
+				result.push(elem);
+				hash[elem] = true;
+			}
+		}
+		return result;
+	}
+//-->
+</script>
+
+}

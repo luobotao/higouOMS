@@ -1,0 +1,16 @@
+GET     /exportParcelsManage	@controllers.parcels.ParcelsController.exportParcelsManage
+POST    /importParcelsMail		@controllers.parcels.ParcelsController.importParcelsMail
+GET     /parcelsManage			@controllers.parcels.ParcelsController.parcelsManage
+GET     /unionParcelsManage		@controllers.parcels.ParcelsController.unionParcelsManage
+POST    /applyCheck				@controllers.parcels.ParcelsController.applyCheck
+POST    /setChecked				@controllers.parcels.ParcelsController.setChecked
+GET     /viewParcels			@controllers.parcels.ParcelsController.viewParcels
+GET     /backOrder				@controllers.parcels.ParcelsController.backOrder
+GET     /waybillManage			@controllers.parcels.ParcelsController.waybillManage
+POST    /changeParcelsStatus	@controllers.parcels.ParcelsController.changeParcelsStatus
+POST    /saveWayBill			@controllers.parcels.ParcelsController.saveWayBill
+POST    /delWaybill				@controllers.parcels.ParcelsController.delWaybill
+POST    /changeNsort			@controllers.parcels.ParcelsController.changeNsort
+POST    /getWayBillInfo			@controllers.parcels.ParcelsController.getWayBillInfo
+
+

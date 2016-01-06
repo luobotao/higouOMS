@@ -1,0 +1,280 @@
+@import utils.Dates
+@views.html.main{
+
+}{
+<!-- Content Header (Page header) -->
+<section class="content-header">
+	<h1>
+		&nbsp;&nbsp;&nbsp;&nbsp;新建商户商品
+	</h1>
+	<ol class="breadcrumb" style="margin-right: 50px;">
+		<li><a href="/admin"><i class="fa fa-dashboard"></i>首页</a></li>
+		<li class="active">代言管理</li>
+	</ol>
+</section>
+
+<!-- Main content -->
+<section class="content" style="min-height: 520px;">
+	<div class="col-xs-12">
+	
+         <div class="box box-warning">
+           <div class="box-body">
+           <form id="saveEndorsementForm" action="/endorsement/saveEndorsement" enctype="multipart/form-data" method="post">
+           	 <div >
+               	<button class="btn btn-primary" style="margin-top:10px;margin-left: 10px;" type="button" onclick="getContent(2)">选取商户</button>
+               	<button class="btn btn-primary" style="margin-top:10px;margin-left: 15px;"  type="button" onclick="getContent(1)">选取商品</button>
+             </div>
+             <div class="row">
+	              <!-- text input -->
+	              <div class="col-xs-12">
+	               	  <h3>用户</h3>
+	               	  	<table class="table table-bordered table-hover">
+				            <thead>
+				                <tr>
+				                    <th>商户ID</th>
+				                    <th>phone</th>
+				                    <th>用户昵称</th>
+				                </tr>
+				            </thead>
+				            <tbody id="searchUserBody">
+			                    
+				            </tbody>
+				        </table>
+	              </div>
+              </div>
+              <div class="row">
+	              <!-- text input -->
+	              <div class="col-xs-12">
+			            <h3>商品</h3>
+	               	  	<table class="table table-bordered table-hover">
+				            <thead>
+				                <tr>
+				                    <th>商品ID</th>
+				                    <th>商品图片</th>
+				                    <th>商品名称</th>
+				                    <th>嗨购售价</th>
+				                </tr>
+				            </thead>
+				            <tbody id="searchProductBody">
+			                    
+				            </tbody>
+				            
+				        </table>
+	              </div>
+              </div>
+              
+              <input type="hidden" id="userIdsForSave" name="userIdsForSave">
+              <input type="hidden" id="pIdsForSave" name="pIdsForSave">
+              <input type="hidden" id="typeFlag" name="typeFlag" value="2">
+              <div class="box-footer">
+               	<button class="btn btn-primary" id="saveEndorsementButton" type="button">保存</button>
+              </div>
+              </form>
+        	 </div><!-- /.box-body -->
+       	  </div><!-- /.box -->
+       	  
+       	  
+       	  
+       	  
+       	  
+       	  <!-- 选取频道modal start -->
+           <div class="modal fade text-center" id="openModal" tabindex="-1" role="dialog" aria-labelledby="openModalLabel" aria-hidden="true">
+               <div class="modal_wrapper" >
+                   <div class="modal-dialog"  style="display: inline-block; width: 800px;">
+                       <div class="modal-content">
+	                       <div class="modal-header">
+	                           <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+	                           <h4 class="modal-title" >选取</h4>
+	                       </div>
+                           <iframe id="modalFrame" src="" width="100%" height="400"></iframe>
+                           <div class="modal-footer">
+                           		<button id="selectSubButton" type="button" class="btn btn-primary">确认</button>
+                           		<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                       		</div>
+                       </div>
+                       
+                   </div>
+               </div>
+           </div>
+           <!-- 删除频道modal end -->
+     </div><!--col-xs-12 end  -->
+	
+
+</section>
+<!-- /.content -->
+}{
+<script type="text/javascript">
+var products = [];
+var users = [];
+var typeFlag = "";
+function getContent(type){
+	typeFlag = type;
+	if(type=="1"){
+		url="/endorsement/productsBatch?isEndorsement=1";
+		$("#modalFrame").attr("src", url);  
+		$('#openModal').modal({ show: true, backdrop: 'static' }); 
+	}
+	if(type=="2"){
+		url="/user/userListBatchForJson?danyanFlag=1&gid=4";
+		$("#modalFrame").attr("src", url);  
+		$('#openModal').modal({ show: true, backdrop: 'static' }); 
+	}
+}
+//接收子frame里的参数 多个pid
+function setProductsBatch(products){
+	$('#openModal').modal('hide'); 
+	$('#searchProductBody').html('');
+	products = unique(products);
+	$('#pIdsForSave').val(JSON.stringify(products)); 
+	$.ajax({
+        url: '/product/productListWithPidsForJson' ,//获取商品信息
+        type: 'POST',
+        cache: false,
+        dataType: "json",
+        data: {products:JSON.stringify(products)},
+        success: function(json){
+            if(json){
+            	if(json.length>0){
+            		for( i=0;i<json.length;i++)
+                	{
+                		addSearchProductRow(json[i]);
+                	}
+            	}else{
+            		alert('查无数据！');
+            	}
+            	
+            }else{
+                alert('服务器繁忙，请稍后再试！');
+            }
+        },
+        error: function(){
+            alert('服务器繁忙，请稍后再试！');
+        }
+    });
+}
+$('#selectSubButton').on('click', selectSubFunction);//弹出选择iframe里的确认添加按键事件
+function selectSubFunction(){
+	if(typeFlag=="1"){
+		var iProducts = $('#modalFrame').contents().find('input[name="pid"]:checked');
+	    if(iProducts.length) {
+	    	$.each(iProducts, function(i, n){
+	            if(!$(n).closest('tr').find('.status .label').hasClass('label-success')) {
+	            	products.push($(n).val());
+	            }
+	        });
+	    	setProductsBatch(products);
+	    }else{
+	        alert('没有选中任何商品！');
+	    }
+	}
+	if(typeFlag=="2"){
+		var iUsers = $('#modalFrame').contents().find('input[name="uid"]:checked');
+	    if(iUsers.length) {
+	    	$.each(iUsers, function(i, n){
+	            if(!$(n).closest('tr').find('.status .label').hasClass('label-success')) {
+	            	users.push($(n).val());
+	            }
+	        });
+	    	setUsersBatch(users);
+	    }else{
+	        alert('没有选中任何商品！');
+	    }
+	}
+}
+//子页面调用父页面的方法
+function setProductValue(pid){
+	products.push(pid);
+	setProductsBatch(products);
+}
+//选取现有商品填充数据
+function addSearchProductRow(rowElement){
+	var html="<tr class='h6' id='"+rowElement.pid+"'><td>"+rowElement.pid+"</td><td><img alt='' src='"+rowElement.listpic+"@@100w'></td><td >"+rowElement.title+"</td><td >"+rowElement.hiPrice+"</td></tr>";
+	$('#searchProductBody').append(html);
+}
+
+//子页面调用父页面的方法
+function setUserValue(uid){
+	users.push(uid);
+	setUsersBatch(users);
+}
+//子页面调用父页面的方法
+function setUsersBatch(users){
+	$('#openModal').modal('hide'); 
+	$('#searchUserBody').html('');
+	users = unique(users);
+	$('#userIdsForSave').val(JSON.stringify(users)); 
+	$.ajax({
+        url: '/user/userListWithUidsForJson' ,
+        type: 'POST',
+        cache: false,
+        dataType: "json",
+        data: {users : JSON.stringify(users)},
+        success: function(json){
+            if(json){
+            	if(json.length>0){
+            		for( i=0;i<json.length;i++)
+                	{
+            			addUserRow(json[i]);
+                	}
+            	}else{
+            		alert('查无数据！');
+            	}
+            	
+            }else{
+                alert('服务器繁忙，请稍后再试！');
+            }
+        },
+        error: function(){
+            alert('服务器繁忙，请稍后再试！');
+        }
+    });
+}
+//选取用户填充数据
+function addUserRow(rowElement){
+	var html="<tr class='h6' id='"+rowElement.uid+"'><td>"+rowElement.uid+"</td><td>"+rowElement.phone+"</td><td >"+rowElement.nickname+"</td></tr>";
+	$('#searchUserBody').append(html);
+}
+//保存代言
+$('#saveEndorsementButton').click(function(){
+	var userIdForSave = $('#userIdForSave').val(); 
+	var pIdForSave = $('#pIdForSave').val(); 
+	var commisionTyp = $('input[name="commisionTyp"]:checked').val();
+	var endorsementPrice = $('#endorsementPrice').val(); 
+	var commision = $('#commision').val(); 
+	if(pIdForSave==""){
+		alert("请选取商品");
+		return false;
+	}
+	if(userIdForSave==""){
+		alert("请选取用户");
+		return false;
+	}
+	if(endorsementPrice==""){
+		alert("请输入代言价格");
+		return false;
+	}
+	if(commision==""){
+		alert("请输入佣金");
+		return false;
+	}
+	var ajax_option={
+			success:function(data){
+				window.location.href="/endorsement/endorsementList?gid=4";
+			}
+	}
+	$('#saveEndorsementForm').ajaxSubmit(ajax_option);
+});
+
+//去掉数组中重复的元素
+function unique(arr) {
+    var result = [], hash = {};
+    for (var i = 0, elem; (elem = arr[i]) != null; i++) {
+        if (!hash[elem]) {
+            result.push(elem);
+            hash[elem] = true;
+        }
+    }
+    return result;
+}
+</script>
+}

@@ -1,0 +1,291 @@
+@(parcels: models.Parcels)(parcelsWaybills : List[models.ParcelsWaybill])(currentDate:String)(kdCompanys:Html)
+@import utils.Dates
+@views.html.main{
+
+}{
+<!-- Content Header (Page header) -->
+<section class="content-header">
+	<h1>
+		物流信息
+	</h1>
+</section>
+<!-- Main content -->
+<section class="content">
+	<div class="col-xs-12">
+         <div class="box box-warning">
+           <div class="box-header">
+           </div><!-- /.box-header -->
+           <div class="box-body">
+              <div class="row">
+                <label>物流状态：</label>
+                @if(parcels!=null && parcels.getStatus() >= 1&& parcels.getStatus() < 6){
+	                <label class="radio-inline">
+					  <input type="radio" name="status" id="yxd" value="1"> 已下单
+					</label>
+					<label class="radio-inline">
+					  <input type="radio" name="status" id="guwlyfh" value="2"> 国际物流已发货
+					</label>
+					<label class="radio-inline">
+					  <input type="radio" name="status" id="hgqgz" value="3"> 海关清关中
+					</label>
+					<label class="radio-inline">
+					  <input type="radio" name="status" id="gnwlyfh" value="4"> 国内物流已发货
+					</label>
+					<label class="radio-inline">
+					  <input type="radio" name="status" id="dxdysd" value="5"> 已送达
+					</label>
+				  }
+				  @if(parcels!=null && (parcels.getStatus() == 0||parcels.getStatus() == 11||parcels.getStatus() == 12)){
+	                <label class="radio-inline">
+					  <input type="radio" name="status" id="dfh" value="0"> 待发货
+					</label>
+					<label class="radio-inline">
+					  <input type="radio" name="status" id="yfh" value="11"> 已发货
+					</label>
+					<label class="radio-inline">
+					  <input type="radio" name="status" id="ysd" value="12"> 已送达
+					</label>
+				  }
+                <input type="text" name="wlstatus" style="display: none;" id="wlstatus" value="@parcels.getStatus()">
+				<input type="text" name="parId" style="display: none;" id="parId" value="@parcels.getId()">
+				&nbsp;&nbsp;&nbsp;&nbsp;<button class="btn btn-primary btn-sm" type="button" id="changeStatusBtn">保存</button>
+            </div>
+	        <br/>
+             <div class="row">
+            	<a class="btn btn-success btn-sm" href="#" data-toggle="modal" data-target="#waybillInfo"><i class="fa fa-bolt"></i> 添加物流运单</a>
+          		<div class="modal fade" id="waybillInfo" tabindex="-1" role="dialog" aria-labelledby="waybillInfo" aria-hidden="true">
+                <div class="modal_wrapper">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                <h4 class="modal-title" id="waybillInfoLabel">添加物流运单</h4>
+                            </div>
+                            <div class="modal-body">
+                            	 <form id="wbForm1"  action="saveWayBill" method="post">
+				              <div class="row">
+				              <!-- text input -->
+				                <div class="col-xs-12">
+				                  	运单号：
+				                  <input id="waybillCode" name="waybillCode" type="text" class="form-control" placeholder="请输入运单号"/>
+				                </div>
+				              </div>
+				              <div class="row">
+				              <!-- text input -->
+				                <div class="col-xs-12">
+				                  	货运公司：
+				                  <select id="kdCompany" name="kdCompany" class="form-control">
+				                  	@kdCompanys
+				                  </select>
+				                </div>
+				              </div>
+				              <div class="row">
+				              <!-- text input -->
+				                <div class="col-xs-12">
+				                  	排序：
+				                  <input id="nsort" name="nsort" type="text" class="form-control" placeholder="请输入排序号，默认为0" value="0"/>
+				                </div>
+				              </div>
+				  			  <input type="text" name="parId" style="display: none;" id="parId" value="@parcels.getId()">
+				            </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                <button id="waybillInfoButton" type="button" class="btn btn-primary">确定</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+           		</div>
+            	<a class="btn btn-success btn-sm" href="#" data-toggle="modal" data-target="#waybillRemark"><i class="fa fa-bolt"></i> 添加物流内容</a>
+           		<div class="modal fade" id="waybillRemark" tabindex="-1" role="dialog" aria-labelledby="waybillRemark" aria-hidden="true">
+                <div class="modal_wrapper">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                <h4 class="modal-title" id="waybillRemarkLabel">添加物流内容</h4>
+                            </div>
+                            <div class="modal-body">
+                             <form id="wbForm2"  action="saveWayBill" method="post">
+		             <div class="row">
+		              <!-- text input -->
+		                <div class="col-xs-12">
+		                  	日期：
+		                  <input id="addDate" name="addDate" type="text" class="form-control" placeholder="请输入日期" value="@currentDate"/>
+		                </div>
+		              </div>
+		              <div class="row">
+		              <!-- text input -->
+		                <div class="col-xs-12">
+		                  	内容：
+		                  	<textarea autofocus name="remark" id="remark" cols="10" style="margin: 0px; width: 570px; height: 49px;" >
+		                  	</textarea>
+		                </div>
+		              </div>
+		              <div class="row">
+		              <!-- text input -->
+		                <div class="col-xs-12">
+		                  	排序：
+		                  <input id="nsort" name="nsort" type="text" class="form-control" placeholder="请输入排序号，默认为0" value="0"/>
+		                </div>
+		              </div>
+		  			  <input type="text" name="parId" style="display: none;" id="parId" value="@parcels.getId()">
+		            </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                <button id="waybillRemarkButton" type="button" class="btn btn-primary">确定</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+           		</div>
+			 </div>	            
+	        <br/>
+             <div class="row">
+               <label>物流信息：</label>
+               <table class="table table-bordered table-hover" >
+            	<thead>
+            		<th>运单号</th>
+            		<th>货运公司</th>
+            		<th>时间</th>
+            		<th>内容</th>
+            		<th>排序</th>
+            		<th>操作</th>
+               	</thead>
+               	<tbody id="wbTbody">
+               	  	@if(parcelsWaybills!=null && parcelsWaybills.size() > 0){
+                	@for(parcelsWaybill <- parcelsWaybills){
+	                    <tr class="h6" data-uid="@parcelsWaybill.getId()">
+	                        <td>
+	                        	<input type="hidden" name="waybillId" value="@parcelsWaybill.getId()"/>
+	                        	@parcelsWaybill.getWaybillCode()
+	                        </td>
+	                        <td>
+	                        	@parcelsWaybill.getTransport()
+	                        </td>
+	                        <td>
+	                        	@parcelsWaybill.getDate_txt()
+	                        </td>
+	                        <td>
+	                        	@parcelsWaybill.getRemark()
+	                        </td>
+	                        <td>
+	                        	<input id="nsort" name="nsort" type="text" class="form-control" value="@parcelsWaybill.getNsort()"/>
+	                        </td>
+	                        <td>
+	                        	<a id="delWayBill" href="#">删除</a>
+	                        	<input id="wbId" name="wbId" type="text" style="display: none;" class="form-control" value="@parcelsWaybill.getId()" />
+				  			    <input type="text" name="parId" style="display: none;" id="parId" value="@parcels.getId()">
+	                        </td>
+	                    </tr>
+	                  }
+	                }
+               	</tbody>
+               </table>
+             </div>        
+ 		   </div><!-- /.box-body -->
+       </div><!-- /.box -->
+     </div><!--col-xs-12 end 访问查询 -->	
+</section>
+<!-- /.content -->
+}{
+<script type="text/javascript">
+var wlstatus = $("#wlstatus").val();
+//前置物流状态
+$("[name = 'status']").each(function () {
+	console.log($(this).val()+" - " +wlstatus)
+        if ($(this).val() == wlstatus) {
+		$(this).attr("checked","checked");
+    	}    
+});
+$("#changeStatusBtn").click(function(){
+	var status = $("[name='status']:checked").val();
+	var parId = $("#parId").val();
+	console.log(status+" - "+parId);
+	var flag = confirm("请确认更改包裹物流状态！");
+	if(flag == true){
+		$.post("changeParcelsStatus", {status:status, parId:parId}, function (data) {
+			console.log(data);
+			location.href = "/parcels/waybillManage?parId="+parId;
+		});
+	}else{
+		return false;
+	}
+})
+
+//处理添加物流运单
+$("#waybillInfoButton").click(function(){
+	var waybillCode = $("#waybillCode").val();
+	var nsort = $("#nsort").val();
+	console.log(waybillCode+" - "+nsort);
+	if(waybillCode==""||nsort==""){
+		alert("请输入运单号和排序，排序默认为0");
+		return false;
+	}
+	console.log("abc");
+	$("#wbForm1").submit();
+	console.log("abcdef");
+})
+//处理添加物流内容
+$("#waybillRemarkButton").click(function(){
+	var addDate = $("#addDate").val();
+	var remark = $.trim($("#remark").val());
+	var nsort = $("#nsort").val();
+	console.log(addDate+" - "+remark+" - "+nsort);
+	if(addDate==""||remark==""||nsort==""){
+		alert("请输入日期、内容和排序，排序默认为0");
+		return false;
+	}
+	$("#wbForm2").submit();
+})
+//删除相应的物流信息
+$("#wbTbody").on("click",'#delWayBill',function(){
+	var currentTr = $(this).parent().parent();
+	var wbId = currentTr.find("#wbId").val();
+	console.log(currentTr);
+	$.post("delWaybill", {wbId:wbId}, function (data) {
+		if(data=="ok"){
+			currentTr.remove();
+		}
+	}); 
+})
+//排序变更
+$("#wbTbody").on("blur","[name='nsort']",function(){
+	var nsort = $(this).val();
+	var currentTr = $(this).parent().parent();
+	var wbId = currentTr.find("#wbId").val();
+	var parId = currentTr.find("#parId").val();
+	console.log(nsort+" - "+wbId+" - "+parId);
+	$.post("changeNsort", {wbId:wbId,nsort:nsort}, function (data) {
+		console.log(data);
+		location.href = "/parcels/waybillManage?parId="+parId;
+	}); 
+})
+$("#addDate").datetimepicker({
+	format: 'yyyy-mm-dd hh:ii:ss'
+});
+
+//获取运单下的快递100的物流信息
+$("#wbTbody").find("tr").each(function(){
+	var currentTr = $(this);
+	var waybillId = $(this).find("[name='waybillId']").val();
+	$.post("getWayBillInfo", {wayBillId:waybillId}, function (data) {
+		console.log(data);
+		if(data!="fail"&&data!=null){
+			$.each(data,function(i,data){
+				var addTr = "<tr><td><input type='hidden' name='waybillInfoId' value="+data.id+"></td><td></td><td>"+data.date_txt+"</td><td>"+data.remark+"</td><td></td><td></td></tr>";
+				console.log(data.id);
+				console.log(data.date_txt);
+				console.log(data.remark);
+				console.log(data.nsort);
+				console.log(addTr);
+				console.log(currentTr);
+				currentTr.after(addTr);
+			})
+		}
+	});
+})
+</script>
+}

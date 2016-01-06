@@ -1,0 +1,512 @@
+@(channelId: Long)(cmid: Long)(channelMould: models.product.ChannelMould)(mould :  models.product.Mould)(chmoProList : List[models.product.ChannelMouldPro])(moulds : Html)(showTypes : Html)(showFlag : Html)
+@import utils.Dates
+@import play.Configuration
+@views.html.main{
+
+}{
+<!-- Content Header (Page header) -->
+<section class="content-header">
+	<h1>
+		&nbsp;&nbsp;&nbsp;&nbsp;内容管理
+	</h1>
+	<ol class="breadcrumb" style="margin-right: 50px;">
+		<li><a href="/admin"><i class="fa fa-dashboard"></i>首页</a></li>
+		<li class="active">卡片</li>
+	</ol>
+</section>
+
+<!-- Main content -->
+<section class="content">
+	<div class="col-xs-12">
+	
+         <div class="box box-warning">
+           <div class="box-header">
+             <h3 class="box-title">卡片</h3>
+           </div><!-- /.box-header -->
+           <div class="box-body">
+           <form id="channelMouldForm"  action="/product/saveChannelMould" method="post">
+             <input id="cid" name="cid" type="hidden" value="@channelId"/>
+             <input id="cmid" name="cmid" type="hidden" value="@cmid"/>
+              <div class="row">
+	              <!-- text input -->
+	              <div class="col-xs-3">
+	                  <label>卡片模版</label>
+	                  <select id="moulds" name="moulds" class="form-control">
+	                  	@moulds
+	                  </select>
+	                  <p class="help-block" id="mouldsM">请选择卡片模版</p>
+	              </div>
+	             
+              </div>
+              <div class="row">
+                   <div class="col-xs-3">
+                     <label for="titleBig">卡片上方大标题</label>
+                     <input type="text" class="form-control" id="titleBig" name="titleBig" maxlength="30" value="@if(channelMould.getTitle()==null){}else{@channelMould.getTitle()}" >
+                   </div>
+                   <div class="col-xs-3">
+                     <label for="titlelittle">卡片上方小标题</label>
+                     <input type="text" class="form-control" id="titlelittle" name="titlelittle" maxlength="30" value="@if(channelMould.getDatetxt()==null){}else{@channelMould.getDatetxt()}">
+                   </div>
+              </div>
+               <div class="row">
+                   <div class="col-xs-3">
+                     <label for="manType">可见用户组</label>
+                     <select id="manType" name="manType" class="form-control">
+	                  	@showTypes
+	                  </select>
+	                  <p class="help-block" id="manTypeM">请选择可见用户组</p>
+                   </div>
+                    <div class="col-xs-3">
+                     <label for="nsort">排序值</label>
+                     <input type="text" class="form-control" id="nsort" name="nsort" maxlength="30" value="@channelMould.getNsort()">
+                   </div>
+              </div>
+              <div class="row">
+                   <div class="col-xs-3">
+                     <label for="flag">是否显示</label>
+                     <select id="flag" name="flag" class="form-control">
+	                  	@showFlag
+	                  </select>
+	                  <p class="help-block" id="showFlagM">请选择是否显示</p>
+                   </div>
+              </div>
+              <div class="box-footer">
+               	<button class="btn btn-primary" id="saveChannelMouldButton">保存</button>
+              </div>
+              </form>
+        	 </div><!-- /.box-body -->
+       	  </div><!-- /.box -->
+       	  
+       	  @if(cmid!=null && cmid.longValue()!=0){
+       	  <div class="box box-warning">
+           <div class="box-header">
+             <h3 class="box-title">卡片内容</h3>
+           </div><!-- /.box-header -->
+           <div class="box-body">
+           <form id="saveChannelMouldProForm" action="/product/saveChannelMouldPro" method="post" enctype="multipart/form-data" >
+           <input type="hidden" id="cmidForSavePro" name="cmidForSavePro" value="@cmid">
+           <input type="hidden" id="cidForSavePro" name="cidForSavePro" value="@channelId">
+           <input type="hidden" id="pidForSavePro" name="pidForSavePro" value="">
+           <input type="hidden" id="chmouldProId" name="chmouldProId" value="">
+              <div class="row">
+              <!-- text input -->
+                <div class="col-xs-6">
+                  	<label>类型:</label>
+					<div class="radio">
+					@if(channelMould!=null  && (channelMould.getMouldId()==1L || channelMould.getMouldId()==2L)){
+						<label for="productDetail"><input type="radio" name="typesRadios" id="productDetail" value="3"  onclick="updateLinkTitle();"/>商品详情页</label>
+					}else{
+					 	<label for="like"><input type="radio" name="typesRadios" id="like" value="1" onclick="updateLinkTitle();"/>猜你喜欢</label>
+					    <label for="channel"><input type="radio" name="typesRadios" id="channel" value="2"  onclick="updateLinkTitle();"/>频道页</label>
+					    <label for="productDetail"><input type="radio" name="typesRadios" id="productDetail" value="3"  onclick="updateLinkTitle();"/>商品详情页</label>
+					    <label for="subject"><input type="radio" name="typesRadios" id="subject" value="4"  onclick="updateLinkTitle();"/>专题页</label>
+					    <label for="externalUrl"><input type="radio" name="typesRadios" id="externalUrl" value="5"  onclick="updateLinkTitle();"/>外链</label>
+					}
+					   
+					    <p class="help-block" id="typesRadiosM">请选择类型</p>
+					</div>
+                </div>
+              </div>
+              
+              <div class="row">
+                   <div class="col-xs-3">
+                     <label for="linkTitle">类型链接</label>
+                     <input type="text" class="form-control" id="linkTitle" name="linkTitle" placeholder="类型链接" >
+                     <p class="help-block" id="linkTitleM">请检查类型链接</p>
+                   </div>
+              </div>
+              @if(channelMould!=null && (channelMould.getMouldId()==1L || channelMould.getMouldId()==2L)){
+			  }else{
+				  <div class="row">
+	                   <div class="col-xs-3">
+	                     <label for="nsortForSavePro">排序</label>
+	                     <input type="text" class="form-control" id="nsortForSavePro" name="nsortForSavePro" placeholder="排序" maxlength="30" >
+	                   </div>
+	              </div>
+	              <div class="row">
+	                   <div class="col-xs-5">
+	                     <label for="channelPic">图片</label>
+	                     <div id="picDiv">
+	                     </div>
+	                     <input id="channelPic" name="channelPic" class="file" type="file"  data-min-file-count="0"   >
+	                     <p class="help-block" id="channelPicM">请上传图片</p>
+	                   </div>
+	              </div>
+			  }
+              @if(mould!=null && (mould.getTyp()=="4" || mould.getTyp()=="6")){
+				  <div class="row">
+	                 <div class="col-xs-3" id="timeDiv">
+	                     <label for="beginTime">开抢时间</label>
+	                     <input type="text" class="form-control" id="beginTime" name="beginTime" maxlength="30" value="" >
+                   </div> 
+	              </div>
+			  }
+               <div class="box-footer">
+               	<button id="saveChannelMouldProBtn" class="btn btn-primary" >确定添加</button>
+              </div>
+             </form>
+             <div class="col-xs-12">
+		<div class="box">
+		    <div class="box-header">
+		    </div>
+		    <div class="box-body table-responsive">
+		        <table id="taskTable" class="table table-bordered table-hover">
+		            <thead>
+		                <tr>
+		                    <th>类型</th>
+		                    <th>类型链接</th>
+		                    <th>图片</th>
+		                    <th>排序值</th>
+		                    <th>开抢时间</th>
+		                    <th>操作</th>
+		                </tr>
+		            </thead>
+		            <tbody>
+		                @if(chmoProList!=null && chmoProList.size() > 0){
+		                 @for(chmouldPro <- chmoProList){
+		                    <tr class="h6" data-uid="@chmouldPro.getId()">
+		                        <td>
+		                        @if("1"==chmouldPro.getTyp()){
+		                        	猜你喜欢
+		                        }
+		                        @if("2"==chmouldPro.getTyp()){
+		                        	频道页
+		                        }
+		                        @if("3"==chmouldPro.getTyp()){
+		                        	商品详情页
+		                        }
+		                        @if("4"==chmouldPro.getTyp()){
+		                        	专题页
+		                        }
+		                        @if("5"==chmouldPro.getTyp()){
+		                        	外链
+		                        }
+		                        </td>
+		                        <td>@chmouldPro.getLinkurl()</td>
+		                        <td><img style="width: 40px;height: 40px;" alt="" src="@if(chmouldPro.getImgurl().indexOf(Configuration.root().getString("kjd.ImagePre","http://image.kjt.com.pre")) > -1){@chmouldPro.getImgurl()}else{@chmouldPro.getImgurl()@@40w}"></td>
+		                        <td>@chmouldPro.getNsort()</td>
+		                        <td>@Dates.formatEngLishDateTime(chmouldPro.getBeginTime())</td>
+		                        <td>
+		                        	<button class="btn btn-info" onclick="setChmouldProValue('@chmouldPro.getId()',@channelId);" >修改</button>
+		                        	<button class="btn btn-danger" data-toggle="modal" data-target="#deleteChmouldPro" onclick="setDeleteChmouldProValue('@chmouldPro.getId()');">删除</button>
+		                        </td>
+		                    </tr>
+		                    }
+		                }else{
+		                    <tr><td class="text-center" colspan="10">没有可用数据</td></tr>
+		                }
+		            </tbody>
+		            
+		            <tfoot>
+		            	
+		            </tfoot>
+		        </table>
+		        
+		        
+		        
+		        
+		    </div>
+		</div>
+	</div>
+             
+        	 </div><!-- /.box-body -->
+       	  </div><!-- /.box -->
+       	  }
+       	  
+       	  
+       	  
+       	  
+       	  <!-- 删除Channel mould pro modal start -->
+          <div class="modal fade" id="deleteChmouldPro" tabindex="-1" role="dialog" aria-labelledby="deleteChmouldProLabel" aria-hidden="true">
+              <div class="modal_wrapper">
+                  <div class="modal-dialog" >
+                      <div class="modal-content">
+                          <div class="modal-header" >
+                              <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">关闭</span></button>
+                              <h4 class="modal-title" >确认信息</h4>
+                          </div>
+                          <div class="modal-body">确定删除此内容？<br></div>
+                          <div class="modal-footer">
+                          	<input id="cmpidDelete" name="cmpidDelete" value="" type="hidden"/>
+                              <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                              <button id="deleteConfirmButton" type="button" class="btn btn-primary">确认</button>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <!-- 删除Channel mould pro modal end -->
+       	  
+       	  <!-- 选取频道modal start -->
+           <div class="modal fade text-center" id="openModal" tabindex="-1" role="dialog" aria-labelledby="openModalLabel" aria-hidden="true">
+               <div class="modal_wrapper" >
+                   <div class="modal-dialog"  style="display: inline-block; width: 800px;">
+                       <div class="modal-content">
+	                       <div class="modal-header">
+	                           <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+	                           <h4 class="modal-title" >选取内容</h4>
+	                       </div>
+                           <iframe id="modalFrame" src="" width="100%" height="400"></iframe>
+                           <div class="modal-footer">
+                           		<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                       		</div>
+                       </div>
+                       
+                   </div>
+               </div>
+           </div>
+           <!-- 删除频道modal end -->
+     </div><!--col-xs-12 end 创建任务 -->
+	
+
+</section>
+<!-- /.content -->
+}{
+<script type="text/javascript">
+$("#channelPic").fileinput({'showUpload':false, 'previewFileType':'any'});
+$('#beginTime').datetimepicker({
+	autoclose:true,
+	format:"yyyy-mm-dd hh:ii:ss"
+})
+function updateLinkTitle(){
+	var type = $('input[name="typesRadios"]:checked').val(); 
+	var url="";
+	if(type=="1"){
+		$('#linkTitle').val("pRe://");
+	}
+	if(type=="2"){
+		url="/product/channels";
+		$("#modalFrame").attr("src", url);  
+		$('#openModal').modal({ show: true, backdrop: 'static' }); 
+	}
+	if(type=="3"){
+		url="/product/products";
+		$("#modalFrame").attr("src", url);  
+		$('#openModal').modal({ show: true, backdrop: 'static' }); 
+	}
+	if(type=="4"){
+		url="/product/subjects";
+		$("#modalFrame").attr("src", url);  
+		$('#openModal').modal({ show: true, backdrop: 'static' }); 
+	}
+	if(type=="5"){
+		$('#linkTitle').val("http://");
+	}
+	
+}
+function setChannelValue(cid){
+	$('#linkTitle').val("pTi://cid="+cid);
+	$('#openModal').modal('hide'); 
+}
+function setProductValue(pid,ptyp){
+	if(ptyp==3){
+		$('#linkTitle').val("presellDetail://pid="+pid);
+	}else{
+		$('#linkTitle').val("pDe://pid="+pid);
+	}
+	$('#pidForSavePro').val(pid);
+	$('#openModal').modal('hide'); 
+}
+function setSubjectValue(sid){
+	$('#linkTitle').val("pSp://sid="+sid);
+	$('#openModal').modal('hide'); 
+}
+function setDeleteChmouldProValue(cmid){
+	$('#cmpidDelete').val(cmid);
+	
+}
+//ChmouldPro确认button
+$('#deleteConfirmButton').on('click', deleteConfirmFunction);
+function deleteConfirmFunction(){
+	var cmpidDelete=$('#cmpidDelete').val();
+	$.ajax({
+        url: '/product/deleteChmouldPro/' +cmpidDelete ,
+        type: 'GET',
+        cache: false,
+        dataType: "json",
+        data: {cmid:@cmid},
+        success: function(json){
+            if(json){
+            	alert('已成功删除频道内容D为'+cmpidDelete+'的频道内容');
+            	$(document).find("tr[data-uid='"+cmpidDelete+"']").remove();
+            	$("#deleteChmouldPro").modal('hide');
+            }else{
+                alert('服务器繁忙，请稍后再试！');
+            }
+        },
+        error: function(){
+            alert('服务器繁忙，请稍后再试！');
+        }
+    });
+}
+
+//提交表单，保存商品信息
+$("#saveChannelMouldProBtn").click(function(){
+	var flag = true;
+	var typesRadios = $('input[name="typesRadios"]:checked').val();
+	var nsortForSavePro = $('input[name="nsortForSavePro"]').val();
+	var manType = $('[name="manType"] option:selected').val();
+	var channelPic = $('input[name="channelPic"]').val();
+	if(typeof(typesRadios)=='undefined'){
+		$("#typesRadiosM").attr("style","color:red");
+		flag = false;
+	}else{
+		$("#typesRadiosM").removeAttr("style");
+		var linkTitleVal = $('#linkTitle').val();
+		if(typesRadios=="1" && linkTitleVal.indexOf("pRe://")<0){
+			$("#linkTitleM").attr("style","color:red");
+			flag = false;
+		}
+		if(typesRadios=="2" && linkTitleVal.indexOf("pTi://cid=")<0 ){
+			$("#linkTitleM").attr("style","color:red");
+			flag = false;
+		}
+		if(typesRadios=="3" && linkTitleVal.indexOf("pDe://pid=")<0&&linkTitleVal.indexOf("presellDetail://pid=")<0){
+			$("#linkTitleM").attr("style","color:red");
+			flag = false;
+		}
+		if(typesRadios=="4" && linkTitleVal.indexOf("pSp://sid=")<0){
+			$("#linkTitleM").attr("style","color:red");
+			flag = false;
+		}
+		if(typesRadios=="5" && linkTitleVal.indexOf("http://")<0){
+			$("#linkTitleM").attr("style","color:red");
+			flag = false;
+		}
+		
+	}
+	
+	if(typeof(manType)=='undefined' || manType=='-1'){
+		$("#manTypeM").attr("style","color:red");
+		flag = false;
+	}else{
+		$("#manTypeM").removeAttr("style");
+	}
+	if(flag){
+		console.log("succeful , submit");
+		$("#saveChannelMouldProForm").submit();
+	}else{
+		alert("请检内容查合法性!");
+		console.log("failed");
+		return false;
+	}
+})
+//提交表单，保存卡片信息
+$("#saveChannelMouldButton").click(function(){
+	var flag = true;
+	var moulds = $('[name="moulds"] option:selected').val();
+	var showFlag = $('[name="flag"] option:selected').val();
+	var manType = $('[name="manType"] option:selected').val();
+	if(typeof(moulds)=='undefined' || moulds=='-1'){
+		$("#mouldsM").attr("style","color:red");
+		flag = false;
+	}else{
+		$("#mouldsM").removeAttr("style");
+	}
+	if(typeof(showFlag)=='undefined' || showFlag=='-1'){
+		$("#showFlagM").attr("style","color:red");
+		flag = false;
+	}else{
+		$("#showFlagM").removeAttr("style");
+	}
+	if(typeof(manType)=='undefined' || manType=='-1'){
+		$("#manTypeM").attr("style","color:red");
+		flag = false;
+	}else{
+		$("#manTypeM").removeAttr("style");
+	}
+	if(flag){
+		console.log("succeful , submit");
+		$("#channelMouldForm").submit();
+	}else{
+		alert("请检内容查合法性!");
+		console.log("failed");
+		return false;
+	}
+})
+
+//设置频道form的值
+function setChmouldProValue(chmouldProId,channelId){
+	  $.ajax({
+            url: '/product/getChmouldProById/' + chmouldProId+'/'+channelId,
+            type: 'GET',
+            cache: false,
+            dataType: "json",
+            data: {},
+            success: function(json){
+                if(json){
+                    console.log(json);
+                	$("[name='typesRadios']").each(function(){
+                		if($(this).val()==json.typ){
+							$(this).prop("checked","checked");
+                		}
+                	}) 
+                	$("#chmouldProId").val(json.id);
+                	$("#linkTitle").val(json.linkurl);
+                	$("#nsortForSavePro").val(json.nsort);
+                	if(json.beginTime!=null){
+	                	$("#beginTime").val(getSmpFormatDateByLong(json.beginTime,true));
+                	}
+                	var imgHtml = "<a href='"+json.imgurl+"' target='blank'><img alt='' src='"+json.imgurl+"@@200w'></a>";
+                	$("#picDiv").html(imgHtml);
+                }else{
+                    alert('服务器繁忙，请稍后再试！');
+                }
+            },
+            error: function(){
+                alert('服务器繁忙，请稍后再试！');
+            }
+        })
+}
+
+//扩展Date的format方法 
+Date.prototype.format = function (format) { 
+var o = { 
+"M+": this.getMonth() + 1, 
+"d+": this.getDate(), 
+"h+": this.getHours(), 
+"m+": this.getMinutes(), 
+"s+": this.getSeconds(), 
+"q+": Math.floor((this.getMonth() + 3) / 3), 
+"S": this.getMilliseconds() 
+} 
+if (/(y+)/.test(format)) { 
+format = format.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length)); 
+} 
+for (var k in o) { 
+if (new RegExp("(" + k + ")").test(format)) { 
+format = format.replace(RegExp.$1, RegExp.$1.length == 1 ? o[k] : ("00" + o[k]).substr(("" + o[k]).length)); 
+} 
+} 
+return format; 
+} 
+function getSmpFormatDate(date, isFull) { 
+var pattern = ""; 
+if (isFull == true || isFull == undefined) { 
+pattern = "yyyy-MM-dd hh:mm:ss"; 
+} else { 
+pattern = "yyyy-MM-dd"; 
+} 
+return getFormatDate(date, pattern); 
+} 
+function getSmpFormatNowDate(isFull) { 
+return getSmpFormatDate(new Date(), isFull); 
+} 
+function getSmpFormatDateByLong(l, isFull) { 
+return getSmpFormatDate(new Date(l), isFull); 
+} 
+function getFormatDateByLong(l, pattern) { 
+return getFormatDate(new Date(l), pattern); 
+} 
+function getFormatDate(date, pattern) { 
+if (date == undefined) { 
+date = new Date(); 
+} 
+if (pattern == undefined) { 
+pattern = "yyyy-MM-dd hh:mm:ss"; 
+} 
+return date.format(pattern); 
+}  
+
+</script>
+}

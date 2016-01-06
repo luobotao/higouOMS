@@ -1,0 +1,175 @@
+@(adminUser : models.admin.AdminUser)(adminUsers: List[models.admin.AdminUser])
+@import utils.Dates
+@import utils.Constants.AdminStatus
+@import utils.Constants.AdminType
+@views.html.main{
+
+}{
+<!-- Content Header (Page header) -->
+<section class="content-header">
+	<h1>
+		管理员管理 <small>管理员列表</small>
+	</h1>
+	<ol class="breadcrumb">
+		<li><a href="#"><i class="fa fa-dashboard"></i>首页</a></li>
+		<li class="active">管理员列表</li>
+	</ol>
+	<div >
+    	<button class="btn btn-primary" style="margin-top:10px;margin-left: 10px;" type="button" onclick="javascript:window.location.href='/admin/users/-1'">+ 新建</button>
+  	</div>
+</section>
+
+<!-- Main content -->
+<section class="content">
+	
+	<!-- Main row -->
+	<div class="row">
+		<div class="col-xs-12">
+                            <div class="box">
+                                <div class="box-header">
+                                    <h3 class="box-title">管理员列表</h3>
+                                </div>
+                                <div class="box-body table-responsive">
+                                    <table id="userTable" class="table table-bordered table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>选择</th>
+                                                <th>用户名</th>
+                                                <th>姓名</th>
+                                                <th>用户状态</th>
+                                                <th>用户类型</th>
+                                                <th>加入时间</th>
+                                                <th>上次登录IP</th>
+                                                <th>上次登录时间</th>
+                                                <th>登录次数</th>
+                                                <th>头像</th>
+                                                <th>操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if(adminUsers!=null){
+                                                @for(user <- adminUsers){
+                                                <tr class="h6" data-uid="@user.getId()">
+                                                    <td>
+                                                        <input type="checkbox" value="@user.getId()" name="uid">
+                                                    </td>
+                                                    <td>@user.getUsername()</td>
+                                                    <td>@user.getRealname()</td>
+                                                    <td>@AdminStatus.status2Message(user.getActive())</td>
+                                                    <td>@AdminType.type2Message(user.getAdminType())</td>
+                                                    <td>@Dates.formatDate(user.getDate_add())</td>
+                                                    <td>@user.getLastip() </td>
+                                                    <td>@if(user.getDate_login()!=null){@Dates.formatDate(user.getDate_login())}</td>
+                                                    <td>@user.getLogin_count() </td>
+                                                    <td>@user.getHeadIcon() </td>
+                                                    <td>
+                                                        <a class="btn btn-default btn-sm" href="/admin/users/@user.getId()" data-toggle="tooltip" data-placement="top" title="修改信息"><i class="fa fa-edit"></i></a>
+                                                        @if(user.getActive()==0){
+	                                                        <a class="btn btn-default btn-sm" data-toggle="modal" data-target="#changeAdminStatus" onclick="setAdminUserStatus('@user.getId()',1);" title="启用"><i class="glyphicon glyphicon-play"></i></a>
+                                                        }
+                                                        @if(user.getActive()==1){
+	                                                        <a class="btn btn-default btn-sm" data-toggle="modal" data-target="#changeAdminStatus" onclick="setAdminUserStatus('@user.getId()',0);" title="停用"><i class="glyphicon glyphicon-stop"></i></a>
+                                                        }
+                                                        <a class="btn btn-default btn-sm" href="/admin/users/role/@user.getId()" data-toggle="tooltip" data-placement="top" title="角色管理"><i class="glyphicon glyphicon-tasks"></i></a>
+                                                    </td>
+                                                </tr>
+                                                }
+                                            }else{
+                                                <tr><td class="text-center" colspan="10">没有可用数据</td></tr>
+                                            }
+                                        </tbody>
+                                        
+                                        <tfoot>
+                                            <tr>
+                                                <th colspan="11">
+                                                    <label><input id="selectAll" name="selectAll" type="checkbox"> 全选</label> &nbsp;
+                                                </th>
+                                            </tr>
+                                            
+                                            <!-- 修改管理员状态modal start -->
+					                        <div class="modal fade" id="changeAdminStatus" tabindex="-1" role="dialog" aria-labelledby="changeAdminStatusLabel" aria-hidden="true">
+					                            <div class="modal_wrapper">
+					                                <div class="modal-dialog">
+					                                    <div class="modal-content">
+					                                        <div class="modal-header">
+					                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">关闭</span></button>
+					                                            <h4 class="modal-title" >确认信息</h4>
+					                                        </div>
+					                                        <div class="modal-body" id="modalMessage"></div>
+					                                        <div class="modal-footer">
+					                                        	<input id="adminIdForStatus" name="adminIdForStatus" value="" type="hidden"/>
+					                                        	<input id="adminStatus" name="adminStatus" value="" type="hidden"/>
+					                                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+					                                            <button id="confirmButton" type="button" class="btn btn-primary">确认</button>
+					                                        </div>
+					                                    </div>
+					                                </div>
+					                            </div>
+					                        </div>
+					                        <!-- 修改管理员状态modal end -->
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+	</div>
+	<!-- /.row (main row) -->
+
+</section>
+<!-- /.content -->
+}{
+<script type="text/javascript">
+<!--
+$("input[type='checkbox']").iCheck({
+	checkboxClass : 'icheckbox_square-blue'
+});
+
+$("#selectAll").on('ifUnchecked', function() {
+	$("input[type='checkbox']", "#userTable").iCheck("uncheck");
+}).on('ifChecked', function() {
+	$("input[type='checkbox']", "#userTable").iCheck("check");
+});
+
+
+
+function setAdminUserStatus(adminId,adminStatus){
+	$('#adminIdForStatus').val(adminId);
+	$('#adminStatus').val(adminStatus);
+	if(adminStatus==0){//停用
+		$('#modalMessage').html('确定停用此管理员？<br>');
+	}
+	if(adminStatus==1){//启用
+		$('#modalMessage').html('确定启用此管理员？<br>');
+	}
+}
+
+//修改商品状态确认button
+$('#confirmButton').on('click', confirmFunction);
+
+function confirmFunction(){
+	var adminIdForStatus=$('#adminIdForStatus').val();
+	var adminStatus=$('#adminStatus').val();
+	$.ajax({
+        url: '/admin/users/updateAdminStatus',
+        type: 'POST',
+        cache: false,
+        dataType: "json",
+        data: {adminIdForStatus : adminIdForStatus,adminStatus : adminStatus},
+        success: function(json){
+            if(json){
+            	$("#deleteProduct").modal('hide');
+            	location.reload();
+            }else{
+                alert('服务器繁忙，请稍后再试！');
+            }
+        },
+        error: function(){
+            alert('服务器繁忙，请稍后再试！');
+        }
+    });
+	
+}
+//-->
+</script>
+
+}

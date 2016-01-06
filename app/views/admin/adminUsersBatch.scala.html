@@ -1,0 +1,80 @@
+@(adminUsers : List[models.admin.AdminUser])
+@import utils.Dates
+@views.html.main {
+<!-- css -->
+}{
+<!-- Content Header (Page header) -->
+
+<!-- Main content -->
+<section class="content">
+	<!-- Main row -->
+	<div class="col-xs-12">
+		<div class="box">
+		    <div class="box-header">
+		    </div>
+		    <div class="box-body table-responsive">
+		        <table id="adminUserTable" class="table table-bordered table-hover">
+		            <thead>
+		                <tr>
+		                	<th>选择</th>
+                            <th>用户名</th>
+                            <th>姓名</th>
+                            <th>用户状态</th>
+                            <th>加入时间</th>
+                            <th>上次登录IP</th>
+                            <th>上次登录时间</th>
+                            <th>登录次数</th>
+		                </tr>
+		            </thead>
+		            <tbody>
+		                @if(adminUsers!=null && adminUsers.size() > 0){
+		                	@for(user <- adminUsers){
+                              <tr class="h6" data-uid="@user.getId()">
+                                  <td>
+                                      <input type="checkbox" value="@user.getId()" name="uid">
+                                  </td>
+                                  <td>@user.getUsername()</td>
+                                  <td>@user.getRealname()</td>
+                                  <td>@user.getActive()</td>
+                                  <td>@Dates.formatDate(user.getDate_add())</td>
+                                  <td>@user.getLastip() </td>
+                                  <td>@if(user.getDate_login()!=null){@Dates.formatDate(user.getDate_login())}</td>
+                                  <td>@user.getLogin_count() </td>
+                              </tr>
+                             }
+		                }else{
+		                    <tr><td class="text-center" colspan="10">没有可用数据</td></tr>
+		                }
+		            </tbody>
+		            <tfoot>
+                     <tr>
+                         <th colspan="11">
+                             <input id="selectAll" name="selectAll" type="checkbox"> <label for="selectAll">全选</label> &nbsp;
+                         </th>
+                     </tr>
+                 </tfoot>
+		        </table>
+		        
+		        
+		        
+		    </div>
+		</div>
+	</div>
+	<!-- /.row (main row) -->
+
+</section>
+}{
+<script type="text/javascript">
+$("input[type='checkbox']").iCheck({
+	checkboxClass : 'icheckbox_square-blue'
+});
+
+$("#selectAll").on('ifUnchecked', function() {
+	$("input[type='checkbox']", "#adminUserTable").iCheck("uncheck");
+}).on('ifChecked', function() {
+	$("input[type='checkbox']", "#adminUserTable").iCheck("check");
+});
+//-->
+</script>
+
+}

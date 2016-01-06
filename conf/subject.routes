@@ -1,0 +1,22 @@
+#subject
+GET      /subjectManage					@controllers.subject.SubjectController.subjectManage
+GET      /deleteSubjectById/:id			@controllers.subject.SubjectController.deleteSubjectById(id : Long)
+GET      /addSubject					@controllers.subject.SubjectController.addSubject
+POST     /updateSubject  				@controllers.subject.SubjectController.updateSubject
+GET      /subjectContentManage			@controllers.subject.SubjectController.subjectContentManage
+GET      /getSubjectMouldBySid/:sid		@controllers.subject.SubjectController.getSubjectMouldBySid(sid : Long)
+GET      /newOrUpdateSubjectMould		@controllers.subject.SubjectController.newOrUpdateSubjectMould
+GET      /updateSumouldFlag				@controllers.subject.SubjectController.updateSumouldFlag
+GET      /deletesubjectContentById/:id	@controllers.subject.SubjectController.deletesubjectContentById(id : Long)
+POST     /saveSubjectMould				@controllers.subject.SubjectController.saveSubjectMould
+POST     /saveSubjectMouldPro			@controllers.subject.SubjectController.saveSubjectMouldPro
+POST     /subjectMouldBatch				@controllers.subject.SubjectController.subjectMouldBatch
+GET      /deleteSumouldPro/:id			@controllers.subject.SubjectController.deleteSumouldPro(id : Long)
+GET      /deleteSumouldPro/:id			@controllers.subject.SubjectController.deleteSumouldPro(id : Long)
+GET    	 /channels						@controllers.subject.SubjectController.channels
+GET    	 /subjects						@controllers.subject.SubjectController.subjects
+GET      /productsBatch					@controllers.subject.SubjectController.productsBatch
+GET    	 /getSumouldProById/:id/:subjectId		@controllers.subject.SubjectController.getSumouldProById(id : Long,subjectId : Long)
+GET      /piliangChangeNsort			@controllers.subject.SubjectController.piliangChangeNsort
+GET      /getSubjectMoudleProWithSeid	@controllers.subject.SubjectController.getSubjectMoudleProWithSeid
+

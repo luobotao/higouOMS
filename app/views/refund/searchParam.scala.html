@@ -1,0 +1,99 @@
+@()@searchParam() = @{
+    var href = "?"
+    var paymethod = request().getQueryString("paymethod")
+    var orderCode = request().getQueryString("orderCode")
+    var refundFee = request().getQueryString("refundFee")
+    var tradeNo = request().getQueryString("tradeNo")
+    var status = request().getQueryString("status")
+    var refundReason = request().getQueryString("refundReason")
+    var memo = request().getQueryString("memo")
+    var spid = request().getQueryString("spid")
+    
+    var soId = request().getQueryString("soId")
+    var sopIds = request().getQueryString("sopIds")
+    var calRefundFee = request().getQueryString("calRefundFee")
+    var couponPrice = request().getQueryString("couponPrice")
+    var walletRefundFee = request().getQueryString("walletRefundFee")
+    if(paymethod != "" && paymethod != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "paymethod=" + paymethod
+    }
+    if(orderCode != "" && orderCode != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "orderCode=" + orderCode
+    }
+    if(refundFee != "" && refundFee != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "refundFee=" + refundFee
+    }
+    if(tradeNo != "" && tradeNo != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "tradeNo=" + tradeNo
+    }
+    if(status != "" && status != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "status=" + status
+    }
+    if(refundReason != "" && refundReason != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "refundReason=" + refundReason
+    }
+    if(memo != "" && memo != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "memo=" + memo
+    }
+    if(spid != "" && spid != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "spid=" + spid
+    }
+    if(soId != "" && soId != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "soId=" + soId
+    }
+    if(sopIds != "" && sopIds != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "sopIds=" + sopIds
+    }
+    if(calRefundFee != "" && calRefundFee != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "calRefundFee=" + calRefundFee
+    }
+    if(couponPrice != "" && couponPrice != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "couponPrice=" + couponPrice
+    }
+    if(walletRefundFee != "" && walletRefundFee != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "walletRefundFee=" + walletRefundFee
+    }
+    if(href != "?"){
+        href += "&"
+    }
+    href
+}@searchParam()

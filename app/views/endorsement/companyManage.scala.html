@@ -1,0 +1,374 @@
+@(province : Html)(usersPage :  org.springframework.data.domain.Page[models.user.User])(userForm: forms.UserQueryForm)
+@import utils.Dates
+@import utils.Constants
+@import play.Configuration
+@views.html.main {
+<!-- css -->
+
+}{
+<!-- Content Header (Page header) -->
+<section class="content-header">
+	<h1>
+		商户管理
+	</h1>
+</section>
+
+<!-- Main content -->
+<section class="content">
+	<!-- Main row -->
+	<div class="col-xs-12">
+		<div class="box box-warning">
+		    <div class="box-body table-responsive">
+			    <form action="">
+				    <div class="row">
+	                   <div class="col-xs-3">
+	                     <label for="userId">商户ID:</label>
+	               		 <input type="text" class="form-control" id="userId" name="userId" value="@request().getQueryString("userId")">
+	                   </div>
+	                   <div class="col-xs-3">
+	                     <label for="userName">商户名:</label>
+                    	 <input type="text" class="form-control" id="userName" name="userName" value="@request().getQueryString("userName")">
+	                   </div>
+	                   <div class="col-xs-3">
+	                     <label for="phone">商户手机号:</label>
+                    	 <input type="text" class="form-control" id="phone" name="phone" value="@request().getQueryString("phone")">
+	                   </div>
+	                 </div>
+	                 <div class="row">
+	                   <div class="col-xs-3">
+	                     <label for="phone">关键字:</label>
+                    	 <input type="text" class="form-control" id="keywords" name="keywords" value="@request().getQueryString("keywords")">
+	                   </div>
+	                   <div class="col-xs-3">
+		                  <label>省份</label>
+		                  <select id="province" name="province" class="form-control">
+		                  	@province
+		                  </select>
+		                </div>
+		                <div class="col-xs-3">
+		                  <label>城市</label>
+		                  <select id="city" name="city" class="form-control">
+		                  	<option value="-1">城市</option>
+		                  </select>
+		                  <input type="hidden" id="gid" name="gid" value="@userForm.gid"/>
+		                </div>
+	                   </div>
+	                   <div>
+		               	 <button class="btn btn-primary" style="margin-top:10px;margin-left: 15px;" type="submit">查询</button>
+		               	 <button class="btn btn-primary" style="margin-top:10px;margin-left: 10px;" type="button" onclick="javascript:window.location.href='/endorsement/newOrUpdateCompany'">+ 新建商户</button>
+		               </div>
+	            </form> 
+	       </div>
+	    </div>
+    </div>
+    <div class="col-xs-12">
+            <div class="box">                      
+		        <table id="userTable" class="table table-bordered table-hover">
+		            <thead>
+		                <tr>
+		                    <th>商户ID</th>
+		                    <th>商户名</th>
+		                    <th>登录手机号</th>
+		                    <th>区域</th>
+		                    <th>地址</th>
+		                    <th>联系人</th>
+		                    <th>联系方式</th>
+		                    <th>状态</th>
+		                    <th style="display:none;">注册时间</th>
+		                    <th style="display:none;">登录时间</th>
+		                    <th>操作</th>
+		                </tr>
+		            </thead>
+		            <tbody>
+		            @if(usersPage!=null && usersPage.getContent() != null && usersPage.getContent().size() > 0){
+		                @for(user <- usersPage.getContent()){
+		                    <tr class="h6" data-uid="@user.getUid()">
+		                    	<td>@user.getUid()</td>
+		                    	<td>@user.getNickname()</td>
+		                    	<td>@user.getPhone()</td>
+		                    	<td>@Constants.getAddressName(user.getProvince()) @Constants.getAddressName(user.getCity())</td>
+		                    	<td>@user.getAddress()</td>
+		                    	<td>@user.getContactPerson()</td>
+		                    	<td>@user.getContactPhone()</td>
+		                    	<td>
+			                    	@if(user.getState()==1){
+			                    		启用
+			                    	}else{
+			                    		停用
+			                    	}
+			                    </td>
+		                    	<td style="display:none;">@Dates.formatDateTime(user.getDate_add())</td>
+		                    	<td style="display:none;">@Dates.formatDateTime(user.getDateUpd())</td>
+		                    	<td width="300px">
+		                    		<button class="btn btn-info" onclick="javascript:window.location.href='/endorsement/newOrUpdateCompany?uid=@user.getUid()'">修改</button>
+		                    		@if(user.getState()==1){
+			                    		<button class="btn btn-info" data-toggle="modal"  data-target="#updateUserState" onclick="setUpdateUserStateValue('@user.getUid()',0);">停用</button>
+			                    	}else{
+			                    		<button class="btn btn-info" data-toggle="modal"  data-target="#updateUserState" onclick="setUpdateUserStateValue('@user.getUid()',1);">启用</button>
+			                    	}
+		                    		<button class="btn btn-info" onclick="javascript:window.location.href='/endorsement/channelManage?userid=@user.getUid()'">频道</button>
+		                    		<button class="btn btn-info" data-toggle="modal"  data-target="#importProduct" onclick="importFile('@user.getUid()');">导入</button>
+		                    		@if(user.getUid()+"" != Configuration.root().getString("wx.default.uid.dev","116413")){
+		                    			<button class="btn btn-primary" data-toggle="modal"  data-target="#syncHgTemplate" onclick="syncHgTemplate('@user.getUid()');" disabled="disabled">同步</button>
+		                    		}
+		                    	</td>
+		                    </tr>
+		                    }
+		                }else{
+		                    <tr><td class="text-center" colspan="10">没有可用数据</td></tr>
+		                }
+		            </tbody>
+		            
+		        </table>
+		        @if(usersPage.getTotalPages()>0) {
+		        <div>
+		            <div class="col-xs-6">
+		                <div class="dataTables_info" id="userTable_info">页码：@{
+		                    usersPage.getNumber() + 1
+		                }/@usersPage.getTotalPages() 共计@usersPage.getTotalElements()条记录</div>
+		            </div>
+		            <div >
+		                <div class="dataTables_paginate paging_bootstrap">
+		                    <ul class="pagination">
+		                    
+		                     @if(usersPage.getNumber()<1){
+                   					<li class="prev disabled"><a href="javascript:">首页</a></li>
+			               	}else{
+			               		<li class="prev"><a href="@searchParam()page=0">首页</a></li>
+			               	}
+			               	
+                @for(index<- 0 to (usersPage.getTotalPages()-1)){
+                	@if(usersPage.getTotalPages()< 8){
+                		<li class="@if(index == usersPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+                  	}else{
+                       	@if(usersPage.getNumber()<7) {
+							@if(index < 8){
+								<li class="@if(index == usersPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+							}else{
+								@if(index == usersPage.getTotalPages()-1){
+									<li class=""><a href="javascript:">...</a></li>
+		                		}
+			               		@if(index == usersPage.getTotalPages()-1){
+			               			<li class="@if(index == usersPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+		                		}
+							}
+						}else{	
+							@if(usersPage.getNumber() < usersPage.getTotalPages()-4){
+							 	@if(index==0 || index > usersPage.getNumber()-4 &&  index < usersPage.getNumber() +5){
+							 		<li class="@if(index == usersPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+								}else{
+									@if(index == 2){
+							 			<li class=""><a href="javascript:">...</a></li>
+									}
+									@if(index == usersPage.getTotalPages()-1){
+				                		<li class=""><a href="javascript:">...</a></li>
+			                		}
+				               		@if(index == usersPage.getTotalPages()){
+				                		<li class="@if(index == usersPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+			                		}
+								}
+							}else{
+								@if(index==0 || index > usersPage.getTotalPages()-8){
+									<li class="@if(index == usersPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+							   		}else{
+							   			@if(index==2){
+							   				<li class=""><a href="javascript:">...</a></li>
+							   			}
+							   		}
+							   	}
+			  				 }
+						}  
+                      }
+                      @if(usersPage.getNumber()==usersPage.getTotalPages()){
+                      	<li class="next disabled"><a href="javascript:">尾页</a></li>
+                      }else{
+                      	<li class="next"><a href="@searchParam()page=@{usersPage.getTotalPages()-1}">尾页</a></li>
+                      }
+		                    
+		                    
+		                    
+		                       
+		                    </ul>
+		                </div>
+		            </div>
+		        </div>
+		        }
+	        </div>
+	        
+	        <!-- 修改商户状态modal start -->
+             <div class="modal fade" id="updateUserState" tabindex="-1" role="dialog" aria-labelledby="updateUserStateLabel" aria-hidden="true">
+                 <div class="modal_wrapper">
+                     <div class="modal-dialog">
+                         <div class="modal-content">
+                             <div class="modal-header">
+                                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">关闭</span></button>
+                                 <h4 class="modal-title" >确认信息</h4>
+                             </div>
+                             <div class="modal-body" >确定修改此商户的状态？<br></div>
+                             
+                             <div class="modal-footer">
+	                             <input id="uidForUpdateState" name="uidForUpdateState" value="" type="hidden"/>
+	                             <input id="stateFlag" name="stateFlag" value="" type="hidden"/>
+	                             <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+	                             <button id="updateUserStateConfirmButton" type="button" class="btn btn-primary">确认</button>
+                             </div>
+                          </div>
+                       </div>
+                    </div>
+                </div>
+             <!-- 修改商户状态modal end -->
+             
+             <!-- 导入商户频道与商品modal start -->
+             <div class="modal fade" id="importProduct" tabindex="-1" role="dialog" aria-labelledby="importProductLabel" aria-hidden="true">
+                 <div class="modal_wrapper">
+                     <div class="modal-dialog">
+                         <div class="modal-content">
+                         <form id="importForm" action="/endorsement/importProductFile" method="post" enctype="multipart/form-data">
+                             <div class="modal-header">
+                                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">关闭</span></button>
+                                 <h4 class="modal-title" >确认信息</h4>
+                             </div>
+                             <div class="modal-body" >
+                             	
+                             		<input id="uidForImport" name="uidForImport" value="" type="hidden"/>
+	                             	<label for="companyFile">频道与商品导入</label>
+	                				<input type="file" id="companyFile" name="companyFile">
+                             	
+                             </div>
+                             
+                             <div class="modal-footer">
+	                             <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+	                             <button type="button" class="btn btn-primary" onclick="importFormSubmit();">导入</button>
+                             </div>
+                          </form>
+                          </div>
+                       </div>
+                    </div>
+                </div>
+             <!-- 导入商户频道与商品modal end -->
+             <!-- 同步至模板商户频道与商品modal start -->
+             <div class="modal fade" id="syncHgTemplate" tabindex="-1" role="dialog" aria-labelledby="syncHgTemplateLabel" aria-hidden="true">
+                 <div class="modal_wrapper">
+                     <div class="modal-dialog">
+                         <div class="modal-content">
+                         <form id="syncHgTemplateForm" action="/endorsement/syncHgTemplate" method="post" enctype="multipart/form-data">
+                             <div class="modal-header">
+                                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">关闭</span></button>
+                                 <h4 class="modal-title" >同步嗨购商城模板</h4>
+                             </div>
+                             <div class="modal-body" >
+                             	请再次确认进行同步操作，该商户的信息将与嗨购商城同步！
+                           		<input id="uidsyncHgTemplate" name="uidsyncHgTemplate" value="" type="hidden"/>
+                             </div>
+                             
+                             <div class="modal-footer">
+	                             <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+	                             <button type="button" class="btn btn-primary" onclick="syncTemplateSubmit();">同步</button>
+                             </div>
+                          </form>
+                          </div>
+                       </div>
+                    </div>
+                </div>
+             <!--  同步至模板商户频道与商品modal end -->
+    </div>
+	<!-- /.row (main row) -->
+
+</section>
+}{
+<script type="text/javascript">
+<!--
+$("#province").change(function(){
+	var province = $("#province").val();
+	if(province==-1){
+		return true;
+	}
+	$.ajax({
+        url: '/endorsement/findBbtCityByParentid/'+province+'/-1' ,
+        type: 'GET',
+        cache: false,
+        dataType: "text",
+        success: function(response){
+            if(response ){
+            	$('#city').html(response);
+            }else{
+                alert('服务器繁忙，请稍后再试！');
+            }
+        },
+        error: function(){
+            alert('服务器繁忙，请稍后再试！');
+        }
+    });
+});
+
+function setUpdateUserStateValue(uid,stateFlag){
+	$('#uidForUpdateState').val(uid);
+	$('#stateFlag').val(stateFlag);
+}
+//修改商户状态确认button
+$('#updateUserStateConfirmButton').on('click', updateUserStateFunction);
+function updateUserStateFunction(){
+	var userid=$('#uidForUpdateState').val();
+	var stateFlag=$('#stateFlag').val();
+	$.ajax({
+		url: '/endorsement/updateCompanyState/' +userid+'/'+stateFlag ,
+        type: 'GET',
+        cache: false,
+        dataType: "json",
+        success: function(json){
+            if(json){
+            	$("#updateUserState").modal('hide');
+            	location.reload();
+            }else{
+                alert('服务器繁忙，请稍后再试！');
+            }
+        },
+        error: function(){
+            alert('服务器繁忙，请稍后再试！');
+        }
+    });
+}
+function importFile(uid){
+	$('#uidForImport').val(uid);
+}
+function syncHgTemplate(uid){
+	$('#uidsyncHgTemplate').val(uid);
+}
+//检查必填项并提交表单
+function importFormSubmit(){
+	alert('导入时间稍久，请耐心等待');
+	var uidForImport=$('#uidForImport').val();
+	var ajax_option={
+			success:function(data){
+				window.location.href="/endorsement/channelManage?userid="+uidForImport;
+			}
+	}
+	$('#importForm').ajaxSubmit(ajax_option);
+}
+//检查必填项并同步频道
+function syncTemplateSubmit(){
+	alert('同步时间稍久，请耐心等待');
+	var uidsyncHgTemplate=$('#uidsyncHgTemplate').val();
+	console.log(uidsyncHgTemplate);
+	$.ajax({
+		url: '/endorsement/syncHgTemplate/'+uidsyncHgTemplate ,
+        type: 'GET',
+        cache: false,
+        dataType: "json",
+        success: function(json){
+           	console.log(json);
+            if(json){
+            	alert("同步完成");
+            	$("#syncHgTemplate").modal('hide');
+            }else{
+                alert('服务器繁忙，请稍后再试！');
+            }
+        },
+        error: function(){
+            alert('服务器繁忙，请稍后再试！');
+        }
+    });
+}
+//-->
+</script>
+}

@@ -1,0 +1,442 @@
+@(adminUser : models.admin.AdminUser)(orderVoList: java.util.List[vo.OrderVO])(totals: Long)(currpage: Int)(totalPage: Int)(typs: Html)(payMethods: Html)(orderProFlgs: Html)(lovelyStatus: Html)(fromsites: Html)(adminids: Html)(paystats: Html)(preSells: Html)
+@import utils.Dates
+@import play.Configuration
+@views.html.main{
+
+}{
+<!-- Content Header (Page header) -->
+<section class="content-header">
+	<h1>
+		订单管理
+	</h1>
+</section>
+
+<!-- Main content -->
+<section class="content">
+	<div class="col-xs-12">
+         <div class="box box-warning">
+           <div class="box-header">
+           </div><!-- /.box-header -->
+           <div class="box-body">
+             <form role="form" action="" method="get">
+              <div class="row">
+              <!-- text input -->
+                <div class="col-xs-2">
+                  <label>订单类型：</label>
+                  <select id="typ" name="typ" class="form-control">
+                  	@typs
+                  </select>
+                </div>
+                <div class="col-xs-2" id="lyDiv">
+                  <label>联营商户</label>
+                  <select id="adminid" name="adminid" class="form-control">
+                  	@adminids
+                  </select>
+                </div>
+                <div class="col-xs-2" id="ysDiv">
+                  <label>预售阶段</label>
+                  <select id="preSell" name="preSell" class="form-control">
+                  	@preSells
+                  </select>
+                </div>
+                <div class="col-xs-2">
+                  <label>处理状态：</label>
+                  <select id="orderProFlg" name="orderProFlg" class="form-control">
+                  	@orderProFlgs
+                  </select>
+                </div>
+                <div class="col-xs-2">
+                  <label>支付方式：</label>
+                  <select id="payMethod" name="payMethod" class="form-control">
+                  	@payMethods
+                  </select>
+                </div>
+                <div class="col-xs-2">
+                  <label>支付状态：</label>
+                  <select id="paystat" name="paystat" class="form-control">
+                  	@paystats
+                  </select>
+                </div>
+              </div>
+              <br/>
+              <div class="row">
+                <div class="col-xs-2">
+                  <label>撒娇订单：</label>
+                  <select id="ordertype" name="ordertype" class="form-control">
+                  	@lovelyStatus
+                  </select>
+                </div>
+                <div class="col-xs-2">
+                  <label>来源网站：</label>
+                  <select id="fromsite" name="fromsite" class="form-control">
+                  	@fromsites
+                  </select>
+                </div>
+                <div class="col-xs-2">
+                  <label>下单时间：</label>
+                  <input id="between" name="between" type="text" class="form-control" placeholder="请选择下单时间" readonly value='@request().getQueryString("between")'/>
+                </div>
+                <div class="col-xs-2">
+                  <label>订单号：</label>
+                  <input id="orderCode" name="orderCode" type="text" class="form-control" placeholder="请输入订单号" value="@request().getQueryString("orderCode")"/>
+                </div>
+                <div class="col-xs-2">
+                  <label>关键字：</label>
+                  <input id="keyword" name="keyword" type="text" class="form-control" placeholder="商品ID/商品名称/收货人/电话" value="@request().getQueryString("keyword")"/>
+                </div>
+                
+              </div>
+			  <div class="box-footer">
+               	<button class="btn btn-primary" type="submit">搜索</button>
+             </div>
+           </form>
+         </div><!-- /.box-body -->
+       </div><!-- /.box -->
+     </div><!--col-xs-12 end 访问查询 -->	
+     
+<div class="col-xs-12">
+    <div class="box">
+        <div class="box-header">
+        </div>
+        <div class="box-body table-responsive">
+            <table id="orderTable" class="table table-bordered table-hover" >
+	            <thead>
+	                <tr class="h6">
+	                    <th id="dxdTh">选择</th>
+	                    <th id="hkTh">嘿客号</th>
+	                    <th>订单号</th>
+	                    <th>PID</th>
+	                    <th>newSku</th>
+	                    <th>商品图片</th>
+	                    <th>商品名称</th>
+	                    <th>商品类型</th>
+	                    <th>来源</th>
+	                    <th>现价</th>
+	                    <th>数量</th>
+	                    <th>收货人</th>
+	                    <th>收货人电话</th>
+	                    <th>撒娇订单</th>
+	                    <th>支付方式</th>
+	                    <th>下单时间</th>
+	                    <th>状态</th>
+	                    @if("3"!=adminUser.getAdminType()){
+	                    <th >操作</th>
+	                    }
+	                    
+	                </tr>
+	            </thead>
+	            <tbody id="orderTbody">
+	                @if(orderVoList!=null  && orderVoList.size() > 0){
+	                @for(orderVo <- orderVoList){
+	                    <tr class="h6" data-uid="@orderVo.orderProId">
+	                        <td name="dxdTd">
+	                            <input type="checkbox" value="@orderVo.orderProId" name="uid" >
+	                        </td>
+	                        <td name="hkTd">
+	                            @orderVo.sfcode
+	                        </td>
+	                        <td>
+	                            <input type="text" value="@orderVo.orderId" style="display: none;" name="soId" id="soId">
+			                    <a href="/order/viewOrder?soId=@orderVo.orderId" id="orderCode">@orderVo.orderCode</a>
+	                      	</td>  
+	                        <td>@orderVo.pid</td>
+	                        <td>@orderVo.newSku</td>
+	                        <td><a href="@orderVo.listpic" target="blank">
+	                        <img style="width: 40px;height: 40px;" alt="" src="@if(orderVo.listpic.indexOf(Configuration.root().getString("kjd.ImagePre","http://image.kjt.com.pre")) > -1){@orderVo.listpic}else{@orderVo.listpic@@40w}"></a></td>
+	                        <td><a href="@orderVo.exturl" target="_blank">@orderVo.title</a></td>
+	                        <td>@orderVo.typeName</td>
+	                        <td>
+	                        	@orderVo.fromsite
+	                        </td>
+	                        <td>@orderVo.price</td>
+	                        <td>@orderVo.counts</td>
+	                        <td>@orderVo.name</td>
+	                        <td>@orderVo.phone</td>
+	                        <td>@orderVo.ordertype</td>
+	                        <td> 
+	                        	@orderVo.paymethod
+			                </td>
+	                        <td>@orderVo.dateAdd</td>
+	                        <td>
+	                            <input type="text" value="@orderVo.flg" style="display: none;" name="flg" id="flg">
+	                        	@orderVo.flg
+	                        </td>
+	                        
+	                        @if("3"!=adminUser.getAdminType()){
+		                    	<td >
+		                    	<div id="paystatDiv" @if(orderVo.paystat!="10"){style="display:none;"}>
+	                        		<a style="width: 70px;height: 30px;" class="btn btn-success btn-sm" href="javascript:void(0);" title="支付成功" data-toggle="modal" data-target="#paystatSuccess">支付成功</a>
+	                        		<div class="modal fade" id="paystatSuccess" tabindex="-1" role="dialog" aria-labelledby="paystatSuccess" aria-hidden="true">
+		                            <div class="modal_wrapper">
+		                                <div class="modal-dialog">
+		                                    <div class="modal-content">
+		                                        <div class="modal-header">
+		                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+		                                            <h4 class="modal-title" id="successLabel">支付成功</h4>
+		                                        </div>
+		                                        <div class="modal-body">
+		                                            <b>请确认更改支付状态为支付成功？</b><br>
+		                                            	该操作会修改此订单支付状态为支付成功，请仔细确认。
+		                                        </div>
+		                                        <div class="modal-footer">
+		                                            <input type="text" style="display: none;" id="soIdTemp" value="@orderVo.orderId"/>
+		                                            <input type="text" style="display: none;" id="sopIdTemp" value="@orderVo.orderProId"/>
+		                                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+		                                            <button id="successButton" type="button" class="btn btn-primary">确认</button>
+		                                        </div>
+		                                    </div>
+		                                </div>
+		                            </div>
+		                       		</div>
+		                    	</div>
+								@if(orderVo.typ==1&&orderVo.flg=="未处理"&&orderVo.paystat=="20"){
+	                        		<a style="width: 70px;height: 30px;" class="btn btn-info btn-sm" href="/order/dealOrder?soId=@orderVo.orderId&sopIds=@orderVo.orderProId" title="处理" >处&nbsp;&nbsp;&nbsp;&nbsp;理</a>
+	                        	}
+								@if(orderVo.sfcode==""&&orderVo.flg=="未处理"&&orderVo.existsParcels==false&&orderVo.paystat=="20"&&orderVo.status!="0"){
+	                        		<a style="width: 70px;height: 30px;" class="btn btn-primary btn-sm" href="javascript:void(0);" data-toggle="modal" data-target="#refund-@orderVo.orderId">申请退款</a>
+	                        		<div class="modal fade" id="refund-@orderVo.orderId" tabindex="-1" role="dialog" aria-labelledby="refund" aria-hidden="true">
+		                            <div class="modal_wrapper">
+		                                <div class="modal-dialog">
+		                                    <div class="modal-content">
+		                                        <div class="modal-header">
+		                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+		                                            <h4 class="modal-title" id="refundLabel">申请退款</h4>
+		                                        </div>
+		                                        <div class="modal-body">
+		                                            <b>确认申请退款？</b><br>
+		                                            	该操作会对此订单进行申请退款处理，请仔细确认。
+		                                        </div>
+		                                        <div class="modal-footer">
+		                                            <input type="text" style="display: none;" id="soIdTemp" value="@orderVo.orderId"/>
+		                                            <input type="text" style="display: none;" id="sopIdTemp" value="@orderVo.orderProId"/>
+		                                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+		                                            <button name="refundButton" type="button" class="btn btn-primary">确认</button>
+		                                        </div>
+		                                    </div>
+		                                </div>
+		                            </div>
+		                       		</div>
+	                        	}
+                            </td>
+		                    }
+							
+	                    </tr>
+	                    }
+	                }else{
+	                    <tr><td class="text-center" colspan="16">没有可用数据</td></tr>
+	                }
+	            </tbody>
+	            
+	            <tfoot>
+	                <tr>
+	                    <th colspan="16" id="selectAllTh">
+	                        <input id="selectAll" name="selectAll" type="checkbox"> <label id="selectAllLabel">全选</label> &nbsp;
+	                        <a class="btn btn-primary btn-sm" href="#" title="合并处理" id="mergeDeal"><i class="fa fa-bolt"></i> 合并处理</a>
+	                    </th>
+	                </tr>
+	            </tfoot>
+	        </table>
+	         <div>
+	            <div class="col-xs-6">
+	                <div class="dataTables_info" id="userTable_info">页码：@{
+	                   currpage + 1
+	                }/@totalPage  共计 @totals 条记录
+	                </div> 
+			   </div>
+			   <div class="col-xs-6">
+	                <div class="dataTables_paginate paging_bootstrap">
+	                    <ul class="pagination">
+	                    
+	                    @if(currpage < 1){
+	                 		<li class="prev disabled"><a href="javascript:">首页</a></li>
+		               	}else{
+		               		<li class="prev"><a href="@searchParam()page=0">首页</a></li>
+		               	}
+		               	@for(index <- 0 to (totalPage-1)){
+	                	@if(totalPage< 8){
+	                		<li class="@if(index == currpage){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+	                  	}else{
+	                       	@if(currpage<7) {
+								@if(index < 8){
+									<li class="@if(index == currpage){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+								}else{
+									@if(index == totalPage-1){
+										<li class=""><a href="javascript:">...</a></li>
+			                		}
+				               		@if(index == totalPage-1){
+				               			<li class="@if(index == currpage){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+			                		}
+								}
+							}else{	
+								@if(currpage < totalPage-4){
+								 	@if(index==0 || index > currpage-4 &&  index < currpage +5){
+								 		<li class="@if(index == currpage){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+									}else{
+										@if(index == 2){
+								 			<li class=""><a href="javascript:">...</a></li>
+										}
+										@if(index == totalPage-1){
+					                		<li class=""><a href="javascript:">...</a></li>
+				                		}
+					               		@if(index == totalPage){
+					                		<li class="@if(index == currpage){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+				                		}
+									}
+								}else{
+									@if(index==0 || index > totalPage-8){
+										<li class="@if(index == currpage){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+								   		}else{
+								   			@if(index==2){
+								   				<li class=""><a href="javascript:">...</a></li>
+								   			}
+								   		}
+								   	}
+				  				 }
+							}  
+	                      }
+	                    @if(currpage==totalPage){
+	                    	<li class="next disabled"><a href="javascript:">尾页</a></li>
+	                    }else{
+	                      	<li class="next"><a href="@searchParam()page=@{totalPage-1}">尾页</a></li>
+	                    }
+                    </ul>
+                </div>
+			   </div>
+			 </div>
+        </div>
+    </div>
+</div>
+
+</section>
+<!-- /.content -->
+}{
+<script type="text/javascript">
+	//判断订单类型，显示和隐藏全选按钮和合并处理按钮
+	var typVal = $("#typ").val();
+	var orderProFlgVal = $("#orderProFlg").val();
+	if(typVal==1&&orderProFlgVal==0){
+		$("#selectAllTh").show();
+		$("#dxdTh").show();
+		$("[name='dxdTd']").show();
+	}else{
+		$("#selectAllTh").hide();
+		$("#dxdTh").hide();
+		$("[name='dxdTd']").hide();
+	}
+	//判断订单类型，显示和隐藏黑客号
+	if(typVal==90||typVal==0){
+		$("#hkTh").show();
+		$("[name='hkTd']").show();
+	}else{
+		$("#hkTh").hide();
+		$("[name='hkTd']").hide();
+	}
+	
+	$("input[type='checkbox']").iCheck({
+		checkboxClass : 'icheckbox_square-blue'
+	});
+	//合并处理
+	$("#mergeDeal").click(function(){
+		//获取所有被选中的select
+		var sopIdArray = new Array();
+		var orderCode = "";
+		var soId = "";
+		var temp = 0;
+        $("[name = 'uid']:checkbox").each(function () {
+        	if ($(this).is(":checked")) {
+				var currentTr = $(this).parent().parent().parent();
+				var orderCodeTemp = currentTr.find("#orderCode").text();
+            	sopIdArray.push($(this).attr("value"));
+				if(orderCode!=""&&orderCodeTemp != orderCode){
+					temp = 1;
+					return false;
+				}
+				var flg = currentTr.find("#flg").val();
+				if(flg!='未处理'){
+					temp = 2;
+					return false;
+				}
+				soId = currentTr.find("#soId").val();
+				orderCode = orderCodeTemp;
+            }
+        });
+		if(temp == 1){
+			alert("请选择同一订单号进行合并处理！");
+			return false;
+		}else if(temp == 2){
+			alert("请选择未处理的订单进行合并处理！");
+			return false;
+		}
+        var sopIds = sopIdArray.join(",");
+		console.log("ids:"+sopIds);
+		if(sopIds==""){
+			alert("请选择相应的订单！");
+			return false;
+		}
+		var flag = confirm("请再次确认对所选订单进行合并处理！");
+		if(flag == true){
+			window.location.href="/order/dealOrder?soId="+soId+"&sopIds="+sopIds;
+		}else{
+			return false;
+		}
+	})
+	//全选
+	$("#selectAll").on('ifUnchecked', function() {
+		$("input[type='checkbox']", "#orderTable").iCheck("uncheck");
+	}).on('ifChecked', function() {
+		$("input[type='checkbox']", "#orderTable").iCheck("check");
+	});
+	
+	$("#between").daterangepicker({
+	    locale: {
+	        applyLabel: '确定',
+	        cancelLabel: '取消',
+	        fromLabel: '开始',
+	        toLabel: '结束',
+	        weekLabel: 'W',
+	        customRangeLabel: 'Custom Range',
+	        showDropdowns: true
+	    },
+	    format: 'YYYY/MM/DD'
+	});
+	
+	//支付成功
+	$("#successButton").click(function(){
+		var currentDiv = $(this).parent().parent();
+		var soIdTemp = currentDiv.find("#soIdTemp").val();
+		var sopIdTemp = currentDiv.find("#sopIdTemp").val();
+		window.location.href="/order/updateOrderWithPaystat?soId="+soIdTemp+"&sopIds="+sopIdTemp+"&paystat=20";
+	})
+	//申请退款
+	$("[name='refundButton']").click(function(){
+		var currentDiv = $(this).parent().parent();
+		var soIdTemp = currentDiv.find("#soIdTemp").val();
+		var sopIdTemp = currentDiv.find("#sopIdTemp").val();
+		console.log('soidtemp:'+soIdTemp+",sopidTemp:"+sopIdTemp);
+		window.location.href="/order/refundOrder?soId="+soIdTemp+"&sopIds="+sopIdTemp;;
+	})
+	
+	//用户判断是否针对联营商品的订单查询或预售商品的订单查询
+	changeDivDisplay();
+
+	$("#typ").change(function(){
+		changeDivDisplay();
+	})
+
+	function changeDivDisplay(){
+		var type = $('#typ option:selected').val();
+		//如果类型是联营，则可以选择联营商户
+		if(type==3){
+			$("#lyDiv").show();
+		}else{
+			$("#lyDiv").hide();
+		}
+		//如果类型是预售，则可以选择预售阶段
+		if(type==4){
+			$("#ysDiv").show();
+		}else{
+			$("#ysDiv").hide();
+		}
+	}
+</script>
+}

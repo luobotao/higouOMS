@@ -1,0 +1,57 @@
+@()@searchParam() = @{
+    var href = "?"
+    var taskId = request().getQueryString("taskId")
+    var between = request().getQueryString("between")
+    var simpleBetween = request().getQueryString("simpleBetween")
+    var payMethod = request().getQueryString("payMethod")
+    var ordertype = request().getQueryString("ordertype")
+    var parcelStatus = request().getQueryString("parcelStatus")
+    var parcelCode = request().getQueryString("parcelCode")
+    
+    if(taskId != "" && taskId != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "taskId=" + taskId
+    }
+    if(between != "" && between != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "between=" + between
+    }
+    if(simpleBetween != "" && simpleBetween != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "simpleBetween=" + simpleBetween
+    }
+    if(payMethod != "" && payMethod != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "payMethod=" + payMethod
+    }
+    if(ordertype != "" && ordertype != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "ordertype=" + ordertype
+    }
+    if(parcelStatus != "" && parcelStatus != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "parcelStatus=" + parcelStatus
+    }
+    if(parcelCode != "" && parcelCode != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "parcelCode=" + parcelCode
+    }
+    if(href != "?"){
+        href += "&"
+    }
+    href
+}@searchParam()

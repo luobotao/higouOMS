@@ -1,0 +1,48 @@
+#user
+GET    /companyManage								@controllers.endorsement.EndorsementController.companyManage
+GET    /newOrUpdateCompany							@controllers.endorsement.EndorsementController.newOrUpdateCompany
+POST   /saveCompany									@controllers.endorsement.EndorsementController.saveCompany
+GET    /updateCompanyState/:userid/:stateFlag		@controllers.endorsement.EndorsementController.updateCompanyState(userid:Long,stateFlag:Int)
+GET    /findBbtCityByParentid/:provice/:city		@controllers.endorsement.EndorsementController.findBbtCityByParentid(provice:Int,city:Int)
+
+
+#channel
+GET    /channelManage								@controllers.endorsement.EndorsementController.channelManage
+GET    /newChannel									@controllers.endorsement.EndorsementController.newChannel()
+GET    /getChannelById/:id							@controllers.endorsement.EndorsementController.getChannelById(id :Long)
+GET    /changeChannelSta							@controllers.endorsement.EndorsementController.changeChannelSta
+GET    /deletechannelById/:id						@controllers.endorsement.EndorsementController.deletechannelById(id : Long)
+GET    /getChannelProByCid/:userid/:cid				@controllers.endorsement.EndorsementController.getChannelProByCid(userid : Long,cid : Long)
+POST   /productListInChannel						@controllers.endorsement.EndorsementController.productListInChannel
+POST   /padChannelNewBanner							@controllers.endorsement.EndorsementController.padChannelNewBanner
+#product
+GET    /products									@controllers.endorsement.EndorsementController.products
+GET    /productsBatch								@controllers.endorsement.EndorsementController.productsBatch
+GET    /productsManage								@controllers.endorsement.EndorsementController.productsManage
+#endorsement
+GET    /getEndorsementById/:id						@controllers.endorsement.EndorsementController.getEndorsementById(id :Long)
+GET    /changeChannelProSta/:id/:type				@controllers.endorsement.EndorsementController.changeChannelProSta(id :Long,type:String)
+GET    /deleteChannelPro/:id						@controllers.endorsement.EndorsementController.deleteChannelPro(id:Long)
+GET    /endorsementList								@controllers.endorsement.EndorsementController.endorsementList
+GET    /newendorsement/:type						@controllers.endorsement.EndorsementController.newendorsement(type)
+POST   /saveEndorsement								@controllers.endorsement.EndorsementController.saveEndorsement
+GET    /deleteEndorsementImage/:id					@controllers.endorsement.EndorsementController.deleteEndorsementImage(id:Long)
+GET    /updateEndorsementState						@controllers.endorsement.EndorsementController.updateEndorsementState
+
+POST   /importProductFile							@controllers.endorsement.EndorsementController.importProductFile
+GET    /syncTemplate								@controllers.endorsement.EndorsementController.syncTemplate
+
+
+#channel pro
+GET    /channelList									@controllers.endorsement.EndorsementController.channelList
+GET    /newOrUpdatePadChannelPro					@controllers.endorsement.EndorsementController.newOrUpdatePadChannelPro
+POST   /savePadChannelPro							@controllers.endorsement.EndorsementController.savePadChannelPro
+POST   /padChannelNewChannel						@controllers.endorsement.EndorsementController.padChannelNewChannel
+POST   /savePadChannelProView						@controllers.endorsement.EndorsementController.savePadChannelProView
+GET    /changeChannelProViewSta/:id/:type			@controllers.endorsement.EndorsementController.changeChannelProViewSta(id :Long,type:String)
+GET    /deleteChannelProView/:id					@controllers.endorsement.EndorsementController.deleteChannelProView(id:Long)
+
+GET    /syncHgTemplate/:userid						@controllers.endorsement.EndorsementController.syncHgTemplate(userid:Long)
+GET    /refreshSyncInfo								@controllers.endorsement.EndorsementController.refreshSyncInfo()
+
+

@@ -1,0 +1,64 @@
+@()@searchParam() = @{
+    var href = "?"
+    var id = request().getQueryString("id")
+    var sname = request().getQueryString("sname")
+    var nsort = request().getQueryString("nsort")
+    var between = request().getQueryString("between")
+    var sid = request().getQueryString("sid")
+    var pidOrNewSku = request().getQueryString("pidOrNewSku")
+    var startNsort = request().getQueryString("startNsort")
+    var endNsort = request().getQueryString("endNsort")
+    
+    if(id != "" && id != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "id=" + id
+    }
+    if(sname != "" && sname != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "sname=" + sname
+    }
+    if(nsort != "" && nsort != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "nsort=" + nsort
+    }
+    if(between != "" && between != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "between=" + between
+    }
+    if(sid != "" && sid != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "sid=" + sid
+    }
+    if(pidOrNewSku != "" && pidOrNewSku != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "pidOrNewSku=" + pidOrNewSku
+    }
+    if(startNsort != "" && startNsort != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "startNsort=" + startNsort
+    }
+    if(endNsort != "" && endNsort != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "endNsort=" + endNsort
+    }
+    if(href != "?"){
+        href += "&"
+    }
+    href
+}@searchParam()

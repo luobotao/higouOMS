@@ -1,0 +1,148 @@
+@views.html.main {
+<!-- css -->
+}{
+<!-- Content Header (Page header) -->
+
+<!-- Main content -->
+<section class="content">
+	<!-- Main row -->
+	<div class="col-xs-12">
+		<div class="box">
+		    <div class="box-header">
+		    </div>
+		    <div>
+				<table id="productsTable" class="table table-bordered table-hover">
+					<thead>
+						<tr>
+							<th>PID</th>
+							<th>newSku</th>
+							<th>商品图片</th>
+							<th>商品名称</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+
+					<tfoot>
+
+					</tfoot>
+				</table>
+			</div>
+              
+              <!-- 删除modal start -->
+             <div class="modal fade" id="deleteRedisProductModal" tabindex="-1" role="dialog" aria-labelledby="deleteRedisProductModalLabel" aria-hidden="true">
+                 <div class="modal_wrapper">
+                     <div class="modal-dialog">
+                         <div class="modal-content">
+                         	<input type="hidden" id="productId" name="productId">
+                             <div class="modal-header">
+                                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">关闭</span></button>
+                                 <h4 class="modal-title" >确认信息</h4>
+                             </div>
+                             <div class="modal-body">确定从内存中删除此商品？<br></div>
+                             <div class="modal-footer">
+                                 <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                 <button id="deleteRedisProductButton" type="button" class="btn btn-primary">确认</button>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+             <!-- 删除modal end -->
+             
+		</div>
+	</div>
+	<!-- /.row (main row) -->
+
+</section>
+}{
+<script type="text/javascript">
+$('#deleteRedisProductButton').on('click', function(){
+	var productId =$('#productId').val();
+    $.ajax({
+        url: '/redis/deleteRedisProductByPid/'+productId,
+        type: 'GET',
+        cache: false,
+        dataType: "json",
+        success: function(json){
+            if(json){
+                $("#deleteRedisProductModal").modal('hide');
+                window.location.reload();
+            }else{
+                alert('服务器繁忙，请稍后再试！');
+            }
+        },
+        error: function(){
+            alert('服务器繁忙，请稍后再试！');
+        }
+    })
+});
+
+var datatable = $('#productsTable').dataTable( {
+	"fnInitComplete": function (o) {
+		 reSizeParentIframe();
+	 },
+	//"serverSide": true,
+	//"processing": true,
+	//"bStateSave": true,
+    "ajax": "/redis/productsRedisList",
+    "bDestroy":true,
+    "oLanguage": {
+        "sLengthMenu": "每页显示 _MENU_ 条记录",
+        "sZeroRecords": "对不起，查询不到任何相关数据",
+        "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
+        "sInfoEmtpy": "找不到相关数据",
+        "sInfoFiltered": "数据表中共为 _MAX_ 条记录)",
+        "sProcessing": "正在加载中...",
+        "sSearch": "搜索",
+        "sUrl": "", //多语言配置文件，可将oLanguage的设置放在一个txt文件中，例：Javascript/datatable/dtCH.txt
+        "oPaginate": {
+            "sFirst":    "第一页",
+            "sPrevious": " 上一页 ",
+            "sNext":     " 下一页 ",
+            "sLast":     " 最后一页 "
+        }
+    }, //多语言配置
+    "aaSorting": [
+              	[1, "desc" ]
+              ],
+    "columns": [
+                { "data": "pid" },
+                { "data": "newSku" },
+                { "data": null,render : function ( data, type, row ) {
+                	return "<img width=\"40\" height=\"40\" valign=\"middle\" src=\""+data.listpic+"\">"
+                }},
+                { "data": "title" },
+                { "data": null,render : function ( data, type, row ) {
+                	var button="<button class=\"btn btn-danger\" type=\"button\" onclick=\"deleteProduct(\'"+data.pid+"\');\" data-toggle=\"modal\" data-target=\"#deleteRedisProductModal\">删除</button>";
+                    return button;
+                }}
+            ]
+});
+// 删除填充数据
+function deleteProduct(pid){
+	$("#productId").val(pid);
+}
+
+
+//子页面重新修改父页面iframe高度
+function reSizeParentIframe() {
+    var realHeight = 0;
+    if (navigator.userAgent.indexOf("Firefox") > 0 || navigator.userAgent.indexOf("Mozilla") > 0 || navigator.userAgent.indexOf("Safari") > 0 || navigator.userAgent.indexOf("Chrome") > 0) { // Mozilla, Safari,Chrome, ...  
+        realHeight = window.document.documentElement.offsetHeight + 35; 
+    } else if (navigator.userAgent.indexOf("MSIE") > 0) { // IE  
+        var bodyScrollHeight = window.document.body.scrollHeight + 21; //取得body的scrollHeight  
+        var elementScrollHeight = window.document.documentElement.scrollHeight + 1; //取得documentElement的scrollHeight  
+        realHeight = Math.max(bodyScrollHeight, elementScrollHeight); //取当中比较大的一个  
+    } else {//其他浏览器  
+        realHeight = window.document.body.scrollHeight + window.document.body.clientHeight + 1;
+    }
+    if (realHeight < 400) {
+        realHeight = 400;
+    }
+    if ($("#mainFrame", window.parent.document).is("iframe")) {
+        $("#mainFrame", window.parent.document).height(realHeight);
+    }
+}
+</script>
+
+}

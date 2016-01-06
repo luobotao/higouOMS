@@ -1,0 +1,171 @@
+@(operateLogPage: org.springframework.data.domain.Page[models.admin.OperateLog])
+@import utils.Dates
+@import utils.Constants.ChannelTypes
+@views.html.main{
+
+}{
+<!-- Content Header (Page header) -->
+<section class="content-header">
+	<h1>
+		日志管理
+	</h1>
+</section>
+
+<!-- Main content -->
+<section class="content">
+	
+	<div class="col-xs-12">
+         <div class="box box-warning">
+           <div class="box-body">
+             <form role="form" action="" >
+              <div class="row">
+              <!-- text input -->
+                <div class="col-xs-6">
+                  <label>时间间隔</label>
+                  <input id="between" name="between" type="text" class="form-control" placeholder="请输入时间间隔" readonly value="@request().getQueryString("between")"/>
+                </div>
+                
+              </div>
+			  <div>
+               	<button class="btn btn-primary" style="margin-top:10px;margin-left: 15px;" type="submit">查询</button>
+             </div>
+           </form>
+         </div><!-- /.box-body -->
+       </div><!-- /.box -->
+     </div><!--col-xs-12 end -->
+	
+	
+	
+<div class="col-xs-12">
+                 <div class="box">
+                     <div class="box-header">
+                         <h3 class="box-title">日志列表</h3>
+                     </div>
+                     <div class="box-body table-responsive">
+                         <table id="channelTable" class="table table-bordered table-hover">
+                             <thead>
+                                 <tr>
+                                     <th>ID</th>
+                                     <th>时间</th>
+                                     <th>操作人</th>
+                                     <th>类型</th>
+                                     <th>明细</th>
+                                 </tr>
+                             </thead>
+                             <tbody>
+                              @if(operateLogPage!=null && operateLogPage.getContent() != null && operateLogPage.getContent().size() > 0){
+                                 @for(operateLog <- operateLogPage.getContent()){
+                                     <tr class="h6" data-uid="@operateLog.getId()">
+                                     	<td>@operateLog.getId()</td>
+                                     	<td>@Dates.formatDateTime(operateLog.getDateAdd())</td>
+                                     	<td>@operateLog.getAdminname()</td>
+                                     	<td>@operateLog.getTyp()</td>
+                                     	<td>@operateLog.getRemark()</td>
+                                     </tr>
+                              }
+                          }else{
+                              <tr><td class="text-center" colspan="10">没有可用数据</td></tr>
+                          }
+                      </tbody>
+                      
+                      <tfoot>
+                          
+                      </tfoot>
+                  </table>
+                  
+                  
+                  @if(operateLogPage.getTotalPages()>0) {
+                  <div>
+                      <div class="col-xs-4">
+                          <div class="dataTables_info" id="userTable_info">页码：@{
+                              operateLogPage.getNumber() + 1
+                          }/@operateLogPage.getTotalPages() 共计@operateLogPage.getTotalElements()条记录</div>
+                      </div>
+                      <div class="col-xs-8">
+                          <div class="dataTables_paginate paging_bootstrap">
+                              <ul class="pagination">
+                                  
+                 @if(operateLogPage.getNumber()<1){
+             					<li class="prev disabled"><a href="javascript:">首页</a></li>
+            	}else{
+            		<li class="prev"><a href="@searchParam()page=0">首页</a></li>
+            	}
+            	
+          @for(index<- 0 to (operateLogPage.getTotalPages()-1)){
+          	@if(operateLogPage.getTotalPages()< 8){
+          		<li class="@if(index == operateLogPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+            	}else{
+                 	@if(operateLogPage.getNumber()<7) {
+	@if(index < 8){
+		<li class="@if(index == operateLogPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+	}else{
+		@if(index == operateLogPage.getTotalPages()-1){
+			<li class=""><a href="javascript:">...</a></li>
+            		}
+            		@if(index == operateLogPage.getTotalPages()-1){
+            			<li class="@if(index == operateLogPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+            		}
+	}
+}else{	
+	@if(operateLogPage.getNumber() < operateLogPage.getTotalPages()-4){
+	 	@if(index==0 || index > operateLogPage.getNumber()-4 &&  index < operateLogPage.getNumber() +5){
+	 		<li class="@if(index == operateLogPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+		}else{
+			@if(index == 2){
+	 			<li class=""><a href="javascript:">...</a></li>
+			}
+			@if(index == operateLogPage.getTotalPages()-1){
+              		<li class=""><a href="javascript:">...</a></li>
+             		}
+             		@if(index == operateLogPage.getTotalPages()){
+              		<li class="@if(index == operateLogPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+             		}
+		}
+	}else{
+		@if(index==0 || index > operateLogPage.getTotalPages()-8){
+			<li class="@if(index == operateLogPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+	   		}else{
+	   			@if(index==2){
+	   				<li class=""><a href="javascript:">...</a></li>
+	   			}
+	   		}
+	   	}
+			 }
+}  
+                }
+                @if(operateLogPage.getNumber()==operateLogPage.getTotalPages()){
+                	<li class="next disabled"><a href="javascript:">尾页</a></li>
+                }else{
+                	<li class="next"><a href="@searchParam()page=@{operateLogPage.getTotalPages()-1}">尾页</a></li>
+                }
+                
+                              </ul>
+                          </div>
+                      </div>
+                  </div>
+                  }
+                  
+                  
+              </div>
+          </div>
+      </div>
+	<!-- /.row (main row) -->
+
+</section>
+<!-- /.content -->
+}{
+<script type="text/javascript">
+$("#between").daterangepicker({
+    locale: {
+        applyLabel: '确定',
+        cancelLabel: '取消',
+        fromLabel: '开始',
+        toLabel: '结束',
+        weekLabel: 'W',
+        customRangeLabel: 'Custom Range',
+        showDropdowns: true
+    },
+    format: 'YYYY/MM/DD'
+});
+</script>
+}

@@ -1,0 +1,25 @@
+# Ignore Play! working directory #
+bin/
+/db
+.eclipse
+/lib/
+/logs/
+/modules
+/project/project
+/project/target
+/target
+tmp/
+test-result
+server.pid
+*.iml
+*.eml
+/dist/
+.cache
+.svn/
+.idea/
+.classpath
+/test/
+/test-2.11/
+.cache-main
+application.home_IS_UNDEFINED/
+logback/

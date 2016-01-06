@@ -1,0 +1,53 @@
+@(channelList: List[models.product.PadChannel])
+@views.html.main {
+<!-- css -->
+}{
+<!-- Content Header (Page header) -->
+
+<!-- Main content -->
+<section class="content">
+	<!-- Main row -->
+	<div class="col-xs-12">
+		<div class="box">
+		    <div class="box-header">
+		    </div>
+		    <div class="box-body table-responsive">
+		        <table id="taskTable" class="table table-bordered table-hover">
+		            <thead>
+		                <tr>
+		                    <th>ID</th>
+		                    <th>频道名称</th>
+		                    <th>操作</th>
+		                </tr>
+		            </thead>
+		            <tbody>
+		                @if(channelList!=null && channelList.size() > 0){
+		                @for(padchannel <- channelList){
+		                    <tr class="h6" data-uid="@padchannel.getId()">
+		                        <td>@padchannel.getId()</td>
+		                        <td>@padchannel.getCname()</td>
+		                        <td><button class="btn btn-info" onclick="window.parent.setChannelValue('@padchannel.getId()');">选取</button></td>
+		                    </tr>
+		                    }
+		                }else{
+		                    <tr><td class="text-center" colspan="3">没有可用数据</td></tr>
+		                }
+		            </tbody>
+		            
+		        </table>
+		        
+		        
+		        
+		    </div>
+		</div>
+	</div>
+	<!-- /.row (main row) -->
+
+</section>
+}{
+<script type="text/javascript">
+
+//-->
+</script>
+
+}

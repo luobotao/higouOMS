@@ -1,0 +1,125 @@
+@(role: models.admin.Role)
+@import utils.Dates
+@views.html.main{ 
+<link href="@assets.CdnAssets.urlForAdminLTEPlugins("jquery-ztree/zTreeStyle.css")" rel="stylesheet" type="text/css" />
+}{
+<!-- Content Header (Page header) -->
+<section class="content-header">
+	<h1>角色管理</h1>
+</section>
+
+<!-- Main content -->
+<section class="content" style="min-height: 800px;">
+	<div class="col-xs-12">
+		<div class="box box-warning">
+			<div class="box-body">
+				<form id="roleForm" role="form" action="/admin/saveRole" method="post">
+					<input id="roleid" name="roleid" type="hidden" value="@role.getId()"/>
+					<div class="row">
+						<!-- text input -->
+						<div class="col-xs-2">
+							<label for="roleName">角色名称</label> 
+							<input id="roleName" name="roleName" type="text" class="form-control" value="@role.getRole()" />
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-2">
+							<label for="remark">备注</label> 
+							<input id="remark" name="remark" type="text" class="form-control" value="@role.getRemark()"/>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-12">
+							<label for="roleTree">权限</label> 
+							<div class="content_wrap">
+								<div class="zroleTreeBackground left">
+									<ul id="roleTree" class="ztree"></ul>
+								</div>
+							</div>
+						</div>
+					</div>
+					<input type="hidden" id="checkedIds" name="checkedIds" value="" />
+					<div>
+						<button class="btn btn-primary" style="margin-top: 10px; margin-left: 15px;" type="button" onclick="submitForm();">保存</button>
+					</div>
+				</form>
+			</div>
+			<!-- /.box-body -->
+		</div>
+		<!-- /.box -->
+
+
+		
+	</div>
+
+
+
+</section>
+<!-- /.content -->
+}{
+<script src="@assets.CdnAssets.urlForAdminLTEPlugins("jquery-ztree/jquery.ztree.core-3.5.js")" type="text/javascript"></script>
+<script src="@assets.CdnAssets.urlForAdminLTEPlugins("jquery-ztree/jquery.ztree.excheck-3.5.js")" type="text/javascript"></script>
+<script type="text/javascript">
+<!--
+var setting = {
+	check: {
+		enable: true
+	},
+	data: {
+		simpleData: {
+			enable: true
+		}
+	}
+};
+var zNodes = [] ;
+function setCheck() {
+	var zTree = $.fn.zTree.getZTreeObj("roleTree");
+	zTree.setting.check.chkboxType = { "Y" : "ps", "N" : "ps" };
+}
+function init() {
+	$.fn.zTree.init($("#roleTree"), setting, zNodes);
+	setCheck();
+}
+$(document).ready(function(){
+	
+	$.ajax({
+	    url: '/admin/getRole',
+	    type: 'GET',
+	    cache: false,
+	    data:{ roleid : "@role.getId()"},
+	    dataType: "json",
+	    success: function(json){
+	        if(json){
+	        	for( i=0;i<json.length;i++){
+	            	zNodes.push(json[i]);
+	        	}
+	        	init();
+	        }else{
+	            alert('服务器繁忙，请稍后再试！');
+	        }
+	    },
+	    error: function(){
+	        alert('服务器繁忙，请稍后再试！');
+	    }
+	});
+	
+});
+function submitForm(){
+	var checkedMenuIds = [];
+	var treeObj = $.fn.zTree.getZTreeObj("roleTree");
+	var nodes = treeObj.getCheckedNodes(true);
+	for( i=0;i<nodes.length;i++){
+		var id=nodes[i].id;
+		checkedMenuIds.push(id);
+	}
+	$("#checkedIds").val(checkedMenuIds);
+	var ajax_option={
+			success:function(data){
+				window.location.href="/admin/sysRoleList";
+			}
+	}
+	$('#roleForm').ajaxSubmit(ajax_option);
+}
+//-->
+</script>
+}

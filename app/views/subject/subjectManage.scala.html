@@ -1,0 +1,339 @@
+@(subjectPage: org.springframework.data.domain.Page[models.subject.Subject])
+@import utils.Dates
+@views.html.main{
+
+}{
+<!-- Content Header (Page header) -->
+<section class="content-header">
+	<h1>
+		专题管理
+	</h1>
+</section>
+
+<!-- Main content -->
+<section class="content">
+	
+	<div class="col-xs-12">
+         <div class="box box-warning">
+           <div class="box-header">
+           </div><!-- /.box-header -->
+           <div class="box-body">
+             <form role="form" action="" method="get">
+             <input id="id" name="id" type="hidden" />
+              <div class="row">
+              <!-- text input -->
+                <div class="col-xs-2">
+                  <label for="sname">专题名称</label>
+                  <input id="sname" name="sname" type="text" class="form-control" placeholder="专题名称" value="@request().getQueryString("sname")"/>
+                </div>
+              </div>
+			  <div class="box-footer">
+               	 <button class="btn btn-primary btn-sm" type="submit">查询</button>
+               	 <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addSubject" type="button">新建</button>
+             </div>
+           </form>
+         </div><!-- /.box-body -->
+       </div><!-- /.box -->
+     </div><!--col-xs-12 end -->
+     <div class="modal fade" id="addSubject" tabindex="-1" role="dialog" aria-labelledby="addSubjectLabel" aria-hidden="true">
+	     <div class="modal_wrapper">
+	         <div class="modal-dialog">
+	             <div class="modal-content">
+	                 <div class="modal-header">
+	                     <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+	                     <h4 class="modal-title" id="closeTaskMessage">添加专题</h4>
+	                 </div>
+	                 <div class="modal-body">
+	                 	<form role="form" action="/subject/addSubject" method="get" id="addSubjectForm">
+	                 		<div class="row">
+					            <div class="col-xs-12">
+					            	<label for="sname">专题名称</label>
+					                <input id="addsname" name="sname" type="text" class="form-control" placeholder="专题名称"/>
+					        	</div>
+					        </div>
+	                 		<div class="row">
+					          	<div class="col-xs-12">
+					            	<label for="nsort">排序值</label>
+					                <input id="addnsort" name="nsort" type="text" class="form-control" placeholder="排序值" onkeyup="(this.v=function(){this.value=this.value.replace(/[^0-9-]+/,'');}).call(this)" onblur="this.v();"/>
+					        	</div>
+					        </div>
+	                 	</form>
+	                 </div>
+	                 <div>
+	                     <button type="button" style="margin-top:10px;margin-left: 15px;" class="btn btn-default" data-dismiss="modal">取消</button>
+	                     <button id="addSubjectButton" style="margin-top:10px;margin-left: 10px;" type="button" class="btn btn-primary">保存</button>
+	                 </div>
+	             </div>
+	         </div>
+	     </div>
+	 </div>
+	<div class="col-xs-12">
+       <div class="box">
+           <div class="box-header">
+               <h3 class="box-title">专题列表</h3>
+           </div>
+           <div class="box-body table-responsive">
+               <table id="subjectTable" class="table table-bordered table-hover">
+                   <thead>
+                       <tr>
+                           <th>专题ID</th>
+                           <th>专题名称</th>
+                           <th>排序值</th>
+                           <th>创建时间</th>
+                           <th>操作</th>
+                       </tr>
+                   </thead>
+                   <tbody>
+                       @if(subjectPage!=null && subjectPage.getContent() != null && subjectPage.getContent().size() > 0){
+                       @for(subject <- subjectPage.getContent()){
+                           <tr class="h6" data-uid="@subject.getId()">
+                               <td>@subject.getId()</td>
+                               <td>@subject.getSname()</td>
+                               <td>@subject.getNsort()</td>
+                               <td>@Dates.formatDateTime(subject.getDate_add())</td>
+                               <td>
+                               <button class="btn btn-info" data-toggle="modal" data-target="#updateSubject" onclick="setUpdateSubjectValue('@subject.getId()','@subject.getSname()','@subject.getNsort()');">修改</button>
+                               <button class="btn btn-danger" data-toggle="modal" data-target="#deleteSubject" onclick="setDeleteSubjectValue('@subject.getId()');">删除</button>
+                               </td>
+	                       </tr>
+	                    }
+	                }else{
+	                    <tr><td class="text-center" colspan="5">没有可用数据</td></tr>
+	                }
+	            </tbody>
+            
+	            <tfoot>
+	                <div class="modal fade" id="deleteSubject" tabindex="-1" role="dialog" aria-labelledby="deleteSubjectLabel" aria-hidden="true">
+	                    <div class="modal_wrapper">
+	                        <div class="modal-dialog">
+	                            <div class="modal-content">
+	                                <div class="modal-header">
+	                                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+	                                    <h4 class="modal-title" id="closeTaskMessage">确认信息</h4>
+	                                </div>
+	                                <input type="hidden" id="deleteSubjectId" name="deleteSubjectId">
+	                                <div class="modal-body">确定删除此专题？<br></div>
+	                                <div class="modal-footer">
+	                                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+	                                    <button id="deleteSubjectButton" type="button" class="btn btn-primary">确认</button>
+	                                </div>
+	                            </div>
+	                        </div>
+	                    </div>
+	                </div>
+	                
+	                <div class="modal fade" id="updateSubject" tabindex="-1" role="dialog" aria-labelledby="updateSubjectLabel" aria-hidden="true">
+	                    <div class="modal_wrapper">
+	                        <div class="modal-dialog">
+	                            <div class="modal-content">
+	                                <div class="modal-header">
+	                                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+	                                    <h4 class="modal-title" id="closeTaskMessage">修改专题</h4>
+	                                </div>
+	                                <div class="modal-body">
+	                                	<form role="form" action="/subject/updateSubject" method="post" id="updateSubjectForm">
+						               		<div class="row">
+								            <div class="col-xs-12">
+								            	<label for="id">专题ID</label>
+								                <input id="updid" name="id" type="text" class="form-control" placeholder="专题ID" disabled="disabled"/>
+								        	</div>
+								        </div>
+						               		<div class="row">
+								            <div class="col-xs-12">
+								            	<label for="sname">专题名称</label>
+								                <input id="updsname" name="sname" type="text" class="form-control" placeholder="专题名称"/>
+								        	</div>
+								        </div>
+						               		<div class="row">
+								          	<div class="col-xs-12">
+								            	<label for="nsort">排序值</label>
+								                <input id="updnsort" name="nsort" type="text" class="form-control" placeholder="排序值" onkeyup="(this.v=function(){this.value=this.value.replace(/[^0-9-]+/,'');}).call(this)" onblur="this.v();"/>
+								        	</div>
+								        </div>
+						               	</form>
+	                                </div>
+	                                <div class="modal-footer">
+	                                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+	                                    <button id="updateSubjectButton" type="button" class="btn btn-primary">保存</button>
+	                                </div>
+	                            </div>
+	                        </div>
+	                    </div>
+	                </div>
+	            </tfoot>
+        	</table>
+                  
+	        @if(subjectPage.getTotalPages()>0) {
+	        <div>
+	            <div class="col-xs-6">
+	                <div class="dataTables_info" id="userTable_info">页码：@{
+	                    subjectPage.getNumber() + 1
+	                }/@subjectPage.getTotalPages() 共计@subjectPage.getTotalElements()条记录</div>
+	            </div>
+	            <div class="col-xs-6">
+	                <div class="dataTables_paginate paging_bootstrap">
+	                    <ul class="pagination">
+                        
+					       @if(subjectPage.getNumber()<1){
+					   					<li class="prev disabled"><a href="javascript:">首页</a></li>
+					  	}else{
+					  		<li class="prev"><a href="@searchParam()page=0">首页</a></li>
+					  	}
+					            	
+					    @for(index<- 0 to (subjectPage.getTotalPages()-1)){
+					    	@if(subjectPage.getTotalPages()< 8){
+					    		<li class="@if(index == subjectPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+					      	}else{
+					           	@if(subjectPage.getNumber()<7) {
+									@if(index < 8){
+										<li class="@if(index == subjectPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+									}else{
+										@if(index == subjectPage.getTotalPages()-1){
+											<li class=""><a href="javascript:">...</a></li>
+								            		}
+								            		@if(index == subjectPage.getTotalPages()-1){
+								            			<li class="@if(index == subjectPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+								            		}
+												}
+											}else{	
+												@if(subjectPage.getNumber() < subjectPage.getTotalPages()-4){
+												 	@if(index==0 || index > subjectPage.getNumber()-4 &&  index < subjectPage.getNumber() +5){
+												 		<li class="@if(index == subjectPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+													}else{
+														@if(index == 2){
+												 			<li class=""><a href="javascript:">...</a></li>
+														}
+														@if(index == subjectPage.getTotalPages()-1){
+											              		<li class=""><a href="javascript:">...</a></li>
+											             		}
+											             		@if(index == subjectPage.getTotalPages()){
+											              		<li class="@if(index == subjectPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+											             		}
+													}
+												}else{
+													@if(index==0 || index > subjectPage.getTotalPages()-8){
+														<li class="@if(index == subjectPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+												   		}else{
+												   			@if(index==2){
+												   				<li class=""><a href="javascript:">...</a></li>
+												   			}
+												   		}
+												   	}
+														 }
+											}  
+						                }
+						                @if(subjectPage.getNumber()==subjectPage.getTotalPages()){
+						                	<li class="next disabled"><a href="javascript:">尾页</a></li>
+						                }else{
+						                	<li class="next"><a href="@searchParam()page=@{subjectPage.getTotalPages()-1}">尾页</a></li>
+						                }
+                
+                     </ul>
+                 </div>
+             </div>
+         </div>
+         }
+                  
+                  
+              </div>
+          </div>
+      </div>
+	<!-- /.row (main row) -->
+
+</section>
+<!-- /.content -->
+}{
+<script type="text/javascript">
+
+    /**
+     * 删除专题
+     */
+	function setDeleteSubjectValue(id){
+    	$('#deleteSubjectId').val(id);
+    }
+    
+    /**
+     * 修改专题
+     */
+	function setUpdateSubjectValue(id,sname,nsort){
+		$("#updid").val(id);
+		$("#updsname").val(sname);
+		$("#updnsort").val(nsort);
+		console.log($("#updnsort").val());
+    }
+    
+	
+	/**
+     * Ajax删除专题
+     */
+    var deleteSubjectFunction = function(){
+		var deleteSubjectId =$('#deleteSubjectId').val();
+        $.ajax({
+            url: '/subject/deleteSubjectById/'+deleteSubjectId,
+            type: 'GET',
+            cache: false,
+            dataType: "json",
+            data: {},
+            success: function(json){
+                if(json){
+                    location.reload()
+                }else{
+                    alert('服务器繁忙，请稍后再试！');
+                    errCall && errCall();
+                }
+            },
+            error: function(){
+                alert('服务器繁忙，请稍后再试！');
+                errCall && errCall();
+            }
+        })
+    };
+	
+	/**
+     * 删除专题绑定事件
+     */
+    $('#deleteSubjectButton').on('click', deleteSubjectFunction);
+	//添加专题
+	$("#addSubjectButton").click(function(){
+		var sname = $("#addsname").val();
+		var nsort = $("#addnsort").val();
+		if(sname==""||nsort==""){
+			alert("请填写专题名称和排序值");
+			return false;
+		}else{
+			console.log(sname +" - "+ nsort);
+			$("#addSubjectForm").submit();
+		}
+	})
+	//修改专题
+	$("#updateSubjectButton").click(function(){
+		var id = $("#updid").val();
+		var sname = $("#updsname").val();
+		var nsort = $("#updnsort").val();
+		if(id==""||sname==""||nsort==""){
+			alert("请填写专题名称和排序值");
+			return false;
+		}else{
+			$.ajax({
+	            url: '/subject/updateSubject',
+	            type: 'POST',
+	            cache: false,
+	            dataType: "json",
+	            data: {"id":id,"sname":sname,"nsort":nsort},
+	            success: function(json){
+	                if(json){
+	                    location.reload()
+	                }else{
+	                    alert('服务器繁忙，请稍后再试！');
+	                    errCall && errCall();
+	                }
+	            },
+	            error: function(){
+	                alert('服务器繁忙，请稍后再试！');
+	                errCall && errCall();
+	            }
+	        })
+		}
+	})
+</script>
+}

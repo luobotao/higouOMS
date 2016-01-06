@@ -1,0 +1,43 @@
+GET    /                           				@controllers.admin.AdminController.index
+GET    /main                           			@controllers.admin.AdminController.main
+POST   /                           				@controllers.admin.AdminController.index
+GET    /users                      				@controllers.admin.AdminController.users
+GET    /users/:id                      			@controllers.admin.AdminController.getAdminUser(id: Long)
+POST   /saveUser                           		@controllers.admin.AdminController.saveUser
+POST   /users/updateAdminStatus                 @controllers.admin.AdminController.updateAdminStatus
+POST   /users/updateAdminRole                 @controllers.admin.AdminController.updateAdminRole
+GET    /users/role/:id                      	@controllers.admin.AdminController.usersRole(id: Long)
+GET    /adminUserListBatchForJson               @controllers.admin.AdminController.adminUserListBatchForJson
+GET    /login                      				@controllers.admin.AdminController.login
+GET    /logout                     				@controllers.admin.AdminController.logout
+GET    /sysMenuList                				@controllers.admin.SystemController.sysMenuList
+POST    /saveSysMenu                			@controllers.admin.SystemController.saveSysMenu
+GET    /sysRoleList                				@controllers.admin.SystemController.sysRoleList
+POST    /assignRoleToAdminUsers                	@controllers.admin.SystemController.assignRoleToAdminUsers
+GET    /newOrUpdateRole            				@controllers.admin.SystemController.newOrUpdateRole
+GET    /getRole                					@controllers.admin.SystemController.getRole
+POST    /saveRole                				@controllers.admin.SystemController.saveRole
+GET    /sysMenuList2               		 		@controllers.admin.SystemController.sysMenuList2
+
+GET    /freshTaskManage            				@controllers.admin.AdminController.freshTaskManage
+POST    /createFreshTask           				@controllers.admin.AdminController.createFreshTask
+GET    /closeFreshTaskByIds/:ids   				@controllers.admin.AdminController.closeFreshTaskByIds(ids: String)
+
+#订单
+GET    /shopingOrder           	   				@controllers.admin.AdminController.shopingOrder
+GET    /pardelsManage              				@controllers.admin.AdminController.pardelsManage
+
+GET     /AliPay/paySuccess           			controllers.admin.AliPayAPIController.paySuccess
+GET     /AliPay/sendAliPay           			controllers.admin.AliPayAPIController.sendAliPay
+GET     /alipay/:orderId             			@controllers.admin.AliPayAPIController.checkOutOrder(orderId : String)
+GET     /alipay/alipayNotify/        			@controllers.admin.AliPayAPIController.alipayNotify()
+POST    /alipay/alipayNotify/        			@controllers.admin.AliPayAPIController.alipayNotify()
+GET     /alipay/alipayReturn/        			@controllers.admin.AliPayAPIController.alipayReturn()
+POST    /alipay/alipayReturn/        			@controllers.admin.AliPayAPIController.alipayReturn()
+GET     /alipay/merchant_url/        			@controllers.admin.AliPayAPIController.merchant_url()
+POST    /alipay/merchant_url/        			@controllers.admin.AliPayAPIController.merchant_url()
+
+#send sms
+GET     /smsManage        						@controllers.admin.SmsController.smsManage()
+POST    /smsManage           					@controllers.admin.SmsController.smsManage
+

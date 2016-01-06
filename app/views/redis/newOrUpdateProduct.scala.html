@@ -1,0 +1,1473 @@
+@(categorysFirst : Html)(wayremarks : Html)(fromsites : Html)(currencyListHtml : Html)(depositTypes : Html)(distincts : Html)(pics : Html)(pid: Long)(productNow : models.product.Product)(productImagesList : List[models.product.ProductImages])(detailList: List[models.product.ProductDetail])(productList: List[models.product.Product])(activeNum : String)
+@import utils.Constants.Wayremark
+@import utils.Constants.TypsProduct
+@views.html.main {
+<!-- css -->
+}{
+<!-- Content Header (Page header) -->
+<section class="content-header">
+	<h1>
+		&nbsp;&nbsp;&nbsp;&nbsp;内容管理>商品管理 <small>@if(pid == 0){新建商品}@if(pid > 0){修改商品}</small>
+	</h1>
+	<ol class="breadcrumb" style="margin-right: 50px;">
+		<li><a href="/admin"><i class="fa fa-dashboard"></i>首页</a></li>
+		<li class="active">@if(pid == 0){新建商品}@if(pid > 0){修改商品}</li>
+	</ol>
+</section>
+
+<!-- Main content -->
+<section class="content">
+	
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div class="span12">
+			<div class="tabbable" id="tabs-512379">
+				<ul class="nav nav-tabs">
+					<li @if(activeNum=="1"){class="active"}>
+						<a href="#panel-1" data-toggle="tab">基本信息</a>
+					</li>
+					<li @if(activeNum=="2"){class="active"} @if(pid == 0){style="display:none"}>
+						<a href="#panel-2" data-toggle="tab">图片信息</a>
+					</li>
+					<li @if(activeNum=="3"){class="active"} @if(pid == 0){style="display:none"}>
+						<a href="#panel-3" data-toggle="tab">商品详情</a>
+					</li>
+					<li @if(activeNum=="4"){class="active"} @if(pid == 0){style="display:none"}>
+						<a href="#panel-4" data-toggle="tab">规格</a>
+					</li>
+				</ul>
+				<div class="tab-content" style="height:800px;">
+					<div class="tab-pane @if(activeNum=="1"){active}" id="panel-1">
+						<!-- general form elements -->
+		              <div class="box box-primary">
+		                <!-- form start -->
+		                <form role="form" action="/product/saveProduct" method="post" id="productForm">
+		                <input type="hidden" id="pidProduct" name="pidProduct" value="@pid">
+		                  <div class="box-body">
+		                  	<div class="row">
+		                   		<div class="col-xs-3">
+									<label>类型:</label>
+									<label for="autotrophy"><input type="radio" name="typesRadios" id="autotrophy" value="2" @if(productNow!=null){disabled} @if((productNow!=null && productNow.getTyp()!=null && productNow.getTyp().equals("2") ) ){checked} onclick="checkReplacementDivShow();"/>自营</label>
+							    	<label for="agent"><input type="radio" name="typesRadios" id="agent" value="1" @if(productNow!=null){disabled} @if(productNow!=null && productNow.getTyp()!=null && productNow.getTyp().equals("1") ){checked} onclick="checkReplacementDivShow();"/>代下单</label>
+							    	<p class="help-block" id="typesRadiosP" style="display:none;">请选择商品类型</p>
+							    </div>
+		                    </div>
+		                    
+		                    <div id="replacementDiv">
+			                    <div class="row">
+			                    <div class="col-xs-3">
+									<label>来源网站:</label>
+									<select id="fromsites" name="fromsites" class="form-control">
+										@fromsites
+									</select>
+									<p class="help-block" id="fromsitesP" style="display:none;">请选择来源网站</p>
+			                    </div>
+			                    <div class="col-xs-3">
+									<label for="extcode">原站SKU号:</label>
+									<input type="text" class="form-control" id="extcode" name="extcode" maxlength="30" value="@if(productNow==null){}else{@productNow.getExtcode()}">
+			                      	<p class="help-block" id="extcodeP" style="display:none;">请输入原站SKU号（不超过30个字）</p>
+			                    </div>
+			                    <div class="col-xs-3">
+									<label for="exturl">外部链接:</label>
+									<input type="text" class="form-control" id="exturl" name="exturl" value="@if(productNow==null){}else{@productNow.getExturl()}">
+			                      	<p class="help-block" id="exturlP" style="display:none;">请输入外部链接</p>
+			                    </div>
+			                    </div>
+			                    
+			                    <div class="row"><br></div>
+			                    <div class="row">
+				                    <div class="col-xs-4">
+										<label>商品价格:</label>
+										<label for="islockpriceNo"><input type="radio" name="islockprice" id="islockpriceNo" value="0" onclick="checkIslockpriceShow();" @if(productNow==null || productNow.getIslockprice()!=1 ){checked}/>自动计算</label>
+										<label for="islockpriceYes"><input type="radio" name="islockprice" id="islockpriceYes" value="1" onclick="checkIslockpriceShow();" @if(productNow!=null &&  productNow.getIslockprice()==1 ){checked}/>锁定价格</label>
+				                    </div>
+				                    <div class="col-xs-3" style="display:none;">
+										<label>是否自动更新:</label>
+										<label for="nstock_autoupdNo"><input type="radio" name="nstock_autoupd" id="nstock_autoupdNo" value="0" @if((productNow==null || productNow.getNstock_autoupd()!=1 )){checked}/>否</label>
+										<label for="nstock_autoupdYes"><input type="radio" name="nstock_autoupd" id="nstock_autoupdYes" value="1" @if(productNow!=null && productNow.getNstock_autoupd()==1 ){checked}/>是</label>
+				                    </div>
+			                    </div>
+			                    <div class="row"><br></div>
+			                    
+			                    <div class="row" id="replacementPriceDiv">
+			                    <div class="col-xs-3">
+									<label>币种:</label>
+									<select id="currency" name="currency" class="form-control">
+										@currencyListHtml
+									</select>
+			                    </div>
+			                    <div class="col-xs-3">
+									<label for="price">市场价(外币):</label>
+									<input type="number" class="form-control" id="price" name="price" maxlength="30" value="@if(productNow==null){}else{@productNow.getPrice()}" onkeyup ="this.value=this.value.replace(/[^\d\.]/g,'')" onblur="this.value=this.value.replace(/[^\d\.]/g,'')">
+									<p class="help-block" id="priceP" style="display:none;">请输入市场价</p>
+			                    </div>
+			                    <div class="col-xs-3">
+									<label for="list_price">嗨购售价(外币):</label>
+									<input type="number" class="form-control" id="list_price" name="list_price" maxlength="30" value="@if(productNow==null){}else{@productNow.getList_price()}" onkeyup ="this.value=this.value.replace(/[^\d\.]/g,'')" onblur="this.value=this.value.replace(/[^\d\.]/g,'')">
+									<p class="help-block" id="list_priceP" style="display:none;">请输入嗨购售价，注意：只能填写正整数，且不高于市场价</p>
+			                    </div>
+			                    </div>
+			                    
+			                    
+		                    </div>
+		                    <div class="row">
+			                     <div class="col-xs-4">
+			                    	<label>是否预售:</label>
+								    <label for="preNo"><input type="radio" name="preProduct" id="preNo" value="0" onclick="checkPreDivShow();" @if((productNow==null || productNow.getPtyp==null || !productNow.getPtyp().equals("3") )){checked}/>否</label>
+									<label for="preYes"><input type="radio" name="preProduct" id="preYes" value="1" onclick="checkPreDivShow();" @if(productNow!=null && productNow.getPtyp().equals("3") ){checked}/>是</label>
+								</div>
+		                    </div>
+		                    
+		                    <!-- 预售DIV start -->
+		                    <div id="preDiv">
+		                    <div class="row">
+			                    <div class="col-xs-3">
+			                      <label for="deposit">订金金额</label>
+			                      <input type="number" class="form-control" id="deposit" name="deposit" value="@if(productNow==null){0}else{@productNow.getDeposit()}" onkeyup ="this.value=this.value.replace(/[^\d\.]/g,'')">
+			                      <p class="help-block" id="depositP" style="display:none;">请输入订金金额</p>
+			                    </div>
+			                    <div class="col-xs-3">
+			                      <label for="mancnt">参与人数</label>
+			                      <input type="number" class="form-control" id="mancnt" name="mancnt" value="@if(productNow==null){0}else{@productNow.getMancnt()}" onkeyup ="this.value=this.value.replace(/[^\d\.]/g,'')">
+			                      <p class="help-block" id="mancntP" style="display:none;">请输入参与人数</p>
+			                    </div>
+			                    <div class="col-xs-3">
+			                      <label for="stage">当前阶段</label>
+			                      <select id="stage" name="stage" class="form-control">
+									@depositTypes
+								  </select>
+			                    </div>
+		                    </div>
+		                    <div class="row">
+			                    <div class="col-xs-3" >
+			                    	<label for="paytim">预计尾款支付时间</label>
+								    <input id="paytim" name="paytim" type="text" class="form-control" value="@if(productNow==null){}else{@productNow.getPaytim()}"/>
+								    <p class="help-block" id="paytimP">例：预计15年10月01日~15年10月2日</p>
+								</div>
+			                    <div class="col-xs-3" >
+			                    	<label for="payStim">订金支付截止时间</label>
+								    <input id="payStim" name="payStim" type="text" class="form-control" readonly value="@if(productNow==null){}else{@productNow.getBtim()}"/>
+								    <p class="help-block" id="payStimP" style="display:none;">请选择预售开始时间</p>
+								</div>
+			                    <div class="col-xs-3" >
+			                    	<label for="payEtim">预售结束时间</label>
+								    <input id="payEtim" name="payEtim" type="text" class="form-control" readonly value="@if(productNow==null){}else{@productNow.getEtim()}"/>
+								    <p class="help-block" id="payEtimP" style="display:none;">请选择预售结束时间</p>
+								</div>
+							</div>
+		                    <div class="row">
+			                    <div class="col-xs-3" >
+			                    	<label for="rtitle">产品标题</label>
+								    <input id="rtitle" name="rtitle" type="text" class="form-control" value="@if(productNow==null){}else{@productNow.getRtitle()}" maxlength="30"/>
+								    <p class="help-block" id="rtitleP" style="display:none;">请输入产品标题</p>
+								</div>
+			                    <div class="col-xs-3" >
+			                    	<label for="preselltoast">产品说明</label>
+			                    	<textarea rows="3" maxlength="100" id="preselltoast" name="preselltoast" style="margin: 0px; width: 676px; height: 66px;">@if(productNow==null){}else{@productNow.getPreselltoast()}</textarea>
+								</div>
+			                    
+							</div>
+		                    </div>
+		                    <!-- 预售DIV end -->
+		                    <div class="row" id="lovelyDiv">
+			                     <div class="col-xs-4">
+			                    	<label>是否支持撒娇支付:</label>
+								    <label for="lovelyNo"><input type="radio" name="lovelyProduct" id="lovelyNo" value="0" onclick="checkDistinctDivShow();" @if((productNow==null || !productNow.getPtyp().equals("2") )){checked}/>不支持</label>
+									<label for="lovelyYes"><input type="radio" name="lovelyProduct" id="lovelyYes" value="1" onclick="checkDistinctDivShow();" @if(productNow!=null && productNow.getPtyp().equals("2") ){checked}/>支持</label>
+									
+								</div>
+			                    <div class="col-xs-3" id="distinctDiv">
+									<label>撒娇折扣:</label>
+									<select id="lovelydistinct" name="lovelydistinct" class="form-control">
+										@distincts
+									</select>
+									<p class="help-block" id="lovelydistinctP" style="display:none;">请选择撒娇折扣</p>
+		                    	</div>   
+		                    </div>
+		                    <div class="row"><br></div>
+		                    <div class="row" >
+		                    <div class="col-xs-3" id="timFlagDiv">
+		                    	<label>是否定时开抢:</label>
+							    <label for="timNo"><input type="radio" name="timProduct" id="timNo" value="0" onclick="checkIsgrabShow();" @if((productNow==null || !productNow.getPtyp().equals("4") )){checked}/>否</label>
+								<label for="timYes"><input type="radio" name="timProduct" id="timYes" value="1" onclick="checkIsgrabShow();" @if(productNow!=null && productNow.getPtyp().equals("4") ){checked}/>是</label>
+								
+							</div>
+							<div id="timDiv">
+			                    <div class="col-xs-3" >
+			                    	<label>开始时间</label>
+								    <input id="btim" name="btim" type="text" class="form-control"  readonly value="@if(productNow==null){}else{@productNow.getBtim()}"/>
+								    <p class="help-block" id="btimP" style="display:none;">请选择开始时间</p>
+								</div>
+			                    <div class="col-xs-3" >
+			                    	<label>结束时间</label>
+								    <input id="etim" name="etim" type="text" class="form-control" readonly value="@if(productNow==null){}else{@productNow.getEtim()}"/>
+								    <p class="help-block" id="etimP" style="display:none;">请选择结束时间</p>
+								</div>
+							</div>
+							</div>
+		                    <div class="row">
+		                    <div class="col-xs-12">
+								<label>P2类型:</label>
+								<div class="radio">
+								    <label for="comTypeProduct"><input type="radio" name="newMantypeRadios" id="comTypeProduct" value="0" @if((productNow!=null && productNow.getNewMantype().equals("0") )||productNow==null){checked}/>普通</label>
+								    <label for="firstProduct"><input type="radio" name="newMantypeRadios" id="firstProduct" value="1" @if(productNow!=null && productNow.getNewMantype().equals("1") ){checked}/>新人商品</label>
+								    <label for="onceProduct"><input type="radio" name="newMantypeRadios" id="onceProduct" value="2" @if(productNow!=null && productNow.getNewMantype().equals("2") ){checked}/>仅一次商品</label>
+								    <label for="zeroProduct"><input type="radio" name="newMantypeRadios" id="zeroProduct" value="3" @if(productNow!=null && productNow.getNewMantype().equals("3") ){checked}/>0元商品</label>
+								    <p class="help-block" id="newMantypeRadiosP" style="display:none;">请选择P2类型</p>
+								</div>
+		                    </div>
+		                    </div>
+		                      	<input type="hidden" id="categorys" name="categorys" value="@if(productNow!=null){@productNow.getCategory()}else{}">
+		                    @if(productNow!=null){
+			                    <div class="row">
+				                    <div class="col-xs-3">
+				                      <label for="title">品类</label>
+		                      		  <input type="text"  class="form-control" id="categorysNow" name="categorysNow" value="@if(productNow==null){}else{@productNow.getCategoryName()}" readonly="readonly">
+				                    </div>
+			                    </div>
+	                      	}else{
+		                      	<div class="row">
+				                    <div class="col-xs-3">
+				                      	<label>品类</label>
+										<select id="categorysFirst" name="categorysFirst" class="form-control">
+											@categorysFirst
+										</select>
+										<p class="help-block" id="categoryP" style="display:none;">请选择品类</p>
+				                    </div>
+				                    <div class="col-xs-3" id="categorySecondDiv">
+				                      	<label>二级品类</label>
+										<select id="categorySecond" name="categorySecond" class="form-control">
+											<option value="-1">请选择</option>
+										</select>
+				                    </div>
+				                    <div class="col-xs-3" id="categoryThirdDiv">
+				                      	<label>三级品类</label>
+										<select id="categoryThird" name="categoryThird" class="form-control">
+											<option value="-1">请选择</option>
+										</select>
+										<p class="help-block" id="categoryP" style="display:none;">请选择品类</p>
+				                    </div>
+				                </div>
+	                      	}
+		                    
+		                    <br/>
+		                    <div class="row">
+		                    <div class="col-xs-8">
+		                      <label for="title">商品名称</label>
+		                      <input type="text" class="form-control" id="title" name="title" maxlength="50" value="@if(productNow==null){}else{@productNow.getTitle()}">
+		                      <p class="help-block" id="titleP" style="display:none;">请输入商品名称（不超过50个字）</p>
+		                    </div>
+		                    </div>
+		                    <div class="row"><br/></div>
+		                    <div class="row">
+		                    <div class="col-xs-8">
+		                      <label for="subtitle">商品介绍</label>
+		                      <textarea rows="3" maxlength="100" id="subtitle" name="subtitle" style="margin: 0px; width: 676px; height: 66px;">@if(productNow==null){}else{@productNow.getSubtitle()}</textarea>
+		                      <p class="help-block" id="subtitleP" style="display:none;">请输入商品介绍（不超过100个字）</p>
+		                    </div>
+		                    <div class="row"><br/><br/></div>
+		                    </div>
+		                    <div class="row">
+		                    <div class="col-xs-3">
+		                      <label for="adstr1">推荐理由</label>
+		                      <input type="text" class="form-control" maxlength="4" id="adstr1" name="adstr1" value="@if(productNow==null){}else{@productNow.getAdstr1()}">
+		                      <p class="help-block" id="adstr1P" style="display:none;">请输入推荐理由（不超过4个字）</p>
+		                    </div>
+		                    <div class="col-xs-3">
+		                      <label for="nstock">库存数量</label>
+		                      <input type="number" class="form-control" id="nstock" name="nstock" value="@if(productNow==null){0}else{@productNow.getNstock()}" onkeyup="(this.v=function(){this.value=this.value.replace(/[^0-9-]+/,'');}).call(this)" onblur="(this.v=function(){this.value=this.value.replace(/[^0-9-]+/,'');}).call(this)" >
+		                      <p class="help-block" id="nstockP" style="display:none;">请输入库存数量，注意：只能填写正整数</p>
+		                    </div>
+		                    <div class="col-xs-3">
+		                      <label for="limitcount">限购数量</label>
+		                      <input type="number" class="form-control" id="limitcount" name="limitcount" value="@if(productNow==null){2}else{@productNow.getLimitcount()}" onkeyup="(this.v=function(){this.value=this.value.replace(/[^0-9-]+/,'');}).call(this)" onblur="(this.v=function(){this.value=this.value.replace(/[^0-9-]+/,'');}).call(this)" >
+		                      <p class="help-block" id="limitcountP" style="display:none;">请输入限购数量，注意：只能填写正整数</p>
+		                    </div>
+		                    </div>
+		                    <div class="row">
+		                    <div id="lockPriceNotDiv">
+		                    <!--当为代下单且自动计算价格的时候此DIV不显示  -->
+			                    <div class="col-xs-3">
+			                      <label for="chinaprice">市场价</label>
+			                      <input type="number" class="form-control" id="chinaprice" name="chinaprice" value="@if(productNow==null){}else{@productNow.getChinaprice()}" onkeyup ="this.value=this.value.replace(/[^\d\.]/g,'')" onblur="this.value=this.value.replace(/[^\d\.]/g,'')">
+			                      <p class="help-block" id="chinapriceP" style="display:none;">请输入市场价，注意：只能填写正整数</p>
+			                    </div>
+			                    <div class="col-xs-3">
+			                      <label for="rmbprice">嗨购售价</label>
+			                      <input type="number" class="form-control" id="rmbprice" name="rmbprice" value="@if(productNow==null){}else{@productNow.getRmbprice()}" onkeyup="this.value=this.value.replace(/[^\d\.]/g,'')" onblur="this.value=this.value.replace(/[^\d\.]/g,'')">
+			                      <p class="help-block" id="rmbpriceP" style="display:none;">请输入嗨购售价，注意：只能填写正整数，且不高于市场价</p>
+			                    </div>
+		                    </div>
+		                    <div class="col-xs-3">
+		                      <label for="weight">重量(Kg)</label>
+		                      <input type="text" class="form-control" id="weight" name="weight" value="@if(productNow==null){}else{@productNow.getWeight()}" onkeyup="this.value=this.value.replace(/[^\d\.]/g,'')" onblur="this.value=this.value.replace(/[^\d\.]/g,'')">
+		                      <p class="help-block" id="weightP" style="display:none;">请输入重量，注意：只能填写整数和小数</p>
+		                    </div>
+		                   </div>
+		                    <div class="row">
+		                    <div class="col-xs-3">
+		                      <label for="wayremark">发货地</label>
+		                      <select id="wayremark" name="wayremark" class="form-control">
+									@wayremarks
+							  </select>
+		                      <p class="help-block" id="wayremarkP" style="display:none;">请选择发货地</p>
+		                    </div>
+		                    <div class="col-xs-3">
+		                      <label for="nlikes">喜欢数</label>
+		                      <input type="number" class="form-control" id="nlikes" name="nlikes" value="@if(productNow==null){0}else{@productNow.getNlikes()}" onkeyup="(this.v=function(){this.value=this.value.replace(/[^0-9-]+/,'');}).call(this)" onblur="this.value=this.value.replace(/[^\d\.]/g,'')" >
+		                      <p class="help-block" id="nlikesP" style="display:none;">请输入喜欢数，注意：只能填写正整数</p>
+		                    </div>
+		                    </div>
+		                    <div class="row">
+		                    <div class="col-xs-3">
+								<label>是否需要身份证信息:</label>
+								<div class="radio">
+								    <label for="openidNo"><input type="radio" name="isopenid" id="openidNo" value="0" @if(productNow==null || !productNow.getIsopenid().equals("1") ){checked} >不需要</label>
+								    <label for="openidYes"><input type="radio" name="isopenid" id="openidYes" value="1" @if(productNow!=null && productNow.getIsopenid().equals("1") ){checked}>需要</label>
+								</div>
+		                    </div>
+		                    </div>
+		                    <div class="row">
+		                    <div class="col-xs-3">
+								<label>是否需要身份证图片信息:</label>
+								<div class="radio">
+								    <label for="openidImgNo"><input type="radio" name="isopenidimg" id="openidImgNo" value="0" @if(productNow==null || !productNow.getIsopenidimg().equals("1") ){checked}>不需要</label>
+								    <label for="openidImgYes"><input type="radio" name="isopenidimg" id="openidImgYes" value="1"  @if(productNow!=null && productNow.getIsopenidimg().equals("1") ){checked}>需要</label>
+								</div>
+		                    </div>
+		                   </div>
+		                    <div class="row">
+		                    <div class="col-xs-5">
+								<label>是否展示国旗:</label>
+								<div class="radio">
+								    <label for="nationalNo"><input type="radio" name="national" id="nationalNo" value="0" @if(productNow!=null &&  ("").equals(productNow.getNationalFlag())){checked} onclick="checkNationalShow();">不展示</label>
+								    <label for="nationalYes"><input type="radio" name="national" id="nationalYes" value="1" @if(productNow==null || (productNow!=null &&  !("").equals(productNow.getNationalFlag()))){checked} onclick="checkNationalShow();">展示</label>
+								    <select id="nationalFlag" name="nationalFlag" class="form-control">
+										@pics
+									</select>
+								</div>
+		                    </div>
+		                    </div>
+		                  </div><!-- /.box-body -->
+		
+		                  <div class="box-footer">
+		                    <button type="button" class="btn btn-primary" id="saveProductBtn">保存</button>
+		                  </div>
+		                </form>
+		              </div><!-- /.box -->
+					</div>
+					<div class="tab-pane @if(activeNum=="2"){active}" id="panel-2">
+					 	<!-- 删除商品图片modal start -->
+                        <div class="modal fade" id="deleteImage" tabindex="-1" role="dialog" aria-labelledby="deleteImageLabel" aria-hidden="true">
+                            <div class="modal_wrapper">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">关闭</span></button>
+                                            <h4 class="modal-title" >确认信息</h4>
+                                        </div>
+                                        <div class="modal-body">确定删除此图片？<br></div>
+                                        <div class="modal-footer">
+                                        	<input id="imageidDelete" name="imageidDelete" value="" type="hidden"/>
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                            <button id="deleteImageConfirmButton" type="button" class="btn btn-primary">确认</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 删除商品图片modal end -->
+						<br/>
+	                    <label for="exampleInputFile">列表图片：</label>
+	                    @if(productNow!=null && productNow.getListpic()!=""){
+		                    <div>
+		                    	<a href="@productNow.getListpic()" target="blank"><img alt="" src="@productNow.getListpic()@@200w"></a>
+		                    </div>
+	                    }
+	                    
+						<div class="form-group ">
+						<form enctype="multipart/form-data" action="/product/uploadListPic" method="post">
+							<input id="pidListpic" name="pidListpic" value="@pid" type="hidden"/>
+					 		<input id="listPic" name="listPic" class="file" type="file"  data-min-file-count="1"   >
+					 	</form>
+	                    </div>
+		                    
+	                    <label for="exampleInputFile">商品页图片：</label>
+	                    @if(productNow!=null && productImagesList!=null ){
+		                    <div>
+		                    @for(productImage <- productImagesList){
+		                    <span id="@productImage.getId()">
+		                    	<a href="@productImage.getFilename()" target="blank"><img alt="点击进行预览" src="@productImage.getFilename()@@200w"></a>
+		                    	<button id="deleteImageButton" class="btn btn-danger" data-toggle="modal" data-target="#deleteImage" onclick="setImageDelete('@productImage.getId()');">删除</button>
+		                    </span>
+		                    }
+		                    </div>
+	                    }
+	                    <div class="form-group">
+	                    	<form enctype="multipart/form-data" action="/product/uploadProductImages" method="post">
+	                    		<input id="pidImages" name="pidImages" value="@pid" type="hidden"/>
+		                    	<input id="productimages" name="productimages" id="productimages" class="file" type="file" multiple data-upload-url="/product/uploadProductImages?pidImages=@pid">
+		                    </form>
+		                </div>
+					</div>
+					<div class="tab-pane @if(activeNum=="3"){active}" id="panel-3">
+						<br/>
+						<a class="btn btn-success" href="#" data-toggle="modal" data-target="#newProductDetail" onclick="setProductDetail('');"><i class="fa fa-bolt"></i>+新建模块</a>
+						<br/><!-- 新建或编辑商品详情modal start -->
+						<div class="modal fade" id="newProductDetail" tabindex="-1" role="dialog" aria-labelledby="newProductDetail" aria-hidden="true" >
+                            <div class="modal_wrapper">
+                                <div class="modal-dialog" style="width: 920px; height: 920px;align:center;">
+                                    <div class="modal-content">
+                                    <form id="saveProductDetail" action="/product/saveProductDetail" method="post">
+                                    	<input id="pidDetail" name="pidDetail" value="@pid" type="hidden"/>
+                                    	<input id="detailid" name="detailid" value="" type="hidden"/>
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                            <h4 class="modal-title" id="newProductDetailLabel">新建模块</h4>
+                                        </div>
+                                        <div class="modal-body" style="width: 910px; height: 910px;align:center;">
+                                            <div class="form-group" >
+						                      <label for="enname">模块英文名:</label>
+						                      <input type="text" class="form-control" id="enname" name="enname" >
+						                    </div>
+                                            <div class="form-group">
+						                      <label for="chname">模块中文名:</label>
+						                      <input type="text" class="form-control" id="chname" name="chname" >
+						                    </div>
+                                            <div class="form-group">
+						                      <label for="detailSort">排序值:</label>
+						                      <input type="number" class="form-control" id="detailSort" name="detailSort" value="0" onkeyup ="this.value=this.value.replace(/[^\d\.]/g,'')" onblur="this.value=this.value.replace(/[^\d\.]/g,'')">
+						                    </div>
+                                            <div>
+						                      <label for="editor">模块内容:</label>
+						                      <!--style给定宽度可以影响编辑器的最终宽度-->
+											  <script type="text/plain" id="content" name="content"  style="width:900px;height:550px;max-height:600px;"></script>
+						                    </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                            <button id="newProductDetailButton" type="button" class="btn btn-primary" >确认</button>
+                                        </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 新建或编辑商品详情modal end -->
+                        
+                        <!-- 删除商品详情modal start -->
+                        <div class="modal fade" id="deleteDetail" tabindex="-1" role="dialog" aria-labelledby="deleteDetailLabel" aria-hidden="true">
+                            <div class="modal_wrapper">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">关闭</span></button>
+                                            <h4 class="modal-title" >确认信息</h4>
+                                        </div>
+                                        <div class="modal-body">确定删除此详情？<br></div>
+                                        <div class="modal-footer">
+                                        	<input id="detailidDelete" name="detailidDelete" value="" type="hidden"/>
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                            <button id="deleteDetailButton" type="button" class="btn btn-primary">确认</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 删除商品详情modal end -->
+                        <!-- 删除详情参数确认modal start -->
+                        <div class="modal fade" id="deleteParam" tabindex="-1" role="dialog" aria-labelledby="deleteParamLabel" aria-hidden="true">
+                            <div class="modal_wrapper">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">关闭</span></button>
+                                            <h4 class="modal-title" >确认信息</h4>
+                                        </div>
+                                        <div class="modal-body">确定删除此参数？<br></div>
+                                        <div class="modal-footer">
+                                        	<input id="paramIdDelete" name="paramIdDelete" value="" type="hidden"/>
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                            <button id="deleteParamButton" type="button" class="btn btn-primary">确认</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 删除详情参数确认 modal start -->
+                        
+                        <!-- 详情参数modal start -->
+                        <div class="modal fade" id="detailInfo" tabindex="-1" role="dialog" aria-labelledby="detailInfoLabel" aria-hidden="true">
+                            <div class="modal_wrapper">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">关闭</span></button>
+                                            <h4 class="modal-title" >详情参数</h4>
+                                        </div>
+                                        <form action="/product/saveDetailInfo" method="post" id="detailParamForm">
+                                        <div class="modal-body">
+                                        	<div class="form-group" >
+						                      <label for="detailInfoKey">参数名称:</label>
+						                      <input type="text" class="form-control" id="detailInfoKey" name="detailInfoKey" ">
+						                    </div>
+                                        	<div class="form-group" >
+						                      <label for="detailInfoVal">参数内容:</label>
+						                      <input type="text" class="form-control" id="detailInfoVal" name="detailInfoVal" ">
+						                    </div>
+                                        	<div class="form-group" >
+						                      <label for="detailInfoNsort">排序:</label>
+						                      <input type="number" class="form-control" id="detailInfoNsort" name="detailInfoNsort" value="0" onkeyup="this.value=this.value.replace(/[^\d\.]/g,'')" onblur="this.value=this.value.replace(/[^\d\.]/g,'')">
+						                    </div>
+                                        	<input id="detailIdWithInfo" name="detailIdWithInfo" value="" type="hidden"/>
+                                            <button id="addDetailInfoButton" type="button" class="btn btn-primary">添加</button>
+                                        </div>
+                                        </form>
+                                        
+                                        <table id="productDetailTable" class="table table-bordered table-hover">
+								            <thead>
+								                <tr>
+								                    <th>ID</th>
+								                    <th>参数名称</th>
+								                    <th>参数内容</th>
+								                    <th>排序</th>
+								                    <th>操作</th>
+								                </tr>
+								            </thead>
+								            <tbody id="paramBody">
+							                    
+								            </tbody>
+								            
+								        </table>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 详情参数modal end -->
+                        
+						<table id="productDetailTable" class="table table-bordered table-hover">
+			            <thead>
+			                <tr>
+			                    <th>ID</th>
+			                    <th>模块英文名</th>
+			                    <th>模块中文名</th>
+			                    <th>排序值</th>
+			                    <th>操作</th>
+			                </tr>
+			            </thead>
+			            <tbody>
+			            @if(detailList!=null && detailList.size()>0){
+			                @for(productDetail <- detailList){
+			                    <tr class="h6" data-uid="@productDetail.getId()">
+			                        <td>@productDetail.getId()</td>
+			                        <td>@productDetail.getEnname()</td>
+			                        <td>@productDetail.getChname()</td>
+			                        <td>@productDetail.getNsort()</td>
+			                        <td>
+			                        <button class="btn btn-info" data-toggle="modal" data-target="#newProductDetail" onclick="setProductDetail('@productDetail.getId()');">查看详情</button>
+			                        <button class="btn btn-warn" data-toggle="modal" data-target="#detailInfo" onclick="setDetailInfo('@productDetail.getId()');">编辑参数</button> 
+			                        <button class="btn btn-danger" data-toggle="modal" data-target="#deleteDetail" onclick="setProductDetailDelete('@productDetail.getId()');">删除</button></td>
+			                    </tr>
+			                }
+		                }else{
+		                    <tr><td class="text-center" colspan="10">没有可用数据</td></tr>
+		                }
+			            </tbody>
+			            
+			        </table>
+					</div>
+					<div class="tab-pane @if(activeNum=="4"){active}" id="panel-4">
+						<br/>
+						<a class="btn btn-success" href="#" data-toggle="modal" data-target="#addProductAvailable" ><i class="fa fa-bolt"></i>+选取现有商品</a>
+						<br/><!--选取现有商品modal start  -->
+						<div class="modal fade" id="addProductAvailable" tabindex="-1" role="dialog" aria-labelledby="addProductAvailableLabel" aria-hidden="true">
+                            <div class="modal_wrapper">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                            <h4 class="modal-title" id="newSpecificationLabel">选取现有商品</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                        	<div class="form-group" >
+						                      <label for="pidForSearch">商品ID:</label>
+						                      <input type="text" class="form-control" id="pidForSearch" name="pidForSearch" >
+						                    </div>
+                                        	<div class="form-group" >
+						                      <label for="pNameForSearch">关键字:</label>
+						                      <input type="text" class="form-control" id="pNameForSearch" name="pNameForSearch" >
+						                    </div>
+                                            <button id="searchProductButton" type="button" class="btn btn-primary" onclick="searchProduct();">查询</button>
+                                        </div>
+                                        <table id="productDetailTable" class="table table-bordered table-hover">
+								            <thead>
+								                <tr>
+								                    <th>商品ID</th>
+								                    <th>商品图片</th>
+								                    <th>商品名称</th>
+								                    <th>操作</th>
+								                </tr>
+								            </thead>
+								            <tbody id="searchProductBody">
+							                    
+								            </tbody>
+								            
+								        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+						<!--选取现有商品modal end  -->
+					
+						<!--编辑规格modal start  -->
+						<div class="modal fade" id="newSpecification" tabindex="-1" role="dialog" aria-labelledby="newSpecification" aria-hidden="true">
+                            <div class="modal_wrapper">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                            <h4 class="modal-title" id="newSpecificationLabel">编辑规格</h4>
+                                        </div>
+                                        <form enctype="multipart/form-data" id="uploadSpecPicForm" action="/product/uploadSpecPic" method="post">
+                                        <div class="modal-body">
+                                            <div class="form-group">
+						                      <label for="specifications">规格:</label>
+						                      <input type="text" class="form-control" id="specifications" name="specifications" >
+						                    </div>
+                                            <div class="form-group">
+						                      <label for="specifications">排序:</label>
+						                      <input type="number" class="form-control" id="specSort" name="specSort" onkeyup="this.value=this.value.replace(/[^\d\.]/g,'')" onblur="this.value=this.value.replace(/[^\d\.]/g,'')" value="0">
+						                    </div>
+                                            <div class="form-group">
+						                      <label for="exampleInputFile">规格图：</label>
+											<div class="form-group ">
+												<input id="pidSpecpic" name="pidSpecpic" value="" type="hidden"/>
+												<input id="pidnow" name="pidnow" value="@pid" type="hidden"/>
+										 		<input id="specpic" name="specpic" class="file" type="file"  data-min-file-count="1"   >
+						                    </div>
+						                    </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                            <button id="newSpecificationButton" type="button" class="btn btn-primary">确认</button>
+                                        </div>
+                                           </form> 
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--编辑规格modal end  -->
+                        
+                        <!--删除规格modal start  -->
+                        <div class="modal fade" id="deleteSpec" tabindex="-1" role="dialog" aria-labelledby="deleteSpecLabel" aria-hidden="true">
+                            <div class="modal_wrapper">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">关闭</span></button>
+                                            <h4 class="modal-title" >确认信息</h4>
+                                        </div>
+                                        <div class="modal-body">确定删除此规格？<br></div>
+                                        <div class="modal-footer">
+                                        	<input id="pidDeleteSpecpic" name="pidDeleteSpecpic" value="" type="hidden"/>
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                            <button id="deleteSpecButton" type="button" class="btn btn-primary">确认</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--删除规格modal end  -->
+                        
+						<table id="specificationTable" class="table table-bordered table-hover">
+			            <thead>
+			                <tr>
+			                    <th>商品ID</th>
+			                    <th>newSku</th>
+			                    <th>类型</th>
+			                    <th>市场价</th>
+		                    	<th>嗨购售价</th>
+		                    	<th>规格标识</th>
+		                    	<th>规格</th>
+		                    	<th>规格图</th>
+		                    	<th>排序值</th>
+			                    <th>操作</th>
+			                </tr>
+			            </thead>
+			            <tbody>
+			            @if(productList!=null && productList.size()>0){
+			                @for(product <- productList){
+			                    <tr class="h6" data-uid="@product.getPid()">
+			                        <td>@product.getPid()</td>
+		                        	<td>@product.getNewSku()</td>
+			                        <td>
+			                        @if(product.getTyp()!=null){
+		                        		@TypsProduct.typs2Message(product.getTyp().toInt)
+			                        }else{
+			                        
+			                        }
+			                        
+			                       </td>
+			                        <td>@product.getChaListPrice()</td>
+		                        	<td>@product.getHiPrice()</td>
+		                        	<td>
+			                        	@{
+				                        	var ppid=product.getPpid();
+				                        	if(ppid==product.getPid()){
+				                        		"大哥";
+				                        	}else{
+				                        		"小弟";
+				                        	}
+				                        }
+			                        </td>
+			                        <td>@product.getSpecifications()</td>
+			                        <td><img alt="" src="@product.getSpecpic()@@100w"></td>
+			                        <td>@product.getSort()</td>
+			                        <td><a class="btn btn-info" href="/product/newOrUpdateProduct?pid=@product.getPid()" >修改商品</a> <button class="btn btn-info" data-toggle="modal" data-target="#newSpecification" onclick="setPicValue('@product.getPid()','@product.getSpecifications()','@product.getSort()');" >编辑规格</button><button class="btn btn-danger" data-toggle="modal" data-target="#deleteSpec" onclick="setDeletePicValue('@product.getPid()');">删除</button></td>
+			                    </tr>
+			                }
+		                }else{
+		                    <tr><td class="text-center" colspan="10">没有可用数据</td></tr>
+		                }
+			            </tbody>
+			            
+			        </table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</section>
+}{
+<script type="text/javascript">
+$("#specpic").fileinput({'showUpload':false, 'previewFileType':'any'});
+checkPreDivShow();//检查预售是否展示
+checkDistinctDivShow();//检查折扣是否展示
+checkNationalShow();//检查国旗是否展示
+checkIsgrabShow();//检查定时开抢的时间是否展示
+checkReplacementDivShow();//检查代下单的一些额外属性是否展示
+checkIslockpriceShow();//检查锁定价格是否展示
+$('#categorySecondDiv').hide();
+$('#categoryThirdDiv').hide();
+//控制新增商品时不显示图片信息和商品详情和规格tab
+$('#btim').datetimepicker({
+	autoclose:true,
+	format:"yyyy-mm-dd hh:ii:ss",
+	todayBtn:true
+}).on('changeDate',function(bv){
+	var btime = $("#btim").val();
+	$("#etim").datetimepicker('setStartDate',btime);
+	$('#etim').datetimepicker('hide');
+});
+$('#etim').datetimepicker({
+	autoclose:true,
+	format:"yyyy-mm-dd hh:ii:ss"
+}).on('changeDate',function(ev){
+	var etime = $("#etim").val();
+	$("#btim").datetimepicker('setEndDate',etime);
+	$('#btim').datetimepicker('hide');
+});
+$('#payStim').datetimepicker({
+	autoclose:true,
+	format:"yyyy-mm-dd hh:ii:ss",
+	todayBtn:true
+}).on('changeDate',function(bv){
+	var btime = $("#payStim").val();
+	$("#payEtim").datetimepicker('setStartDate',btime);
+	$('#payEtim').datetimepicker('hide');
+});
+$('#payEtim').datetimepicker({
+	autoclose:true,
+	format:"yyyy-mm-dd hh:ii:ss"
+}).on('changeDate',function(ev){
+	var etime = $("#payEtim").val();
+	$("#payStim").datetimepicker('setEndDate',etime);
+	$('#payStim').datetimepicker('hide');
+});
+//修改规格绑定确认button
+$('#newSpecificationButton').on('click', newSpecificationFunction);
+//绑定删除规格按钮事件
+$('#deleteSpecButton').on('click', deleteSpec);
+//保存商品详情
+$('#newProductDetailButton').on('click', saveProductDetail);
+//删除商品详情button
+$('#deleteDetailButton').on('click', deleteProductDetail);
+//添加详情参数button
+$('#addDetailInfoButton').on('click', addDetailInfo);
+//删除详情参数button
+$('#deleteParamButton').on('click', deleteParamFunction);
+//删除商品图片确认button
+$('#deleteImageConfirmButton').on('click', deleteImageConfirm);
+
+//实例化编辑器
+var um = UM.getEditor('content');
+
+//提交表单，保存商品信息
+$("#saveProductBtn").click(function(){
+	console.log("ss");
+	var flag = true;
+	var typesRadios = $('input[name="typesRadios"]:checked').val();
+	
+	var extcode = $('input[name="extcode"]').val();
+	var exturl = $('input[name="exturl"]').val();
+	var price = $('input[name="price"]').val();
+	var list_price = $('input[name="list_price"]').val();
+	var islockprice = $('input[name="islockprice"]:checked').val();//是否锁定价格
+	
+	var btim = $('input[name="btim"]').val();
+	var etim = $('input[name="etim"]').val();
+	var newMantypeRadios = $('input[name="newMantypeRadios"]:checked').val();
+	var category = $('#categorys').val();
+	var title = $.trim($('input[name="title"]').val());
+	var subtitle = $.trim($('[name="subtitle"]').val());
+	var nstock = $('input[name="nstock"]').val();
+	var adstr1 = $('input[name="adstr1"]').val();
+	var limitcount = $('input[name="limitcount"]').val();
+	var chinaprice = $('input[name="chinaprice"]').val();
+	var rmbprice = $('input[name="rmbprice"]').val();
+	var weight = $('input[name="weight"]').val();
+	var wayremark = $('[name="wayremark"] option:selected').val();
+	var fromsites = $('[name="fromsites"] option:selected').val();
+	var nlikes = $('input[name="nlikes"]').val();
+	
+	if(typesRadios=="1"){
+		if(fromsites==-1){
+			$("#fromsitesP").attr("style","color:red");
+			flag = false;
+		}else{
+			$("#fromsitesP").attr("style","display:none");
+		}
+		if(exturl==""){
+			$("#exturlP").attr("style","color:red");
+			flag = false;
+		}else{
+			$("#exturlP").attr("style","display:none");
+		}
+		if(islockprice=="1"){//锁定价格则国内售价与嗨购售价必填
+			if(chinaprice==""){
+				$("#chinapriceP").attr("style","color:red");
+				flag = false;
+			}else{
+				$("#chinapriceP").attr("style","display:none");
+			}
+			if(rmbprice==""){
+				$("#rmbpriceP").attr("style","color:red");
+				flag = false;
+			}else{
+				$("#rmbpriceP").attr("style","display:none");
+			}
+		}else{//自动计算则现价与原价必填
+			if(price==""){
+				$("#priceP").attr("style","color:red");
+				flag = false;
+			}else{
+				$("#priceP").attr("style","display:none");
+			}
+			if(list_price==""){
+				$("#list_priceP").attr("style","color:red");
+				flag = false;
+			}else if(Number(list_price) > Number(price)){
+				$("#list_priceP").attr("style","color:red");
+				flag = false;
+			}else{
+				$("#list_priceP").attr("style","display:none");
+			}
+		}
+	}else{
+		if(chinaprice==""){
+			$("#chinapriceP").attr("style","color:red");
+			flag = false;
+		}else{
+			$("#chinapriceP").attr("style","display:none");
+		}
+		if(rmbprice==""){
+			$("#rmbpriceP").attr("style","color:red");
+			flag = false;
+		}else{
+			$("#rmbpriceP").attr("style","display:none");
+		}
+		if(Number(chinaprice)<Number(rmbprice)){
+			$("#rmbpriceP").attr("style","color:red");
+			flag = false;
+		}
+	}
+	var preProduct = $('input[name="preProduct"]:checked').val();//是否预售
+	var deposit = $('input[name="deposit"]').val();
+	var mancnt = $('input[name="mancnt"]').val();
+	var paytim = $('input[name="paytim"]').val();
+	var payStim = $('input[name="payStim"]').val();
+	var payEtim = $('input[name="payEtim"]').val();
+	var rtitle = $('input[name="rtitle"]').val();
+	if(preProduct=="1"){//预售
+		if(deposit==""){
+			$("#depositP").attr("style","color:red");
+			flag = false;
+		}else{
+			$("#depositP").attr("style","display:none");
+		}
+		if(mancnt==""){
+			$("#mancntP").attr("style","color:red");
+			flag = false;
+		}else{
+			$("#mancntP").attr("style","display:none");
+		}
+		if(paytim==""){
+			$("#paytimP").attr("style","color:red");
+			flag = false;
+		}else{
+			$("#paytimP").removeAttr("style");
+		}
+		if(payStim==""){
+			$("#payStimP").attr("style","color:red");
+			flag = false;
+		}else{
+			$("#payStimP").attr("style","display:none");
+		}
+		if(payEtim==""){
+			$("#payEtimP").attr("style","color:red");
+			flag = false;
+		}else{
+			$("#payEtimP").attr("style","display:none");
+		}
+		if(rtitle==""){
+			$("#rtitleP").attr("style","color:red");
+			flag = false;
+		}else{
+			$("#rtitleP").attr("style","display:none");
+		}
+	}
+	var lovelyProduct = $('input[name="lovelyProduct"]:checked').val();//是否撒娇
+	var lovelydistinct = $('[name="lovelydistinct"] option:selected').val();
+	if(lovelyProduct=="1"){//撒娇
+		if(lovelydistinct=="0"){
+			$("#lovelydistinctP").attr("style","color:red");
+			flag = false;
+		}else{
+			$("#lovelydistinctP").attr("style","display:none");
+		}
+	}
+	
+	if(typeof(typesRadios)=='undefined'){
+		$("#typesRadiosP").attr("style","color:red");
+		flag = false;
+	}else{
+		$("#typesRadiosP").attr("style","display:none");
+	}
+	
+	if(typeof(newMantypeRadios)=='undefined'){
+		$("#newMantypeRadiosP").attr("style","color:red");
+		flag = false;
+	}else{
+		$("#newMantypeRadiosP").attr("style","display:none");
+	}
+	if(typeof(category)=='undefined' || category==-1|| category==""){
+		$("#categoryP").attr("style","color:red");
+		flag = false;
+	}else{
+		$("#categoryP").attr("style","display:none");
+	}
+	if(title==""){
+		$("#titleP").attr("style","color:red");
+		flag = false;
+	}else{
+		$("#titleP").attr("style","display:none");
+	}
+	if(subtitle==""){
+		$("#subtitleP").attr("style","color:red");
+		flag = false;
+	}else{
+		$("#subtitleP").attr("style","display:none");
+	}
+	if(adstr1==""){
+		$("#adstr1P").attr("style","color:red");
+		flag = false;
+	}else{
+		$("#adstr1P").attr("style","display:none");
+	}
+	if(nstock==""){
+		$("#nstockP").attr("style","color:red");
+		flag = false;
+	}else{
+		$("#nstockP").attr("style","display:none");
+	}
+	if(limitcount==""){
+		$("#limitcountP").attr("style","color:red");
+		flag = false;
+	}else{
+		$("#limitcountP").attr("style","display:none");
+	}
+	
+	if(weight==""){
+		$("#weightP").attr("style","color:red");
+		flag = false;
+	}else{
+		$("#weightP").attr("style","display:none");
+	}
+	if(wayremark==0||wayremark==-1){
+		$("#wayremarkP").attr("style","color:red");
+		flag = false;
+	}else{
+		$("#wayremarkP").attr("style","display:none");
+	}		
+	if(nlikes==""){
+		$("#nlikesP").attr("style","color:red");
+		flag = false;
+	}else{
+		$("#nlikesP").attr("style","display:none");
+	}
+	if(flag){
+		console.log("succeful , submit");
+		$("#productForm").submit();
+	}else{
+		alert("有非法内容，请检查内容合法性！");
+		return false;
+	}
+})
+
+//检查代下单的一些额外属性是否展示
+function checkReplacementDivShow(){
+	var flag = $('input[name="typesRadios"]:checked').val(); 
+	if(flag==1){
+		$("#replacementDiv").show();
+		$("#lovelyDiv").hide();
+		checkIslockpriceShow();
+	}else{
+		$("#replacementDiv").hide();
+		$("#lovelyDiv").show();
+		$("#lockPriceNotDiv").show();
+	}
+}
+//预售DIV展示与否
+function checkPreDivShow(){
+	var flag = $('input[name="preProduct"]:checked').val(); 
+	if(flag==1){
+		$("#timNo").prop("checked","checked");//定时开抢为否
+		$("#timYes").attr("checked",false);//定时开抢为否
+		$("#lovelyNo").prop("checked","checked");//是否支持撒娇支付为否
+		$("#lovelyYes").attr("checked",false);//是否支持撒娇支付为否
+		checkDistinctDivShow();
+		$("#preDiv").show();
+		$("#timDiv").hide();
+		$("#timFlagDiv").hide();
+	}else{
+		$("#timFlagDiv").show();
+		$("#preDiv").hide();
+	}
+}
+//国旗select展示与否
+function checkNationalShow(){
+	var national = $('input[name="national"]:checked').val(); 
+	if(national==1){
+		$("#nationalFlag").show();
+	}else{
+		$("#nationalFlag").hide();
+	}
+}
+//锁定金额展示与否
+function checkIslockpriceShow(){
+	var flag = $('input[name="typesRadios"]:checked').val(); 
+	if(flag==1){//代下单
+		var islockprice = $('input[name="islockprice"]:checked').val(); 
+		if(islockprice==1){
+			$("#replacementPriceDiv").hide();//锁定价格则币种那一行不展示
+			$("#lockPriceNotDiv").show();//嗨购售价与国内售价展示出来
+		}else{
+			$("#replacementPriceDiv").show();//锁定价格则币种那一行展示
+			$("#lockPriceNotDiv").hide();//嗨购售价与国内售价不展示
+		}
+	}
+	
+}
+//折扣展示与否
+function checkDistinctDivShow(){
+	var lovelyProduct = $('input[name="lovelyProduct"]:checked').val(); 
+	if(lovelyProduct==1){
+		$("#preNo").prop("checked","checked");//预售为否
+		$("#preYes").attr("checked",false);//预售为否
+		$("#timNo").prop("checked","checked");//定时开抢为否
+		$("#timYes").attr("checked",false);//定时开抢为否
+		$("#distinctDiv").show();
+	}else{
+		$("#distinctDiv").hide();
+	}
+}
+//定时开抢DIV展示与否
+function checkIsgrabShow(){
+	var flag = $('input[name="timProduct"]:checked').val(); 
+	if(flag==1){
+		$("#preNo").prop("checked","checked");//预售为否
+		$("#preYes").attr("checked",false);//预售为否
+		$("#lovelyNo").prop("checked","checked");//是否支持撒娇支付为否
+		$("#lovelyYes").attr("checked",false);//是否支持撒娇支付为否
+		checkDistinctDivShow();
+		$("#preDiv").hide();
+		$("#timDiv").show();
+	}else{
+		$("#timDiv").hide();
+	}
+	
+}
+//给新建detailInfo表单设置值
+function setDetailInfo(detailId){
+	$('#paramBody').html('');
+	$('#detailIdWithInfo').val(detailId);
+	$.ajax({
+        url: '/product/getProductDetailParams/' +detailId ,
+        type: 'GET',
+        cache: false,
+        dataType: "json",
+        data: {},
+        success: function(json){
+            if(json){
+            	for( i=0;i<json.length;i++)
+            	{
+            		addDetailParamsRow(json[i]);
+            	}
+            }else{
+                alert('服务器繁忙，请稍后再试！');
+            }
+        },
+        error: function(){
+            alert('服务器繁忙，请稍后再试！');
+        }
+    });
+}
+function addDetailParamsRow(rowElement){
+	var html="<tr class='h6' id='"+rowElement.id+"'><td>"+rowElement.id+"</td><td>"+rowElement.key+"</td><td >"+rowElement.val+"</td><td >"+rowElement.nsort+"</td><td><button class='btn btn-danger' onclick='setProductDetailParamDelete("+rowElement.id+");'>删除</button></td></tr>";
+	
+	$('#paramBody').append(html);
+}
+//给删除商品参数设置值
+function setProductDetailParamDelete(paramId){
+	$('#paramIdDelete').val(paramId);
+	deleteParamFunction();
+}
+//给编辑规格表单设置值
+function setPicValue(pid,specifications,specSort){
+	$('#pidSpecpic').val(pid);
+	$('#specifications').val(specifications);
+	$('#specSort').val(specSort);
+}
+//给删除规格设置值
+function setDeletePicValue(pid,specifications){
+	$('#pidDeleteSpecpic').val(pid);
+}
+//给删除商品详情设置值
+function setProductDetailDelete(detailId){
+	$('#detailidDelete').val(detailId);
+}
+//给删除商品图片设置值
+function setImageDelete(imageid){
+	$('#imageidDelete').val(imageid);
+}
+
+//给商品详情设置值
+function setProductDetail(detailId){
+	if(detailId==""){
+		$('#detailid').val('');
+    	$('#chname').val('');
+    	$('#detailSort').val('');
+    	$('#enname').val('');
+    	um.setContent('');
+	}else{
+		$.ajax({
+	        url: '/product/getProductDetail/' +detailId ,
+	        type: 'GET',
+	        cache: false,
+	        dataType: "json",
+	        data: {},
+	        success: function(json){
+	            if(json){
+	            	$('#detailid').val(detailId);
+	            	$('#chname').val(json.chname);
+	            	$('#detailSort').val(json.nsort);
+	            	$('#enname').val(json.enname);
+	            	um.setContent(json.detail);
+	            }else{
+	                alert('服务器繁忙，请稍后再试！');
+	            }
+	        },
+	        error: function(){
+	            alert('服务器繁忙，请稍后再试！');
+	        }
+	    });
+	}
+	
+}
+//检查必填项并提交表单 商品详情
+function saveProductDetail(){
+	var enname=$('#enname').val();
+	var chname=$('#chname').val();
+	if(enname==""){
+		alert("请输入模块英文名");
+		return false;
+	}
+	if(chname==""){
+		alert("请输入模块中文名");
+		return false;
+	}
+	var ajax_option={
+			success:function(data){
+				window.location.href="/product/newOrUpdateProduct?pid="+@pid+"&activeNum="+3;
+			}
+	}
+	$('#saveProductDetail').ajaxSubmit(ajax_option);
+}
+//检查必填项并提交表单 商品规格
+function newSpecificationFunction(){
+	var specifications=$('#specifications').val();
+	var specSort=$('#specSort').val();
+	if(specifications==""){
+		alert("请输入规格");
+		return false;
+	}
+	if(specSort==""){
+		alert("请输入排序");
+		return false;
+	}
+	$('#uploadSpecPicForm').submit();
+}
+//删除商品详情
+function deleteProductDetail(){
+	var detailId=$('#detailidDelete').val();
+	$.ajax({
+        url: '/product/deleteProductDetail/' +detailId ,
+        type: 'GET',
+        cache: false,
+        dataType: "json",
+        data: {},
+        success: function(json){
+            if(json){
+            	alert('已成功删除商品详情ID为'+detailId+'的商品详情');
+            	window.location.href="/product/newOrUpdateProduct?pid="+@pid+"&activeNum="+3;
+            }else{
+                alert('服务器繁忙，请稍后再试！');
+            }
+        },
+        error: function(){
+            alert('服务器繁忙，请稍后再试！');
+        }
+    });
+}
+//添加详情参数
+function addDetailInfo(){
+	var detailInfoKey=$('#detailInfoKey').val();
+	var detailInfoVal=$('#detailInfoVal').val();
+	if(detailInfoKey==""){
+		alert("请输入参数名称");
+		return false;
+	}
+	if(detailInfoVal==""){
+		alert("请输入参数内容");
+		return false;
+	}
+	var ajax_option={
+			success:function(data){
+				$('#detailInfoKey').val('');
+				$('#detailInfoVal').val('');
+				$('#detailInfoNsort').val(0);
+				
+				var detailId=$('#detailIdWithInfo').val();
+				setDetailInfo(detailId);
+			}
+	}
+	$('#detailParamForm').ajaxSubmit(ajax_option);
+	
+}
+//删除详情参数
+function deleteParamFunction(){
+	var paramIdDelete=$('#paramIdDelete').val();
+	var detailId=$('#detailIdWithInfo').val();
+	$.ajax({
+        url: '/product/deleteParamById/' +paramIdDelete ,
+        type: 'GET',
+        cache: false,
+        dataType: "json",
+        data: {},
+        success: function(json){
+            if(json){
+            	alert('已成功删除详情参数ID为'+paramIdDelete+'的详情参数');
+            	/* setDetailInfo(detailId); */
+            	$('#'+paramIdDelete).remove();
+            }else{
+                alert('服务器繁忙，请稍后再试！');
+            }
+        },
+        error: function(){
+            alert('服务器繁忙，请稍后再试！');
+        }
+    });
+}
+//删除商品图片
+function deleteImageConfirm(){
+	var imageidDelete=$('#imageidDelete').val();
+	$.ajax({
+        url: '/product/deleteProductImage/' +imageidDelete ,
+        type: 'GET',
+        cache: false,
+        dataType: "json",
+        data: {},
+        success: function(json){
+            if(json){
+            	$('#'+imageidDelete).remove();
+            	$("#deleteImage").modal('hide');
+            }else{
+                alert('服务器繁忙，请稍后再试！');
+            }
+        },
+        error: function(){
+            alert('服务器繁忙，请稍后再试！');
+        }
+    });
+}
+//删除规格
+function deleteSpec(){
+	var pid=$('#pidDeleteSpecpic').val();
+	$.ajax({
+        url: '/product/deleteSpec/' +pid ,
+        type: 'GET',
+        cache: false,
+        dataType: "json",
+        data: {},
+        success: function(json){
+            if(json){
+            	alert('已成功删除商品ID为'+pid+'的规格');
+                window.location.href="/product/newOrUpdateProduct?pid="+@pid+"&activeNum="+4;
+            }else{
+                alert('服务器繁忙，请稍后再试！');
+            }
+        },
+        error: function(){
+            alert('服务器繁忙，请稍后再试！');
+        }
+    });
+}
+
+//选取现有商品填充数据
+function searchProduct(){
+	$('#searchProductBody').html('');
+	var pidForSearch = $('#pidForSearch').val();
+	var pNameForSearch = $('#pNameForSearch').val();
+	$.ajax({
+        url: '/product/productListForJson' ,
+        type: 'GET',
+        cache: false,
+        dataType: "json",
+        data: {pidForSearch:pidForSearch,pNameForSearch:pNameForSearch},
+        success: function(json){
+            if(json){
+            	if(json.length>0){
+            		for( i=0;i<json.length;i++)
+                	{
+                		addSearchProductRow(json[i]);
+                	}
+            	}else{
+            		alert('查无数据！');
+            	}
+            	
+            }else{
+                alert('服务器繁忙，请稍后再试！');
+            }
+        },
+        error: function(){
+            alert('服务器繁忙，请稍后再试！');
+        }
+    });
+}
+//选取现有商品填充数据
+function addSearchProductRow(rowElement){
+	var html="<tr class='h6' id='"+rowElement.pid+"'><td>"+rowElement.pid+"</td><td><img alt='' src='"+rowElement.listpic+"@@100w'></td><td >"+rowElement.title+"</td><td><button class='btn btn-info' onclick='getThisProduct("+rowElement.pid+");'>选取</button></td></tr>";
+	$('#searchProductBody').append(html);
+}
+function getThisProduct(pid){
+	var ppid=0;
+	@if(productNow!=null){
+		ppid='@productNow.getPpid()';
+	}
+	$.ajax({
+        url: '/product/addSpecProduct' ,
+        type: 'GET',
+        cache: false,
+        dataType: "json",
+        data: {pid:pid,ppid:ppid},
+        success: function(json){
+            if(json){
+            	alert("选取成功");
+            	window.location.href="/product/newOrUpdateProduct?pid="+@pid+"&activeNum="+4;
+            }else{
+                alert('服务器繁忙，请稍后再试！');
+            }
+        },
+        error: function(){
+            alert('服务器繁忙，请稍后再试！');
+        }
+    });
+}
+
+$("#categorysFirst").change(function(){
+	var level=2;//要获取二级分类下的数据
+	var categorys = $("#categorysFirst").val();
+	$.ajax({
+        url: '/product/getCategoryListByParentIdAndLevel' ,
+        type: 'GET',
+        cache: false,
+        dataType: "text",
+        data: { categorys : categorys,level : level},
+        success: function(response){
+            if(response ){
+            	if(response!="<option value=\"-1\">请选择</option>"){
+	            	$('#categorySecond').html(response);
+	            	$('#categorySecondDiv').show();
+	            	$('#categorys').val("");
+	            	$('#categoryThirdDiv').hide();
+            	}else{
+            		$('#categorys').val(categorys);
+            		$('#categorySecondDiv').hide();
+            		$('#categoryThirdDiv').hide();
+            	}
+            }else{
+                alert('服务器繁忙，请稍后再试！');
+            }
+        },
+        error: function(){
+            alert('服务器繁忙，请稍后再试！');
+        }
+    });
+}); 
+$("#categorySecond").change(function(){
+	var level=3;//要获取二级分类下的数据
+	var categorys = $("#categorySecond").val();
+	$.ajax({
+        url: '/product/getCategoryListByParentIdAndLevel' ,
+        type: 'GET',
+        cache: false,
+        dataType: "text",
+        data: { categorys : categorys,level : level},
+        success: function(response){
+        	if(response ){
+        		if(response!="<option value=\"-1\">请选择</option>"){
+    	        	$('#categoryThird').html(response);
+    	        	$('#categoryThirdDiv').show();
+    	        	$('#categorys').val("");
+        		}else{
+        			$('#categorys').val(categorys);
+        			$('#categoryThirdDiv').hide();
+        		}
+            }else{
+                alert('服务器繁忙，请稍后再试！');
+            }
+        },
+        error: function(){
+            alert('服务器繁忙，请稍后再试！');
+        }
+    });
+}); 
+$("#categoryThird").change(function(){
+	$('#categorys').val($("#categoryThird").val());
+}); 
+</script>
+}

@@ -1,0 +1,3 @@
+
+GET    	/syncBbtMoney           	   	@controllers.bbt.BbtControler.syncBbtMoney
+POST    /expressMall           	   		@controllers.bbt.BbtControler.expressMall

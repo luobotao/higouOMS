@@ -1,0 +1,64 @@
+@()@searchParam() = @{
+    var href = "?"
+    var pid = request().getQueryString("pid")
+    var keyWords = request().getQueryString("keyWords")
+    var category = request().getQueryString("category")
+    var typeNow = request().getQueryString("type")
+    var fromsite = request().getQueryString("fromsite")
+    var status = request().getQueryString("status")
+    var userId = request().getQueryString("userId")
+    var postman = request().getQueryString("postman")
+    
+    if(pid != "" && pid != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "pid=" + pid
+    }
+    if(userId != "" && userId != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "userId=" + userId
+    }
+    if(postman != "" && postman != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "postman=" + postman
+    }
+    if(keyWords != "" && keyWords != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "keyWords=" + keyWords
+    }
+    if(category != "" && category != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "category=" + category
+    }
+    if(typeNow != "" && typeNow != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "type=" + typeNow
+    }
+    if(fromsite != "" && fromsite != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "fromsite=" + fromsite
+    }
+    if(status != "" && status != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "status=" + status
+    }
+    if(href != "?"){
+        href += "&"
+    }
+    href
+}@searchParam()

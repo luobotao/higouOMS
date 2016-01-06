@@ -1,0 +1,171 @@
+@(adminUser : models.admin.AdminUser)(groups : Html)(usersPage :  org.springframework.data.domain.Page[models.user.User])
+@import utils.Dates
+@import utils.Constants
+@views.html.main {
+<!-- css -->
+}{
+<!-- Content Header (Page header) -->
+
+<!-- Main content -->
+<section class="content">
+	<!-- Main row -->
+	<div class="col-xs-12">
+		<div class="box">
+		    <div class="box-body table-responsive">
+			    <form action="">
+				    <div class="row">
+	                   <div class="col-xs-3">
+	                     <label for="userId">用户ID:</label>
+	               		 <input type="text" class="form-control" id="userId" name="userId" value="@request().getQueryString("userId")">
+	                   </div>
+	                   <div class="col-xs-3">
+	                     <label for="phone">phone:</label>
+                    	 <input type="text" class="form-control" id="phone" name="phone" value="@request().getQueryString("phone")">
+	                   </div>
+	                   <div class="col-xs-3">
+	                     <label for="userName">用户昵称:</label>
+                    	 <input type="text" class="form-control" id="userName" name="userName" value="@request().getQueryString("userName")">
+	                   </div>
+	                   <div class="col-xs-3">
+		                  <label>用户组</label>
+		                  <select id="gid" name="gid" class="form-control">
+		                  	@groups
+		                  </select>
+		                </div>
+	                   <input type="hidden" id="danyanFlag" name="danyanFlag" value="@request().getQueryString("danyanFlag")">
+	                   <div >
+		               	 <button class="btn btn-primary" style="margin-top:10px;margin-left: 15px;" type="submit">查询</button>
+		               	 <button class="btn btn-primary" style="margin-top:10px;margin-left: 10px;" type="button" onclick="javascript:window.location.href='/user/newOrUpdateUser'">+ 新建</button>
+		               </div>
+		            </div>
+	            </form> 
+	       </div>
+	    </div>
+    </div>
+    <div class="col-xs-12">
+            <div class="box">                      
+		        <table id="userTable" class="table table-bordered table-hover">
+		            <thead>
+		                <tr>
+		                    <th>UID</th>
+		                    <th>用户类型</th>
+		                    <th>用户昵称</th>
+		                    <th>手机</th>
+		                    <th>注册时间</th>
+		                    <th>最近登录时间</th>
+		                    <th>方式</th>
+		                    <th style="display:none;">设备</th>
+		                    <th style="display:none;">操作</th>
+		                </tr>
+		            </thead>
+		            <tbody>
+		            @if(usersPage!=null && usersPage.getContent() != null && usersPage.getContent().size() > 0){
+		                @for(user <- usersPage.getContent()){
+		                    <tr class="h6" data-uid="@user.getUid()">
+		                    	<td>@user.getUid()</td>
+		                    	<td>@Constants.getUserTypeStr(user.getGid())</td>
+		                    	<td>@user.getNickname()</td>
+		                    	<td>@user.getPhone()</td>
+		                    	<td>@Dates.formatDateTime(user.getDate_add())</td>
+		                    	<td>@Dates.formatDateTime(user.getDateUpd())</td>
+		                    	<td>
+		                    	@{
+			                      	var cologin=user.getCologin();
+			                      	cologin match{
+			                      		case 0 => "未绑定"
+			                      		case 1 => "微信"
+			                      		case 2 => "微博"
+			                      		case _ => "错误" 
+			                      	}
+			                      } 
+		                    	</td>
+		                    	<td style="display:none;"><button class="btn btn-info" onclick="window.parent.setUserValue('@user.getUid()');">选取</button></td>
+		                    </tr>
+		                    }
+		                }else{
+		                    <tr><td class="text-center" colspan="10">没有可用数据</td></tr>
+		                }
+		            </tbody>
+		            
+		        </table>
+		        @if(usersPage.getTotalPages()>0) {
+		        <div>
+		            <div class="col-xs-6">
+		                <div class="dataTables_info" id="userTable_info">页码：@{
+		                    usersPage.getNumber() + 1
+		                }/@usersPage.getTotalPages() 共计@usersPage.getTotalElements()条记录</div>
+		            </div>
+		            <div >
+		                <div class="dataTables_paginate paging_bootstrap">
+		                    <ul class="pagination">
+		                    
+		                     @if(usersPage.getNumber()<1){
+                   					<li class="prev disabled"><a href="javascript:">首页</a></li>
+			               	}else{
+			               		<li class="prev"><a href="@searchParam()page=0">首页</a></li>
+			               	}
+			               	
+                @for(index<- 0 to (usersPage.getTotalPages()-1)){
+                	@if(usersPage.getTotalPages()< 8){
+                		<li class="@if(index == usersPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+                  	}else{
+                       	@if(usersPage.getNumber()<7) {
+							@if(index < 8){
+								<li class="@if(index == usersPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+							}else{
+								@if(index == usersPage.getTotalPages()-1){
+									<li class=""><a href="javascript:">...</a></li>
+		                		}
+			               		@if(index == usersPage.getTotalPages()-1){
+			               			<li class="@if(index == usersPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+		                		}
+							}
+						}else{	
+							@if(usersPage.getNumber() < usersPage.getTotalPages()-4){
+							 	@if(index==0 || index > usersPage.getNumber()-4 &&  index < usersPage.getNumber() +5){
+							 		<li class="@if(index == usersPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+								}else{
+									@if(index == 2){
+							 			<li class=""><a href="javascript:">...</a></li>
+									}
+									@if(index == usersPage.getTotalPages()-1){
+				                		<li class=""><a href="javascript:">...</a></li>
+			                		}
+				               		@if(index == usersPage.getTotalPages()){
+				                		<li class="@if(index == usersPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+			                		}
+								}
+							}else{
+								@if(index==0 || index > usersPage.getTotalPages()-8){
+									<li class="@if(index == usersPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+							   		}else{
+							   			@if(index==2){
+							   				<li class=""><a href="javascript:">...</a></li>
+							   			}
+							   		}
+							   	}
+			  				 }
+						}  
+                      }
+                      @if(usersPage.getNumber()==usersPage.getTotalPages()){
+                      	<li class="next disabled"><a href="javascript:">尾页</a></li>
+                      }else{
+                      	<li class="next"><a href="@searchParam()page=@{usersPage.getTotalPages()-1}">尾页</a></li>
+                      }
+		                    
+		                    
+		                    
+		                       
+		                    </ul>
+		                </div>
+		            </div>
+		        </div>
+		        }
+	        </div>
+    </div>
+	<!-- /.row (main row) -->
+
+</section>
+}{
+
+}

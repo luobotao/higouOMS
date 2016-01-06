@@ -1,0 +1,371 @@
+@(userId : Long)(cid: Long)(cpid: Long)(padChannelPro: models.product.PadChannelPro)(padChannelProViewList: List[models.product.PadChannelProView])(typFlags : Html)(showFlags:Html)
+@import utils.Dates
+@import play.Configuration
+@views.html.main{
+
+}{
+<!-- Content Header (Page header) -->
+<section class="content-header">
+	<h1>
+		内容管理
+	</h1>
+</section>
+
+<!-- Main content -->
+<section class="content">
+	<div class="col-xs-12">
+	
+	<div class="box box-warning">
+	   <div class="box-body">
+	   <form id="padChannelProForm"  action="/endorsement/savePadChannelPro" method="post">
+	     <input id="cid" name="cid" type="hidden" value="@cid"/>
+	     <input id="cpid" name="cpid" type="hidden" value="@cpid"/>
+	     <input type="hidden" id="userId" name="userId" value="@userId"/>
+	     <div class="row">
+	       <!-- text input -->
+	       <div class="col-xs-3">
+	           <label>模版</label>
+	           <select id="typCount" name="typCount" class="form-control" >
+	           	@typFlags
+	           </select>
+	           <p class="help-block" id="typCountM" style="display: none">请选择模版</p>
+	       </div>
+	      </div>
+	    <!-- banner -->
+	      <div class="row">
+	           <div class="col-xs-3">
+	             <label for="nsort">排序值</label>
+	             <input type="text" class="form-control" id="nsort" name="nsort" maxlength="30" value="@padChannelPro.getNsort()">
+	           </div>
+	      </div>
+	      <div class="row">
+	           <div class="col-xs-3">
+	             <label for="typlabel">是否显示</label>
+	             <select id="typ" name="typ" class="form-control" disabled="disabled">
+	           	@showFlags
+	           </select>
+	           <p class="help-block" id="typM" style="display: none">请选择是否显示</p>
+	           </div>
+	      </div>
+       	<button class="btn btn-primary" style="margin-top:10px;margin-left: 15px;" id="savePadChannelProButton">保存</button>
+       	<button class="btn " style="margin-top:10px;margin-left: 15px;" onclick="javascript:window.location.href='/endorsement/getChannelProByCid/@userId/@cid'">返回</button>
+      </form>
+ 	  </div><!-- /.box-body -->
+	</div><!-- /.box -->
+      
+      @if(cpid!=null && cpid.longValue()!=0){
+   	  <div class="box box-warning">
+       <div class="box-body">
+           <form id="savePadChannelProViewForm" action="/endorsement/savePadChannelProView" method="post" >
+				<div class="row">
+					<div class="col-xs-12">
+						<label for="picFile">选择图片:</label> 
+						<input id="picFile" name="picFile" type="file" />
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-3">
+						<label for="nsort">排序值:</label> 
+						<input type="text" class="form-control" id="viewnsort" name="viewnsort">
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12">
+						<label for="exturl">请选择类型:</label> 
+						<label for="productDetail"><input type="radio" name="typesRadios" id="productDetail" value="0"  onclick="updateLinkTitle();"/>商品详情页</label>
+						<label for="productDetail"><input type="radio" name="typesRadios" id="productDetail" value="1"  onclick="updateLinkTitle();"/>跳转频道页</label>
+					    <!-- <label for="externalUrl" style="display:none;" ><input type="radio" name="typesRadios" id="externalUrl" value="5" onclick="updateLinkTitle();" />外链</label> --> 
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-3">
+						<label for="exturl">链接:</label> 
+						<input type="text" class="form-control" id="exturl" name="exturl">
+					</div>
+				</div>
+				<input id="checkedval" name="checkedval" type="hidden" val=""/>
+				<input id="cid" name="cid" type="hidden" value="@cid"/>
+				<input id="cpid" name="cpid" type="hidden" value="@cpid"/>
+				<input id="pid" name="pid" type="hidden" value=""/>
+				<input id="eid" name="eid" type="hidden" value=""/>
+				<input id="newcid" name="newcid" type="hidden" value=""/>
+				<input id="userId" name="userId" type="hidden" value="@userId"/>
+			</form>
+		    <div class="box-footer">
+             	<button id="saveSubjectMouldProBtn" class="btn btn-primary" >确定添加</button>
+            </div>
+			 <div class="col-xs-12">
+		<div class="box">
+		    <div class="box-header">
+		    </div>
+		    <div class="box-body table-responsive">
+			 <table id="taskTable" class="table table-bordered table-hover">
+	            <thead>
+	                <tr>
+	                    <th>ID</th>
+	                    <th>类型</th>
+	                    <th>内容</th>
+	                    <th>详情</th>
+	                    <th>状态</th>
+	                    <th>排序</th>
+	                    <th>操作</th>
+	                </tr>
+	            </thead>
+	            <tbody>
+	                @if(padChannelProViewList!=null && padChannelProViewList.size() > 0){
+	                 @for(padChannelProView <- padChannelProViewList){
+	                    <tr class="h6" data-uid="@padChannelProView.getId()">
+	                        <td width="20px">@padChannelProView.getId()</td>
+	                        <td width="20px">@if(padChannelProView.getTypFlag()=="0"){商品}@if(padChannelProView.getTypFlag()=="1"){频道}</td> 
+	                        <td width="200px"> @if(padChannelProView.getEndorsement()!=null){<img alt='' src='@padChannelProView.getEndorsement().getProducinfo().getListpic()@@40w'><a href="@if(padChannelProView.getEndorsement().getProducinfo().getExturl()==null||padChannelProView.getEndorsement().getProducinfo().getExturl()==""){http://ht.neolix.cn/www/details.php?pid=@padChannelProView.getEndorsement().getProducinfo().getSkucode()}else{@padChannelProView.getEndorsement().getProducinfo().getExturl()}" target="blank">@padChannelProView.getEndorsement().getProducinfo().getTitle()</a>}else{<img style="width: 40px;height: 40px;" alt='' src='@padChannelProView.getImgurl()@@40w'>}</td>
+	                        <td width="200px">
+	                        @if(padChannelProView.getEndorsement()!=null){
+	                        	PID:@padChannelProView.getEndorsement().getProductId() / 
+	                        	newSku:@padChannelProView.getEndorsement().getProducinfo().getNewSku() / 
+	                        	市场价：@padChannelProView.getEndorsement().getProducinfo().getChaListPrice() / 
+	                        	嗨购售价：@padChannelProView.getEndorsement().getProducinfo().getHiPrice() / 
+	                        	代言价：@padChannelProView.getEndorsement().getEndorsementPrice() / 
+	                        	佣金： @if(padChannelProView.getEndorsement().getCommisionTyp()!=null){
+			                        	@if(padChannelProView.getEndorsement().getCommisionTyp()==2){
+											@padChannelProView.getEndorsement().getCommision() %
+										}else{
+											¥ @padChannelProView.getEndorsement().getCommision()	
+										}
+									}
+	                        	库存：@padChannelProView.getEndorsement().getProducinfo().getNstock()
+	                       	}else{
+	                       		@padChannelProView.getLinkurl()
+	                       	}
+	                        </td>
+	                        <td width="20px">
+	                        @{
+	                        	var flag = padChannelProView.getTyp();
+	                        	 if(flag=="1"){
+				            		"显示"
+				            	}else {
+				            		"隐藏"
+				            	}
+	                        	
+	                        }
+	                       </td>
+	                        <td width="20px" id="nsort_@padChannelProView.getId()">@padChannelProView.getNsort()</td>
+	                        <td width="100px">
+	                         @if(padChannelProView.getTyp()=="1" ){
+		                        <button class="btn btn-info" onclick="editStatus('@padChannelProView.getId()','0');">隐藏</button>
+	                        }else{
+		                        <button class="btn btn-info" onclick="editStatus('@padChannelProView.getId()','1');">显示</button>
+	                        }
+		                        <button class="btn btn-danger" onclick="deletepadChannelProView('@padChannelProView.getId()');">删除</button>
+	                        </td>
+	                    </tr>
+	                    }
+	                }else{
+	                    <tr><td class="text-center" colspan="10">没有可用数据</td></tr>
+	                }
+	            </tbody>
+	            
+	            <tfoot>
+	            	
+	            </tfoot>
+	        </table>
+	        </div></div></div>
+            <!-- 选取商品填充新建4图里的链接 modal start -->
+		      <div class="modal fade text-center" id="openEndorseModal" tabindex="-1" role="dialog" aria-labelledby="openEndorseModalLabel" aria-hidden="true">
+		          <div class="modal_wrapper" >
+		              <div class="modal-dialog"  style="display: inline-block; width: 800px;">
+		                  <div class="modal-content">
+		                   <div class="modal-header">
+		                       <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+		                       <h4 class="modal-title" >选取</h4>
+		                   </div>
+		                      <iframe id="modalEndorseFrame" src="" width="100%" height="400"></iframe>
+		                      <div class="modal-footer">
+		                      		<button id="selectEndorseSubButton" type="button" class="btn btn-primary">确认</button>
+		                      		<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+		                  		</div>
+		                  </div>
+		                  
+		              </div>
+		          </div>
+		      </div>
+		    <!-- 选取商品填充新建4图里的链接 modal end -->
+			<!-- 选取频道填充新建4图里的链接 modal start -->
+		      <div class="modal fade text-center" id="openEndorseChannelBannerModal" tabindex="-1" role="dialog" aria-labelledby="openEndorseChannelBannerModalLabel" aria-hidden="true">
+		          <div class="modal_wrapper" >
+		              <div class="modal-dialog"  style="display: inline-block; width: 800px;">
+		                  <div class="modal-content">
+		                   <div class="modal-header">
+		                       <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+		                       <h4 class="modal-title" >选取</h4>
+		                   </div>
+		                      <iframe id="modalEndorseChannelBannerFrame" src="" width="100%" height="400"></iframe>
+		                      <div class="modal-footer">
+		                      		<button id="selectEndorseSubChannelBannerButton" type="button" class="btn btn-primary">确认</button>
+		                      		<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+		                  		</div>
+		                  </div>
+		                  
+		              </div>
+		          </div>
+		      </div>
+		    <!-- 选取频道填充新建4图里的链接 modal end -->
+		</div>
+	</div>
+	}
+	</div>
+</section>
+<!-- /.content -->
+}{
+<script type="text/javascript">
+<!--
+//提交表单，保存卡片信息
+$("#savePadChannelProButton").click(function(){
+	var flag = true;
+	var typCount = $('[name="typCount"] option:selected').val();
+	if(typeof(typCount)=='undefined' || typCount=='-1'){
+		$("#typCountM").attr("style","color:red");
+		flag = false;
+	}else{
+		$("#typCountM").removeAttr("style");
+	}
+	if(flag){
+		console.log("succeful , submit");
+		console.log($("#userId").val());
+		$("#padChannelProForm").submit();
+	}else{
+		alert("请检查内容合法性!");
+		console.log("failed");
+		return false;
+	}
+})
+
+//新建banner时输入链接
+function updateLinkTitle() {
+	var type = $('input[name="typesRadios"]:checked').val();
+	var url = "";
+	console.log(type);
+	console.log("userId:"+userId);
+	if (type == "0") {
+		url = "/endorsement/endorsementList?userId=@userId";
+		$("#modalEndorseFrame").attr("src", url);
+		$('#openEndorseModal').modal({
+			show : true,
+			backdrop : 'static'
+		});
+	}else if (type == "1") {
+		url = "/endorsement/channelList?userId=@userId&cid=@cid";
+		$("#modalEndorseChannelBannerFrame").attr("src", url);
+		$('#openEndorseChannelBannerModal').modal({
+			show : true,
+			backdrop : 'static'
+		});
+	}
+}
+//接收选取代言商品子页面的处理
+function setEndorseValue(eid,pid){
+	$.ajax({
+		url : '/endorsement/getEndorsementById/' + eid,
+		type : 'GET',
+		cache : false,
+		dataType : "json",
+		success : function(json) {
+			if (json) {
+				var endorsementPrice = json.endorsementPrice;
+				if(endorsementPrice>0){
+					$('#exturl').val("http://h5.higegou.com/sheSaid/show?daiyanid="+eid);
+					$("#pid").val(pid);
+					$("#eid").val(eid);
+					$('#openEndorseModal').modal('hide');
+				}else{
+					alert("该商品商户价格设置不合法,请检查!");
+				}
+			} else {
+				alert('服务器繁忙，请稍后再试！');
+			}
+		},
+		error : function() {
+			alert('服务器繁忙，请稍后再试！');
+		}
+	});
+}
+
+//接收选取频道子页面的处理
+function setChannelValue(cid){
+	$('#exturl').val("http://h5.higegou.com/H5/prolist?cid="+cid);
+	$("#newcid").val(cid);
+	$('#openEndorseChannelBannerModal').modal('hide');
+}
+
+$('#saveSubjectMouldProBtn').on('click', function() {
+	var picFile = $('#picFile').val();
+	var viewnsort = $('#viewnsort').val();
+	var exturl = $('#exturl').val();
+	var checkedval = $('[name="typesRadios"]:checked').val();
+	if (checkedval==2&&picFile == "") {
+		alert("请选择频道图片");
+		return false;
+	}
+	if (viewnsort == "") {
+		alert("请输入排序值");
+		return false;
+	}
+	if (exturl == "") {
+		alert("请输入链接");
+		return false;
+	}
+	$("#checkedval").val(checkedval);
+	var ajax_option = {
+		success : function(data) {
+			location.reload();
+		}
+	}
+	$("#saveSubjectMouldProBtn").hide();
+	$('#savePadChannelProViewForm').ajaxSubmit(ajax_option);
+});
+function editStatus(id, state) {
+	$.ajax({
+		url : '/endorsement/changeChannelProViewSta/' + id + '/' + state,
+		type : 'GET',
+		cache : false,
+		dataType : "json",
+		success : function(json) {
+			var jsonStr = JSON.stringify(json).replace("\"", "").replace(
+					"\"", "");
+			if (jsonStr == 1) {
+				alert("修改状态成功");
+				location.reload();
+			} else {
+				alert(jsonStr);
+			}
+		},
+		error : function() {
+			alert('服务器繁忙，请稍后再试！');
+		}
+	});
+}
+function deletepadChannelProView(id) {
+	var flagStr = confirm("请再次确认删除操作！");
+	console.log(id);
+	if(flagStr == true){
+		console.log("succeful , change sta 2");
+		$.ajax({
+			url : '/endorsement/deleteChannelProView/' + id,
+			type : 'GET',
+			cache : false,
+			dataType : "json",
+			success : function(json) {
+				if (json) {
+					location.reload();
+				} else {
+					alert('服务器繁忙，请稍后再试！');
+				}
+			},
+			error : function() {
+				alert('服务器繁忙，请稍后再试！');
+			}
+		});
+	}
+}
+-->
+</script>
+}

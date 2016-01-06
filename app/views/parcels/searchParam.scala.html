@@ -1,0 +1,100 @@
+@()@searchParam() = @{
+    var href = "?"
+    var status = request().getQueryString("status")
+    var src = request().getQueryString("src")
+    var between = request().getQueryString("between")
+    var parcelCode = request().getQueryString("parcelCode")
+    var orderCode = request().getQueryString("orderCode")
+    var keyword = request().getQueryString("keyword")
+    var waybillCode = request().getQueryString("waybillCode")
+    var kdCompany = request().getQueryString("kdCompany")
+    var nsort = request().getQueryString("nsort")
+    var remark = request().getQueryString("remark")
+    var addDate = request().getQueryString("addDate")
+    var adminId = request().getQueryString("adminId")
+    var checkStatus = request().getQueryString("checkStatus")
+    
+    
+    if(status != "" && status != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "status=" + status
+    }
+    if(checkStatus != "" && checkStatus != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "checkStatus=" + checkStatus
+    }
+    if(src != "" && src != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "src=" + src
+    }
+    if(between != "" && between != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "between=" + between
+    }
+    if(parcelCode != "" && parcelCode != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "parcelCode=" + parcelCode
+    }
+    if(orderCode != "" && orderCode != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "orderCode=" + orderCode
+    }
+    if(keyword != "" && keyword != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "keyword=" + keyword
+    }
+    if(waybillCode != "" && waybillCode != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "waybillCode=" + waybillCode
+    }
+    if(kdCompany != "" && kdCompany != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "kdCompany=" + kdCompany
+    }
+    if(nsort != "" && nsort != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "nsort=" + nsort
+    }
+    if(remark != "" && remark != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "remark=" + remark
+    }
+    if(addDate != "" && addDate != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "addDate=" + addDate
+    }
+    if(adminId != "" && adminId != null){
+        if(href != "?"){
+            href += "&"
+        }
+        href += "adminId=" + adminId
+    }
+    if(href != "?"){
+        href += "&"
+    }
+    href
+}@searchParam()

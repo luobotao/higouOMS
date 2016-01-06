@@ -1,0 +1,142 @@
+@(sysRoleList: List[models.admin.Role])
+@import utils.Dates
+@views.html.main{ 
+<link href="@assets.CdnAssets.urlForAdminPublic("stylesheets/jquery.treetable.theme.default.css")" rel="stylesheet" type="text/css" />
+<link href="@assets.CdnAssets.urlForAdminPublic("stylesheets/jquery.treetable.css")" rel="stylesheet" type="text/css" />
+}{
+<!-- Content Header (Page header) -->
+<section class="content-header">
+	<h1>角色管理</h1>
+</section>
+
+<!-- Main content -->
+<section class="content" style="min-height: 800px;">
+	<div class="col-xs-12">
+		<div class="box box-warning">
+			<div class="box-body">
+				<div>
+					<button class="btn btn-primary" style="margin-top: 10px; margin-left: 15px;" type="button" onclick="javascript:window.location.href='/admin/newOrUpdateRole'">+新建角色</button>
+				</div>
+			</div>
+			<!-- /.box-body -->
+		</div>
+		<!-- /.box -->
+	</div>
+	<!--col-xs-12 end 创建任务 -->
+
+
+	<div class="col-xs-12">
+		<div class="box">
+			<div class="box-header">
+				<h3 class="box-title">角色列表</h3>
+			</div>
+			<div class="box-body table-responsive">
+
+				<table class="table table-bordered table-hover">
+					<thead>
+						<tr>
+							<th>角色ID</th>
+							<th>角色名称</th>
+							<th>备注</th>
+							<th>创建时间</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody>
+						@for(sysRole <- sysRoleList){
+						<tr >
+							<td>@sysRole.getId()</td>
+							<td>@sysRole.getRole()</td>
+							<td>@sysRole.getRemark()</td>
+							<td>@if(sysRole.getDateAdd()!=null){@Dates.formatDate(sysRole.getDateAdd())}</td>
+							<td>
+								<button class="btn btn-info" onclick="javascript:window.location.href='/admin/newOrUpdateRole?id=@sysRole.getId()'" >修改</button>
+								<button class="btn btn-info" data-toggle="modal" data-target="#assignUser" onclick="getContent('@sysRole.getId()')">分配用户</button>
+							
+							</td>
+						</tr>
+						}
+					</tbody>
+				</table>
+
+
+			</div>
+		</div>
+	</div>
+	<!-- /.row (main row) -->
+
+<!-- 选取用户modal start -->
+<div class="modal fade text-center" id="openModal" tabindex="-1" role="dialog" aria-labelledby="openModalLabel" aria-hidden="true">
+    <div class="modal_wrapper" >
+        <div class="modal-dialog"  style="display: inline-block; width: 800px;">
+            <div class="modal-content">
+             <div class="modal-header">
+                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                 <h4 class="modal-title" >选取</h4>
+             </div>
+                <iframe id="modalFrame" src="" width="100%" height="400"></iframe>
+                <div class="modal-footer">
+                		<button id="selectSubButton" type="button" class="btn btn-primary">确认</button>
+                		<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            		</div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+<!-- 选取商品modal end -->
+</section>
+<!-- /.content -->
+}{
+<script type="text/javascript">
+var adminUsers = [];
+var role;
+//接收子frame里的参数 多个pid
+function getAdminUsersBatch(adminuser) {
+	$('#openModal').modal('hide');
+	$.ajax({
+		url : '/admin/assignRoleToAdminUsers',
+		type : 'POST',
+		cache : false,
+		dataType : "json",
+		data : {
+			adminUsers : JSON.stringify(adminUsers),
+			role : role
+		},
+		success : function(json) {
+			if (json) {
+				location.reload();
+			} else {
+				alert('服务器繁忙，请稍后再试！');
+			}
+		},
+		error : function() {
+			alert('服务器繁忙，请稍后再试！');
+		}
+	});
+}
+function getContent(roleid) {
+	role = roleid;
+	var url = "/admin/adminUserListBatchForJson?roleid="+roleid;
+	$("#modalFrame").attr("src", url);
+	$('#openModal').modal({
+		show : true,
+		backdrop : 'static'
+	});
+}
+$('#selectSubButton').on('click', selectSubFunction);//弹出选择iframe里的确认添加按键事件
+function selectSubFunction() {
+	var iAdminUsers = $('#modalFrame').contents().find('input[name="uid"]:checked');
+	if (iAdminUsers.length) {
+		$.each(iAdminUsers, function(i, n) {
+			if (!$(n).closest('tr').find('.status .label').hasClass('label-success')) {
+				adminUsers.push($(n).val());
+			}
+		});
+		getAdminUsersBatch(adminUsers);
+	} else {
+		alert('没有选中任何管理员！');
+	}
+}
+</script>
+}

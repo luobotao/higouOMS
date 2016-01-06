@@ -1,0 +1,59 @@
+#product
+GET    /productManage			@controllers.product.ProductController.productManage
+GET    /newOrUpdateProduct			@controllers.product.ProductController.newOrUpdateProduct
+POST    /saveProduct			@controllers.product.ProductController.saveProduct
+GET    /updateProductState/:pid/:status			@controllers.product.ProductController.updateProductState(pid : Long ,status :Int)
+GET    /updateProductEndorsement/:pid/:status			@controllers.product.ProductController.updateProductEndorsement(pid : Long ,status :Int)
+POST    /updateProductsToGrouding			@controllers.product.ProductController.updateProductsToGrouding
+POST    /uploadListPic			@controllers.product.ProductController.uploadListPic
+POST    /uploadProductImages			@controllers.product.ProductController.uploadProductImages
+POST    /saveProductDetail			@controllers.product.ProductController.saveProductDetail
+POST    /uploadSpecPic			@controllers.product.ProductController.uploadSpecPic
+GET    /deleteProductImage/:imageId			@controllers.product.ProductController.deleteProductImage(imageId : Long)
+
+GET    /getProductDetail/:detailId			@controllers.product.ProductController.getProductDetail(detailId : Long)
+GET    /deleteProductDetail/:detailId			@controllers.product.ProductController.deleteProductDetail(detailId : Long)
+POST    /saveDetailInfo			@controllers.product.ProductController.saveDetailInfo
+GET    /getProductDetailParams/:detailId			@controllers.product.ProductController.getProductDetailParams(detailId : Long)
+GET    /deleteParamById/:paramId			@controllers.product.ProductController.deleteParamById(paramId : Long)
+GET    /deleteSpec/:pid			@controllers.product.ProductController.deleteSpec(pid : Long)
+GET    /productListForJson		@controllers.product.ProductController.productListForJson
+POST    /productListWithPidsForJson		@controllers.product.ProductController.productListWithPidsForJson
+GET    /addSpecProduct		@controllers.product.ProductController.addSpecProduct
+GET    /products		@controllers.product.ProductController.products
+GET    /productsBatch		@controllers.product.ProductController.productsBatch
+GET    /getCategoryListByParentIdAndLevel		@controllers.product.ProductController.getCategoryListByParentIdAndLevel
+
+#channel
+GET    /channelManage			@controllers.product.ChannelController.channelManage
+POST    /createchannel			@controllers.product.ChannelController.createchannel
+GET    /getChannelById/:id			@controllers.product.ChannelController.getChannelById(id : Long)
+GET    /changeChannelSta			@controllers.product.ChannelController.changeChannelSta
+GET    /deletechannelById/:id			@controllers.product.ChannelController.deletechannelById(id : Long)
+GET    /channelContentManage			@controllers.product.ChannelController.channelContentManage
+GET    /getChannelMouldByCid/:cid			@controllers.product.ChannelController.getChannelMouldByCid(cid : Long)
+GET    /deletechannelContentById/:id			@controllers.product.ChannelController.deletechannelContentById(id : Long)
+GET    /newOrUpdateChannelMould			@controllers.product.ChannelController.newOrUpdateChannelMould
+GET    /channels			@controllers.product.ChannelController.channels
+GET    /subjects			@controllers.product.ChannelController.subjects
+POST    /saveChannelMould			@controllers.product.ChannelController.saveChannelMould
+GET    /updateChmouldFlag			@controllers.product.ChannelController.updateChmouldFlag
+POST    /saveChannelMouldPro			@controllers.product.ChannelController.saveChannelMouldPro
+GET    /deleteChmouldPro/:id			@controllers.product.ChannelController.deleteChmouldPro(id : Long)
+POST    /channelMouldBatch			@controllers.product.ChannelController.channelMouldBatch
+GET    	/getChmouldProById/:id/:channelId			@controllers.product.ChannelController.getChmouldProById(id : Long,channelId : Long)
+GET     /piliangChangeNsort				@controllers.product.ChannelController.piliangChangeNsort
+	
+#productGroup
+GET    	/productGroupManage								@controllers.product.ProductGroupController.productGroupManage
+GET    	/newOrUpdateProductGroup						@controllers.product.ProductGroupController.newOrUpdateProductGroup
+POST   	/saveProductGroup								@controllers.product.ProductGroupController.saveProductGroup
+POST    /uploadListPicWithProductGroup					@controllers.product.ProductGroupController.uploadListPicWithProductGroup
+POST    /uploadProductImagesWithProductGroup			@controllers.product.ProductGroupController.uploadProductImagesWithProductGroup
+GET     /searchProductGroup								@controllers.product.ProductGroupController.searchProductGroup
+POST    /addProductGroups								@controllers.product.ProductGroupController.addProductGroups
+GET     /getProductGroupByPid/:pid						@controllers.product.ProductGroupController.getProductGroupByPid(pid : Long)
+
+POST    /getAllCategoryList								@controllers.product.ProductController.getAllCategoryList
+
+

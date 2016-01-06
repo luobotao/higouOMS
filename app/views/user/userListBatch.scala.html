@@ -1,0 +1,94 @@
+@(users : List[models.user.User])
+@views.html.main {
+<!-- css -->
+}{
+<!-- Content Header (Page header) -->
+
+<!-- Main content -->
+<section class="content">
+	<!-- Main row -->
+	<div class="col-xs-12">
+		<div class="box">
+		    <div class="box-body table-responsive">
+			    <form action="">
+				    <div class="row">
+	                   <div class="col-xs-3">
+	                     <label for="userId">用户ID:</label>
+	               		 <input type="text" class="form-control" id="userId" name="userId" placeholder="商品ID">
+	                   </div>
+	                   <div class="col-xs-3">
+	                     <label for="phone">phone:</label>
+                    	 <input type="text" class="form-control" id="phone" name="phone" placeholder="phone">
+	                   </div>
+	                   <div class="col-xs-3">
+	                     <label for="userName">用户昵称:</label>
+                    	 <input type="text" class="form-control" id="userName" name="userName" placeholder="用户昵称">
+	                   </div>
+	                   <input type="hidden" id="danyanFlag" name="danyanFlag" value="@request().getQueryString("danyanFlag")">
+	                   <input type="hidden" id="gid" name="gid" value="@request().getQueryString("gid")">
+	                   <div class="col-xs-2">
+	                     <label>&nbsp;</label>
+                  		 <button id="searchUserButton" type="submit" class="btn btn-primary form-control" >查询</button>
+	                   </div>
+		            </div>
+	            </form> 
+	       </div>
+	    </div>
+    </div>
+    <div class="col-xs-12">
+            <div class="box">                      
+		        <table id="userTable" class="table table-bordered table-hover">
+		            <thead>
+		                <tr>
+		                	<th>选择</th>
+		                    <th>用户ID</th>
+		                    <th>phone</th>
+		                    <th>用户昵称</th>
+		                    <th>操作</th>
+		                </tr>
+		            </thead>
+		            <tbody>
+		                @if(users!=null && users.size() > 0){
+		                @for(user <- users){
+		                    <tr class="h6" data-uid="@user.getUid()">
+		                    	<td>
+                                    <input type="checkbox" value="@user.getUid()" name="uid" id="uid@user.getUid()">
+                                </td>
+		                    	<td>@user.getUid()</td>
+		                    	<td>@user.getPhone()</td>
+		                    	<td>@user.getNickname()</td>
+		                    	<td><button class="btn btn-info" onclick="window.parent.setUserValue('@user.getUid()');">选取</button></td>
+		                    </tr>
+		                    }
+		                }else{
+		                    <tr><td class="text-center" colspan="10">没有可用数据</td></tr>
+		                }
+		            </tbody>
+		            <tfoot>
+	                     <tr>
+	                         <th colspan="11">
+	                             <input id="selectAll" name="selectAll" type="checkbox"> <label for="selectAll">全选</label> &nbsp;
+	                         </th>
+	                     </tr>
+	                 </tfoot>
+		        </table>
+	        </div>
+    </div>
+	<!-- /.row (main row) -->
+
+</section>
+}{
+<script type="text/javascript">
+$("input[type='checkbox']").iCheck({
+	checkboxClass : 'icheckbox_square-blue'
+});
+
+$("#selectAll").on('ifUnchecked', function() {
+	$("input[type='checkbox']", "#userTable").iCheck("uncheck");
+}).on('ifChecked', function() {
+	$("input[type='checkbox']", "#userTable").iCheck("check");
+});
+
+</script>
+}
+

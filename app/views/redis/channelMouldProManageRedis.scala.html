@@ -1,0 +1,168 @@
+@(chmoProList : List[models.product.ChannelMouldPro])
+@import utils.Dates
+@views.html.main{
+
+}{
+<!-- Content Header (Page header) -->
+<section class="content-header">
+	<h1>
+		&nbsp;&nbsp;&nbsp;&nbsp;内容管理
+	</h1>
+	<ol class="breadcrumb" style="margin-right: 50px;">
+		<li><a href="/admin"><i class="fa fa-dashboard"></i>首页</a></li>
+		<li class="active">卡片</li>
+	</ol>
+</section>
+
+<!-- Main content -->
+<section class="content">
+	<div class="col-xs-12">
+		<div class="box box-warning">
+			<div class="box-header">
+				<h3 class="box-title">卡片内容</h3>
+			</div>
+			<div class="box-body">
+             <div class="col-xs-12">
+		<div class="box">
+		    <div class="box-header">
+		    </div>
+		    <div class="box-body table-responsive">
+		        <table id="taskTable" class="table table-bordered table-hover">
+		            <thead>
+		                <tr>
+		                    <th>类型</th>
+		                    <th>类型链接</th>
+		                    <th>图片</th>
+		                    <th>排序值</th>
+		                    <th>开抢时间</th>
+		                    <th>操作</th>
+		                </tr>
+		            </thead>
+		            <tbody>
+		                @if(chmoProList!=null && chmoProList.size() > 0){
+		                 @for(chmouldPro <- chmoProList){
+		                    <tr class="h6" data-uid="@chmouldPro.getId()">
+		                        <td>
+		                        @if("1"==chmouldPro.getTyp()){
+		                        	猜你喜欢
+		                        }
+		                        @if("2"==chmouldPro.getTyp()){
+		                        	频道页
+		                        }
+		                        @if("3"==chmouldPro.getTyp()){
+		                        	商品详情页
+		                        }
+		                        @if("4"==chmouldPro.getTyp()){
+		                        	专题页
+		                        }
+		                        @if("5"==chmouldPro.getTyp()){
+		                        	外链
+		                        }
+		                        </td>
+		                        <td>@chmouldPro.getLinkurl()</td>
+		                        <td><img alt="" src="@chmouldPro.getImgurl()@@40w"></td>
+		                        <td>@chmouldPro.getNsort()</td>
+		                        <td>@Dates.formatEngLishDateTime(chmouldPro.getBeginTime())</td>
+		                        <td><button class="btn btn-danger" data-toggle="modal" data-target="#deleteChmouldPro" onclick="setDeleteChmouldProValue('@chmouldPro.getId()');">重置</button></td>
+		                    </tr>
+		                    }
+		                }else{
+		                    <tr><td class="text-center" colspan="10">没有可用数据</td></tr>
+		                }
+		            </tbody>
+		            
+		            <tfoot>
+		            	
+		            </tfoot>
+		        </table>
+		        
+		        
+		        
+		        
+		    </div>
+		</div>
+	</div>
+             
+        	 </div><!-- /.box-body -->
+       	  </div><!-- /.box -->
+       	  
+       	  
+       	  
+       	  
+       	  <!-- 删除Channel mould pro modal start -->
+          <div class="modal fade" id="deleteChmouldPro" tabindex="-1" role="dialog" aria-labelledby="deleteChmouldProLabel" aria-hidden="true">
+              <div class="modal_wrapper">
+                  <div class="modal-dialog" >
+                      <div class="modal-content">
+                          <div class="modal-header" >
+                              <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">关闭</span></button>
+                              <h4 class="modal-title" >确认信息</h4>
+                          </div>
+                          <div class="modal-body">确定重置此内容？<br></div>
+                          <div class="modal-footer">
+                          	<input id="cmpidDelete" name="cmpidDelete" value="" type="hidden"/>
+                              <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                              <button id="deleteConfirmButton" type="button" class="btn btn-primary">确认</button>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <!-- 删除Channel mould pro modal end -->
+       	  
+       	  <!-- 选取频道modal start -->
+           <div class="modal fade text-center" id="openModal" tabindex="-1" role="dialog" aria-labelledby="openModalLabel" aria-hidden="true">
+               <div class="modal_wrapper" >
+                   <div class="modal-dialog"  style="display: inline-block; width: 800px;">
+                       <div class="modal-content">
+	                       <div class="modal-header">
+	                           <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+	                           <h4 class="modal-title" >选取内容</h4>
+	                       </div>
+                           <iframe id="modalFrame" src="" width="100%" height="400"></iframe>
+                           <div class="modal-footer">
+                           		<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                       		</div>
+                       </div>
+                       
+                   </div>
+               </div>
+           </div>
+           <!-- 删除频道modal end -->
+     </div><!--col-xs-12 end 创建任务 -->
+	
+
+</section>
+<!-- /.content -->
+}{
+<script type="text/javascript">
+
+function setDeleteChmouldProValue(cmid){
+	$('#cmpidDelete').val(cmid);
+	
+}
+//ChmouldPro确认button
+$('#deleteConfirmButton').on('click', deleteConfirmFunction);
+
+function deleteConfirmFunction(){
+	var cmpidDelete=$('#cmpidDelete').val();
+	$.ajax({
+        url: '/redis/deleteChmouldPro/' +cmpidDelete ,
+        type: 'GET',
+        cache: false,
+        dataType: "json",
+        success: function(json){
+            if(json){
+            	location.reload();
+            }else{
+                alert('服务器繁忙，请稍后再试！');
+            }
+        },
+        error: function(){
+            alert('服务器繁忙，请稍后再试！');
+        }
+    });
+}
+
+</script>
+}

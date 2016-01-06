@@ -1,0 +1,321 @@
+@(types : Html)(fromsites : Html)(productStatus : Html)(categorys : Html)(productPage : org.springframework.data.domain.Page[models.product.Product])
+@import utils.Dates
+@import utils.Constants.TypsProduct
+@import utils.Constants.PTyps
+@import utils.Constants.ProductStatus
+@import play.Configuration
+@views.html.main {
+<!-- css -->
+}{
+<!-- Content Header (Page header) -->
+<section class="content-header">
+	<h1>
+		商品管理 
+	</h1>
+	
+</section>
+
+<!-- Main content -->
+<section class="content">
+	<div class="col-xs-12">
+         <div class="box box-warning">
+           <div class="box-header">
+           </div><!-- /.box-header -->
+           <div class="box-body">
+             <form action="?" method="get" id="searchproductForm" name="searchproductForm">
+              <div class="row">
+              <!-- text input -->
+                <div class="col-xs-3">
+                  <label>商品ID</label>
+                  <input id="pid" name="pid" type="text" class="form-control" placeholder="请输入商品ID" value="@request().getQueryString("pid")"/>
+                </div>
+                <div class="col-xs-3">
+                  <label>商品名称</label>
+                  <input id="keyWords" name="keyWords" type="text" class="form-control" placeholder="请输入商品名称" value="@request().getQueryString("keyWords")"/>
+                </div>
+                <div class="col-xs-3" style="display:none;">
+                  <label>品类</label>
+                  <select id="category" name="category" class="form-control">
+                  	@categorys
+                  </select>
+                </div>
+                 <div class="col-xs-3">
+                  <label>类型</label>
+                  <select id="type" name="type" class="form-control">
+                  	@types
+                  </select>
+                </div>
+                <div class="col-xs-3">
+                  <label>来源网站</label>
+                  <select id="fromsite" name="fromsite" class="form-control">
+                  	@fromsites
+                  </select>
+                </div>
+              </div>
+              <br/> 
+              <div class="row">
+              	
+                <div class="col-xs-3" style="display:none;">
+                  <label>嗨购售价(Min)</label>
+                  <input id="priceSmall" name="priceSmall" type="text" class="form-control" placeholder="请输入售价最小值" value="@request().getQueryString("priceSmall")"/>
+                </div>
+                <div class="col-xs-3" style="display:none;">
+                	<label>嗨购售价(Max)</label>
+                  <input id="priceBig" name="priceBig" type="text" class="form-control" placeholder="请输入售价最大值" value="@request().getQueryString("priceBig")"/>
+                </div>
+                <div class="col-xs-3">
+                  <label>状态</label>
+                  <select id="status" name="status" class="form-control">
+                  @productStatus
+                  </select>
+                </div>
+              </div>
+			  <div >
+               	<button class="btn btn-primary" style="margin-top:10px;margin-left: 15px;" type="submit">查询</button>
+               	<button class="btn btn-primary" style="margin-top:10px;margin-left: 10px;" type="button" onclick="javascript:window.location.href='/product/newOrUpdateProduct'">+ 新建</button>
+             </div>
+           </form>
+         </div><!-- /.box-body -->
+       </div><!-- /.box -->
+     </div><!--col-xs-12 end 创建任务 -->
+	<!-- Main row -->
+	<div class="col-xs-12">
+		<div class="box">
+		    <div class="box-header">
+		    </div>
+		    <div class="box-body table-responsive">
+		        <table id="taskTable" class="table table-bordered table-hover">
+		            <thead>
+		                <tr>
+		                    <th>PID</th>
+		                    <th>newSku</th>
+		                    <th>图片</th>
+		                    <th>商品名称</th>
+		                    <th>类型</th>
+		                    <th>种类</th>
+		                    <th>规格</th>
+		                    <th>市场价</th>
+		                    <th>嗨购售价</th>
+		                    <th>库存</th>
+		                    <th>创建时间</th>
+		                    <th>状态</th>
+		                    <th>操作</th>
+		                </tr>
+		            </thead>
+		            <tbody>
+		                @if(productPage!=null && productPage.getContent() != null && productPage.getContent().size() > 0){
+		                @for(product <- productPage.getContent()){
+		                    <tr class="h6" data-uid="@product.getPid()">
+		                        <td>@product.getPid()</td>
+		                        <td>@product.getNewSku()</td>
+		                        <td><a href="@product.getListpic()" target="blank">
+		                        <img style="width: 40px;height: 40px;"  alt="" src="@if(product.getListpic().indexOf(Configuration.root().getString("kjd.ImagePre","http://image.kjt.com.pre")) <= -1){@product.getListpic()@@40w}else{@product.getListpic()}">
+		                        </a></td>
+		                        <td width="100px"><a href="@if(product.getExturl()==null||product.getExturl()==""){http://ht.neolix.cn/www/details.php?pid=@product.getSkucode()}else{@product.getExturl()}" target="blank">@product.getTitle()</a></td>
+		                        <td>
+		                        @if(product.getTyp()!=null){
+		                        	@TypsProduct.typs2Message(product.getTyp().toInt)
+		                        }else{
+		                        
+		                        }
+		                        
+		                        </td>
+		                        <td>@PTyps.typs2Message(product.getPtyp().toInt)</td>
+		                        <td>
+		                        @{
+		                        	var ppid=product.getPpid();
+		                        	if(ppid==product.getPid()){
+		                        		"大哥";
+		                        	}else{
+		                        		"小弟";
+		                        	}
+		                        }
+		                        </td>
+		                        <td>@product.getChaListPrice()</td>
+		                        <td>@product.getHiPrice()</td>
+		                        <td>@product.getNstock()</td>
+		                        <td>@Dates.formatDateTime(product.getDate_add())</td>
+		                        <td>@ProductStatus.status2Message(product.getStatus())</td>
+		                        <td>
+		                        <a class="btn btn-info" href="/product/newOrUpdateProduct?pid=@product.getPid()" >修改</a> 
+		                        @if(product.getStatus()==30 ){
+			                        <button class="btn btn-info" data-toggle="modal" data-target="#deleteProduct" onclick="setDeleteProductValue('@product.getPid()',20);">恢复下架</button>
+		                        }
+		                        @if(product.getStatus()==10){
+			                        <button class="btn btn-info" data-toggle="modal" data-target="#deleteProduct" onclick="setDeleteProductValue('@product.getPid()',20);">下架</button>
+		                        }
+		                        @if(product.getStatus()==20 || product.getStatus()==21 || product.getStatus()==1){
+			                        <button class="btn btn-info" data-toggle="modal" data-target="#deleteProduct" onclick="setDeleteProductValue('@product.getPid()',10);">上架</button>
+		                        }
+		                        @if(product.getStatus()!=30 ){
+			                        <button class="btn btn-danger" data-toggle="modal" data-target="#deleteProduct" onclick="setDeleteProductValue('@product.getPid()',30);">回收站</button>
+		                        }
+		                        @if(product.getStatus()==30 ){
+			                        <button class="btn btn-danger" data-toggle="modal" data-target="#deleteProduct" onclick="setDeleteProductValue('@product.getPid()',40);">彻底删除</button>
+		                        }
+		                        </td>
+		                    </tr>
+		                    }
+		                }else{
+		                    <tr><td class="text-center" colspan="10">没有可用数据</td></tr>
+		                }
+		            </tbody>
+		            
+		            <tfoot>
+		            	<!-- 修改商品状态modal start -->
+                        <div class="modal fade" id="deleteProduct" tabindex="-1" role="dialog" aria-labelledby="deleteProductLabel" aria-hidden="true">
+                            <div class="modal_wrapper">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">关闭</span></button>
+                                            <h4 class="modal-title" >确认信息</h4>
+                                        </div>
+                                        <div class="modal-body" id="modalMessage"></div>
+                                        <div class="modal-footer">
+                                        	<input id="pidDelete" name="pidDelete" value="" type="hidden"/>
+                                        	<input id="pidStatus" name="pidStatus" value="" type="hidden"/>
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                            <button id="deleteConfirmButton" type="button" class="btn btn-primary">确认</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 修改商品状态modal end -->
+		            </tfoot>
+		        </table>
+		        
+		        
+		        @if(productPage.getTotalPages()>0) {
+		        <div>
+		            <div class="col-xs-6">
+		                <div class="dataTables_info" id="userTable_info">页码：@{
+		                    productPage.getNumber() + 1
+		                }/@productPage.getTotalPages() 共计@productPage.getTotalElements()条记录</div>
+		            </div>
+		            <div >
+		                <div class="dataTables_paginate paging_bootstrap">
+		                    <ul class="pagination">
+		                    
+		                     @if(productPage.getNumber()<1){
+                   					<li class="prev disabled"><a href="javascript:">首页</a></li>
+			               	}else{
+			               		<li class="prev"><a href="@searchParam()page=0">首页</a></li>
+			               	}
+			               	
+                @for(index<- 0 to (productPage.getTotalPages()-1)){
+                	@if(productPage.getTotalPages()< 8){
+                		<li class="@if(index == productPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+                  	}else{
+                       	@if(productPage.getNumber()<7) {
+							@if(index < 8){
+								<li class="@if(index == productPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+							}else{
+								@if(index == productPage.getTotalPages()-1){
+									<li class=""><a href="javascript:">...</a></li>
+		                		}
+			               		@if(index == productPage.getTotalPages()-1){
+			               			<li class="@if(index == productPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+		                		}
+							}
+						}else{	
+							@if(productPage.getNumber() < productPage.getTotalPages()-4){
+							 	@if(index==0 || index > productPage.getNumber()-4 &&  index < productPage.getNumber() +5){
+							 		<li class="@if(index == productPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+								}else{
+									@if(index == 2){
+							 			<li class=""><a href="javascript:">...</a></li>
+									}
+									@if(index == productPage.getTotalPages()-1){
+				                		<li class=""><a href="javascript:">...</a></li>
+			                		}
+				               		@if(index == productPage.getTotalPages()){
+				                		<li class="@if(index == productPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+			                		}
+								}
+							}else{
+								@if(index==0 || index > productPage.getTotalPages()-8){
+									<li class="@if(index == productPage.getNumber()){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+							   		}else{
+							   			@if(index==2){
+							   				<li class=""><a href="javascript:">...</a></li>
+							   			}
+							   		}
+							   	}
+			  				 }
+						}  
+                      }
+                      @if(productPage.getNumber()==productPage.getTotalPages()){
+                      	<li class="next disabled"><a href="javascript:">尾页</a></li>
+                      }else{
+                      	<li class="next"><a href="@searchParam()page=@{productPage.getTotalPages()-1}">尾页</a></li>
+                      }
+		                    
+		                    
+		                    
+		                       
+		                    </ul>
+		                </div>
+		            </div>
+		        </div>
+		        }
+		        
+		        
+		    </div>
+		</div>
+	</div>
+	<!-- /.row (main row) -->
+
+</section>
+}{
+<script type="text/javascript">
+<!--
+function setDeleteProductValue(pid,status){
+	$('#pidDelete').val(pid);
+	$('#pidStatus').val(status);
+	if(status==30){//删除
+		$('#modalMessage').html('确定删除此商品？<br>');
+	}
+	if(status==10){//上线
+		$('#modalMessage').html('确定上线此商品？<br>');
+	}
+	if(status==20){//下架
+		$('#modalMessage').html('确定下架此商品？<br>');
+	}
+	if(status==40){//彻底删除
+		$('#modalMessage').html('确定彻底删除此商品？<br>');
+	}
+}
+//修改商品状态确认button
+$('#deleteConfirmButton').on('click', deleteConfirmFunction);
+function deleteConfirmFunction(){
+	var pidDelete=$('#pidDelete').val();
+	var pidStatus=$('#pidStatus').val();
+	$.ajax({
+        url: '/product/updateProductState/' +pidDelete+'/'+pidStatus ,
+        type: 'GET',
+        cache: false,
+        dataType: "json",
+        data: {},
+        success: function(json){
+            if(json){
+            	$("#deleteProduct").modal('hide');
+            	location.reload();
+            	//if(pidStatus==30){//删除
+                	//$(document).find("tr[data-uid='"+pidDelete+"']").remove();
+            	//}
+            	
+            }else{
+                alert('服务器繁忙，请稍后再试！');
+            }
+        },
+        error: function(){
+            alert('服务器繁忙，请稍后再试！');
+        }
+    });
+}
+//-->
+</script>
+
+}

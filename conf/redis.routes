@@ -1,0 +1,13 @@
+#product
+GET    /productsManageRedis			@controllers.redis.ProductRedisController.productsManageRedis
+GET    /productsRedisList			@controllers.redis.ProductRedisController.productsRedisList
+GET    /deleteRedisProductByPid/:pid			@controllers.redis.ProductRedisController.deleteRedisProductByPid(pid : Long)
+
+GET    /channelContentManageRedis			@controllers.redis.ProductRedisController.channelContentManageRedis
+GET    /updateChannel/:cid					@controllers.redis.ProductRedisController.updateChannel(cid : Long)
+GET    /getChannelMouldByCidRedis/:cid			@controllers.redis.ProductRedisController.getChannelMouldByCidRedis(cid : Long)
+GET    /updateChmould/:cmid					@controllers.redis.ProductRedisController.updateChmould(cmid : Long)
+GET    /channelMouldProManageRedis/:cid/:cmid			@controllers.redis.ProductRedisController.channelMouldProManageRedis(cid : Long,cmid : Long)
+GET    /deleteChmouldPro/:id			@controllers.redis.ProductRedisController.deleteChmouldPro(id : Long)
+#channel
+

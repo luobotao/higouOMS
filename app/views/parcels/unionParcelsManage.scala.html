@@ -1,0 +1,555 @@
+@(adminUser : models.admin.AdminUser)(parcelsVoList: java.util.List[vo.ParcelsVO])(totals: Long)(currpage: Int)(totalPage: Int)(srcs: Html)(status: Html)(dxdStatus: Html)(zyOrHkdStatus: Html)(kdCompanys:Html)(checkStatusHtml:Html)(adminIds: Html)
+@import utils.Dates
+@import utils.Constants.ParcelCheckStatus
+@views.html.main{
+
+}{
+<!-- Content Header (Page header) -->
+<section class="content-header">
+	<h1>
+		包裹管理
+	</h1>
+</section>
+
+<!-- Main content -->
+<section class="content">
+	<div class="col-xs-12">
+         <div class="box box-warning">
+           <div class="box-header">
+           </div><!-- /.box-header -->
+           <div class="box-body">
+             <form role="form" action="" method="get">
+              <div class="row">
+              <!-- text input -->
+                <div class="col-xs-3" style="display:none;">
+                  <label>包裹类型：</label>
+                  <select id="src" name="src" class="form-control">
+                  	@srcs
+                  </select>
+                </div>
+                <div class="col-xs-3" @if(adminUser.getAdminType()=="2"){style="display:none;"}>
+                  <label>联营商户</label>
+                  <select id="adminId" name="adminId" class="form-control">
+                  	@adminIds
+                  </select>
+                </div>
+                <div class="col-xs-3">
+                  <label>物流状态：</label>
+                  <div hidden="true">
+	                  <span id="spanDxd">@dxdStatus</span>
+	                  <span id="spanZyOrHkd">@zyOrHkdStatus</span>
+	                  <span id="spanStatus">@status</span>
+                  </div>
+                  <select id="status" name="status" class="form-control">
+                  </select>
+                </div>
+                <div class="col-xs-3" >
+                  <label>结算状态</label>
+                  <select id="checkStatus" name="checkStatus" class="form-control">
+                  	@checkStatusHtml
+                  </select>
+                </div>
+                <div class="col-xs-3">
+                  <label>生成时间：</label>
+                  <input id="between" name="between" type="text" class="form-control" placeholder="请选择生成时间" readonly value='@request().getQueryString("between")'/>
+                </div>
+              </div>
+              <br/>
+              <div class="row">
+                <div class="col-xs-3">
+                  <label>包裹号：</label>
+                  <input id="parcelsCode" name="parcelsCode" type="text" class="form-control" placeholder="请输入包裹号" value="@request().getQueryString("parcelsCode")"/>
+                </div>
+                <div class="col-xs-3">
+                  <label>订单号：</label>
+                  <input id="orderCode" name="orderCode" type="text" class="form-control" placeholder="请输入订单号" value="@request().getQueryString("orderCode")"/>
+                </div>
+                <div class="col-xs-3">
+                  <label>关键字：</label>
+                  <input id="keyword" name="keyword" type="text" class="form-control" placeholder="商品ID/商品名称/收货人/电话" value="@request().getQueryString("keyword")"/>
+                </div>
+              </div>
+			  <div class="box-footer">
+               	<button class="btn btn-primary" type="submit">搜索</button>
+               	<button class="btn btn-primary" type="button" onclick="exportParcelsFunction();">导出</button>
+               	@if("2"==adminUser.getAdminType()){
+	               	<a class="btn btn-success btn-sm" href="#" data-toggle="modal" data-target="#waybillInfo"><i class="fa fa-bolt"></i>导入运单</a>
+               	}
+             </div>
+           </form>
+         </div><!-- /.box-body -->
+       </div><!-- /.box -->
+     </div><!--col-xs-12 end 访问查询 -->	
+	<div class="col-xs-12">
+    <div class="box">
+        <div class="box-header">
+        </div>
+        <div class="box-body table-responsive">
+            <table id="parcelsTable" class="table table-bordered table-hover" >
+	            <thead>
+	                <tr>
+	                	<th>选择</th>
+	                    <th>包裹号</th>
+	                    <th>嘿客号</th>
+	                    <th>订单号</th>
+	                    <th>PID</th>
+	                    <th>newSku</th>
+	                    <th>商品图片</th>
+	                    <th width="100px">商品名称</th>
+	                    <th>收货人</th>
+	                    <th>收货人电话</th>
+	                    <th>收货人身份证号</th>
+	                    <th>生成时间</th>
+	                    <th>物流状态</th>
+	                    <th>结算状态</th>
+	                    <th>操作</th>
+	                </tr>
+	            </thead>
+	            <tbody id="parcelsTbody">
+	                 @if(parcelsVoList!=null && parcelsVoList.size() > 0){
+	                @for(parcelsVo <- parcelsVoList){
+	                    <tr class="h6" data-uid="@parcelsVo.parcelProId">
+	                    	<td>
+                                <input type="checkbox" value="@parcelsVo.parcelId" name="parcelId" id="parcelId@parcelsVo.parcelId" data-status="@parcelsVo.checkStatus" data-waystatus="@parcelsVo.status">
+                            </td>
+	                        <td>
+			                	<a href="/parcels/viewParcels?parId=@parcelsVo.parcelId" id="parcelCode">@parcelsVo.parcelCode</a>
+	                      	</td> 
+	                        <td>
+			                    @parcelsVo.sfcode
+	                      	</td>  
+	                        <td>
+			                    @parcelsVo.orderCode
+	                      	</td>  
+	                        <td>@parcelsVo.pid</td>
+	                        <td>@parcelsVo.newSku</td>
+	                        <td><a href="@parcelsVo.listpic" target="blank"><img alt="" src="@parcelsVo.listpic@@40w"></a></td>
+	                        <td width="100px">@parcelsVo.title</td>
+	                        <td>@parcelsVo.name</td>
+	                        <td>@parcelsVo.phone</td>
+	                        <td>@parcelsVo.cardId</td>
+	                        <td>@parcelsVo.dateAdd</td>
+	                        <td>
+	                        	@parcelsVo.status
+	                        </td>
+	                        <td>
+	                        @ParcelCheckStatus.checkStatus2Message(parcelsVo.checkStatus)
+	                        	
+	                        </td>
+							<td>	
+	                        	<a style="width: 90px; height: 30px;" class="btn btn-info btn-sm" href="/parcels/waybillManage?parId=@parcelsVo.parcelId" title="查看物流信息" >物流信息</a>
+	                        	@if("2"!=adminUser.getAdminType()){
+		                        	@if(parcelsVo.checkStatus==0 && (parcelsVo.status=="已发货"||parcelsVo.status=="已送达")){
+			                        	<a style="width: 90px; height: 30px;" class="btn btn-warning btn-sm" href="javascript:void(0);" onclick="setParIds('@parcelsVo.parcelId');" data-toggle="modal" data-target="#waitCheck"  title="申请结算">申请结算</a>
+		                        	}
+		                        	@if(parcelsVo.checkStatus==1 && (parcelsVo.status=="已发货"||parcelsVo.status=="已送达")){
+			                        	<a style="width: 90px; height: 30px;" class="btn btn-success btn-sm" href="javascript:void(0);" onclick="setParIds('@parcelsVo.parcelId');" data-toggle="modal" data-target="#setChecked"  title="确认结算">确认结算</a>
+		                        	}
+	                        	}
+	                        	
+	                        	
+								@if(parcelsVo.status=="待发货"||parcelsVo.status=="已下单"){
+	                        		<a style="width: 90px; height: 30px;" class="btn btn-primary btn-sm" href="javascript:void(0);" data-toggle="modal" data-target="#backOrder"><i class="fa fa-bolt"></i> 退回成订单</a>
+	                        		<div class="modal fade" id="backOrder" tabindex="-1" role="dialog" aria-labelledby="backOrder" aria-hidden="true">
+		                            <div class="modal_wrapper">
+		                                <div class="modal-dialog">
+		                                    <div class="modal-content">
+		                                        <div class="modal-header">
+		                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+		                                            <h4 class="modal-title" id="backOrderLabel">退回成订单</h4>
+		                                        </div>
+		                                        <div class="modal-body">
+		                                            <b>确认退回成订单？</b><br>
+		                                            	该操作会对此包裹的<font color="red">所有商品</font>退回成订单状态进行处理，请仔细确认。
+		                                        </div>
+		                                        <div class="modal-footer">
+		                                            <input type="text" style="display: none;" id="parIdTemp" value="@parcelsVo.parcelId"/>
+		                                            <input type="text" style="display: none;" id="ppIdTemp" value="@parcelsVo.parcelProId"/>
+		                                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+		                                            <button id="backOrderButton" type="button" class="btn btn-primary">确认</button>
+		                                        </div>
+		                                    </div>
+		                                </div>
+		                            </div>
+		                       		</div>
+	                        	}
+                            </td>
+	                    </tr>
+	                    }
+	                }else{
+	                    <tr><td class="text-center" colspan="11">没有可用数据</td></tr>
+	                }
+	            </tbody>
+	            <tfoot>
+	            @if("2"!=adminUser.getAdminType()){
+                     <tr>
+                         <th colspan="11">
+                             <input id="selectAll" name="selectAll" type="checkbox"> <label for="selectAll">全选</label> &nbsp;
+                             <button class="btn btn-primary btn-sm" onclick="setParIdsBatchValue(0);" >批量申请结算</button>
+                             <button class="btn btn-success btn-sm" onclick="setParIdsBatchValue(1);" >批量确认结算</button>
+                         </th>
+                     </tr>
+                }
+                 </tfoot>
+	        </table>
+	        <div>
+	            <div class="col-xs-6">
+	                <div class="dataTables_info" id="userTable_info">页码：@{
+	                   currpage + 1
+	                }/@totalPage  共计 @totals 条记录
+	                </div> 
+			   </div>
+			   <div class="col-xs-6">
+	                <div class="dataTables_paginate paging_bootstrap">
+	                    <ul class="pagination">
+	                    
+	                    @if(currpage < 1){
+	                 		<li class="prev disabled"><a href="javascript:">首页</a></li>
+		               	}else{
+		               		<li class="prev"><a href="@searchParam()page=0">首页</a></li>
+		               	}
+		               	@for(index <- 0 to (totalPage-1)){
+	                	@if(totalPage< 8){
+	                		<li class="@if(index == currpage){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+	                  	}else{
+	                       	@if(currpage<7) {
+								@if(index < 8){
+									<li class="@if(index == currpage){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+								}else{
+									@if(index == totalPage-1){
+										<li class=""><a href="javascript:">...</a></li>
+			                		}
+				               		@if(index == totalPage-1){
+				               			<li class="@if(index == currpage){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+			                		}
+								}
+							}else{	
+								@if(currpage < totalPage-4){
+								 	@if(index==0 || index > currpage-4 &&  index < currpage +5){
+								 		<li class="@if(index == currpage){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+									}else{
+										@if(index == 2){
+								 			<li class=""><a href="javascript:">...</a></li>
+										}
+										@if(index == totalPage-1){
+					                		<li class=""><a href="javascript:">...</a></li>
+				                		}
+					               		@if(index == totalPage){
+					                		<li class="@if(index == currpage){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+				                		}
+									}
+								}else{
+									@if(index==0 || index > totalPage-8){
+										<li class="@if(index == currpage){active}"><a href="@searchParam()page=@index">@(index+1)</a></li>
+								   		}else{
+								   			@if(index==2){
+								   				<li class=""><a href="javascript:">...</a></li>
+								   			}
+								   		}
+								   	}
+				  				 }
+							}  
+	                      }
+	                    @if(currpage==totalPage){
+	                    	<li class="next disabled"><a href="javascript:">尾页</a></li>
+	                    }else{
+	                      	<li class="next"><a href="@searchParam()page=@{totalPage-1}">尾页</a></li>
+	                    }
+                    </ul>
+                </div>
+			   </div>
+			 </div>
+        </div>
+    </div>
+</div>
+
+	<!--申请结算modal start  -->
+	<div class="modal fade" id="waitCheck" tabindex="-1" role="dialog" aria-labelledby="waitCheck" aria-hidden="true">
+		<div class="modal_wrapper">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">
+							<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+						</button>
+						<h4 class="modal-title" id="backOrderLabel">申请结算</h4>
+					</div>
+					<div class="modal-body">
+						<b>确认申请结算？</b><br>
+					</div>
+					<div class="modal-footer">
+						<input type="text" style="display: none;" id="parIds" />
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+						<button id="waitCheckButton" type="button" class="btn btn-primary">确认</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--申请结算modal end  -->
+	
+	<!--确认结算modal start  -->
+	<div class="modal fade" id="setChecked" tabindex="-1" role="dialog" aria-labelledby="setChecked" aria-hidden="true">
+		<div class="modal_wrapper">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">
+							<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+						</button>
+						<h4 class="modal-title" id="backOrderLabel">确认结算</h4>
+					</div>
+					<div class="modal-body">
+						<b>确认结算？</b><br>
+					</div>
+					<div class="modal-footer">
+						<input type="text" style="display: none;" id="parIds" />
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+						<button id="setCheckedButton" type="button" class="btn btn-primary">确认</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--确认结算modal end  -->
+	
+	<div class="modal fade" id="waybillInfo" tabindex="-1" role="dialog"
+		aria-labelledby="waybillInfo" aria-hidden="true">
+		<div class="modal_wrapper">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">
+							<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+						</button>
+						<h4 class="modal-title" id="waybillInfoLabel">导入运单</h4>
+					</div>
+					<div class="modal-body">
+						<form id="wbForm1" name="wbForm1" action="/parcels/importParcelsMail" method="post">
+							<div class="row">
+								<!-- text input -->
+								<div class="col-xs-12">
+								<a href="@assets.CdnAssets.urlForAdminPublic("template/importUnion.xlsx")" >模版下载</a>
+								</div>
+							</div>
+							<div class="row">
+								<!-- text input -->
+								<div class="col-xs-12">
+								<label for="kdCompany">货运公司:</label>
+									 <select id="kdCompany" name="kdCompany"
+										class="form-control"> @kdCompanys
+									</select>
+								</div>
+							</div>
+							<div class="row">
+								<!-- text input -->
+								<div class="col-xs-12">
+								<label for="waybillFile">选择文件:</label>
+									 <input id="waybillFile" name="waybillFile" type="file" />
+								</div>
+							</div>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+						<button id="waybillInfoButton" type="button"
+							class="btn btn-primary">确定</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+<!-- /.content -->
+}{
+<script type="text/javascript">
+//判断订单类型，显示和隐藏黑客号
+var srcVal = $("#src").val();
+if(srcVal==90||srcVal==-1){
+	$("#hkTh").show();
+	$("[name='hkTd']").show();
+}else{
+	$("#hkTh").hide();
+	$("[name='hkTd']").hide();
+}
+
+$("#between").daterangepicker({
+    locale: {
+        applyLabel: '确定',
+        cancelLabel: '取消',
+        fromLabel: '开始',
+        toLabel: '结束',
+        weekLabel: 'W',
+        customRangeLabel: 'Custom Range',
+        showDropdowns: true
+    },
+    format: 'YYYY/MM/DD'
+});
+
+//处理导入物流运单
+$("#waybillInfoButton").on('click', function(){
+	
+	var file = $("#waybillFile").val();
+	if(file=="" ){
+		alert("请选择导入的文件!");
+		return false;
+	}
+	var ajax_option={
+			success:function(data){
+				alert("导入成功!")
+				location.reload();
+			}
+	};
+	$('#wbForm1').ajaxSubmit(ajax_option);
+});
+
+
+$("#backOrderButton").click(function(){
+	var currentDiv = $(this).parent().parent();
+	var parIdTemp = currentDiv.find("#parIdTemp").val();
+	var ppIdTemp = currentDiv.find("#ppIdTemp").val();
+	console.log("parIdTemp:"+parIdTemp);
+	window.location.href="/parcels/backOrder?parId="+parIdTemp+"&ppId="+ppIdTemp;
+})
+
+var src = $("#src").val();
+if(src==2||src==90){
+	$("#status").html($("#spanZyOrHkd").html());
+}else if(src==1){
+	$("#status").html($("#spanDxd").html());
+}else{
+	$("#status").html($("#spanStatus").html());
+} 
+$("#src").change(function(){
+	var src = $("#src").val();
+	if(src==2||src==90){
+		$("#status").html($("#spanZyOrHkd").html());
+	}else if(src==1){
+		$("#status").html($("#spanDxd").html());
+	}else{
+		$("#status").html($("#spanStatus").html());
+	} 
+});
+function exportParcelsFunction(){
+	var src=$("#src").val();
+	var adminId=$("#adminId").val();
+	var checkStatus=$("#checkStatus").val();
+	var status=$("#status").val();
+	var between=$("#between").val();
+	var parcelsCode=$("#parcelsCode").val();
+	var orderCode=$("#orderCode").val();
+	var keyword=$("#keyword").val();
+	window.location.href='/parcels/exportParcelsManage?src='+src+'&adminId='+adminId+'&checkStatus='+checkStatus+'&status='+status+'&between='+between+'&parcelsCode='+parcelsCode+'&orderCode='+orderCode+'&keyword='+keyword;
+}
+
+//用户判断是否针对联营商品的订单查询
+changeLyDivDisplay();
+
+$("#src").change(function(){
+	changeLyDivDisplay();
+})
+
+function changeLyDivDisplay(){
+	var type = $('#src option:selected').val();
+	//如果类型是联营，则可以选择联营商户
+	if(type==3){
+		$("#lyDiv").show();
+	}else{
+		$("#lyDiv").hide();
+	}
+}
+
+
+
+$("input[type='checkbox']").iCheck({
+	checkboxClass : 'icheckbox_square-blue'
+});
+
+$("#selectAll").on('ifUnchecked', function() {
+	$("input[type='checkbox']", "#parcelsTable").iCheck("uncheck");
+}).on('ifChecked', function() {
+	$("input[type='checkbox']", "#parcelsTable").iCheck("check");
+});
+var parcelIds = [];
+function setParIds(parid){
+	parcelIds = [];
+	parcelIds.push(parid);
+}
+function setParIdsBatchValue(statusNeed){
+	var iParcelIds = $('input[name="parcelId"]:checked');
+	parcelIds = [];
+	var flag=true;
+    if(iParcelIds.length) {
+    	$.each(iParcelIds, function(i, n){
+            if(!$(n).closest('tr').find('.status .label').hasClass('label-success')) {
+            	var checkStatus = $(n).attr("data-status");
+            	var waystatus = $(n).attr("data-waystatus");
+            	if(waystatus=="已发货"||waystatus=="已送达"){
+            		if(checkStatus==statusNeed){
+    	            	parcelIds.push($(n).val());
+                	}else{
+                		flag=false;
+                		alert("选择项中有数据的当前结算状态不合法，请查证！");
+                		return false;
+                	}
+            	}else{
+            		flag=false;
+            		alert("选择项中有数据的当前结算状态不合法，请查证！");
+            		return false;
+            	}
+            }
+        });
+    }
+    if(flag){
+    	if(statusNeed==0){
+		    $("#waitCheck").modal('show');
+    	}else{
+		    $("#setChecked").modal('show');
+    	}
+    }
+}
+//处理申请结算
+$("#waitCheckButton").on('click', function(){
+	$.ajax({
+        url: '/parcels/applyCheck',
+        type: 'POST',
+        cache: false,
+        dataType: "json",
+        data: {parIds:JSON.stringify(parcelIds)},
+        success: function(json){
+            if(json){
+            	location.reload();
+            }else{
+                alert('服务器繁忙，请稍后再试！');
+            }
+        },
+        error: function(){
+            alert('服务器繁忙，请稍后再试！');
+        }
+    });
+});
+//处理确认申请结算
+$("#setCheckedButton").on('click', function(){
+	$.ajax({
+        url: '/parcels/setChecked',
+        type: 'POST',
+        cache: false,
+        dataType: "json",
+        data: {parIds:JSON.stringify(parcelIds)},
+        success: function(json){
+            if(json){
+            	location.reload();
+            }else{
+                alert('服务器繁忙，请稍后再试！');
+            }
+        },
+        error: function(){
+            alert('服务器繁忙，请稍后再试！');
+        }
+    });
+});
+
+
+
+</script>
+}
